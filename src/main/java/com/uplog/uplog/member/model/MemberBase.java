@@ -21,5 +21,6 @@ public class MemberBase {
     private String name;
     private String nickname;
     private String password;
+    private Position position;
 
 }
