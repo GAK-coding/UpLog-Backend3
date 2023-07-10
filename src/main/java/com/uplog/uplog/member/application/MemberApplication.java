@@ -59,9 +59,21 @@ public class MemberApplication {
     }
 
     //==========================Member Update====================================================
+    //이름 변경
+
+    //닉네임 변경
+    //비밀번호 변경
+    //position 변경(있을지 모르겠지만 혹시 모르니까)
 
 
-
+    //=========================Member Delete=================================================
+    public String deleteMember(Long id){
+        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
+        //TODO SpringSecurity 하고 나서 getCurrentMember 하고나서 로직 수정 필요함.
+        //TODO 닉네임(이름)되어있는 것을 -> (알수없음)(이름)으로 바꾸는 과정 있어야함. -> 나중에 프론트와 상의가 필요할 수도 있음.
+        memberRepository.delete(member);
+        return "DELETE";
+    }
 
 
 }
