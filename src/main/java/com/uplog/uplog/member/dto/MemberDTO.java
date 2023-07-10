@@ -2,7 +2,6 @@ package com.uplog.uplog.member.dto;
 
 import com.uplog.uplog.member.model.LoginType;
 import com.uplog.uplog.member.model.Member;
-import com.uplog.uplog.member.model.MemberStatus;
 import com.uplog.uplog.member.model.Position;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +21,6 @@ public class MemberDTO {
         private String password;
         private Position position;
         private LoginType loginType;
-        private MemberStatus memberStatus;
 
         public Member toMemberEntity(){
             return Member.builder()
@@ -32,7 +30,6 @@ public class MemberDTO {
                     .password(password)
                     .position(position)
                     .loginType(loginType)
-                    .memberStatus(MemberStatus.MEMBER_ACTIVE)
                     .build();
         }
     }
@@ -42,11 +39,35 @@ public class MemberDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MemberInfoDTO{
-        private Long Id;
+        private Long id;
         private String email;
         private String name;
         private String nickname;
         private String password;
         private Position position;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SimpleMemberInfoDTO{
+        private Long id;
+        private String name;
+        private String nickname;
+        private String password;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChangePasswordRequest{
+        private Long id;
+        private String password;
+        private String newPassword;
+    }
+
+
+
 }
