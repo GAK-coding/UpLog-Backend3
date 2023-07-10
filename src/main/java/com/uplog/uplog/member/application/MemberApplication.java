@@ -3,8 +3,7 @@ package com.uplog.uplog.member.application;
 import com.uplog.uplog.global.Exception.NotFoundIdException;
 import com.uplog.uplog.member.dao.MemberRepository;
 import com.uplog.uplog.member.dto.MemberDTO;
-import com.uplog.uplog.member.dto.MemberDTO.MemberInfoDTO;
-import com.uplog.uplog.member.dto.MemberDTO.SaveMemberRequest;
+import com.uplog.uplog.member.dto.MemberDTO.*;
 import com.uplog.uplog.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.member.model.Member;
@@ -60,7 +59,11 @@ public class MemberApplication {
 
     //==========================Member Update====================================================
     //이름 변경
-
+    public SimpleMemberInfoDTO changeMemberName(ChangeNameRequest changeNameRequest){
+        Member member = memberRepository.findMemberById(changeNameRequest.getId()).orElseThrow(NotFoundIdException::new);
+        member.changeName(changeNameRequest.getNewName());
+        return member.simpleMemberInfoDTO();
+    }
     //닉네임 변경
     //비밀번호 변경
     //position 변경(있을지 모르겠지만 혹시 모르니까)

@@ -25,4 +25,9 @@ public class MemberBase {
     private String password;
     private Position position;
 
+    public void changeName(String newName){ this.name = newName;}
+    public void changeNickname(String newNickname){this.nickname = newNickname;}
+    public void changePassword(String newPassword){this.password = newPassword;}
+    public void changePosition(Position newPosition){this.position = newPosition;}
+
 }

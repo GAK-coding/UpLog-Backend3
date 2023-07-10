@@ -68,6 +68,34 @@ public class MemberDTO {
         private String newPassword;
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChangeNameRequest{
+        private Long id;
+        private String newName;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChangeNicknameRequest{
+        private long id;
+        private String newNickname;
+    }
+
+    //안쓰일것같지만 혹시 몰라서 만들어놓음.
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChangePositionRequest{
+        private long id;
+        private Position newPosition;
+    }
+
 
 
 }
