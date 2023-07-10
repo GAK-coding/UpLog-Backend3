@@ -1,6 +1,7 @@
 package com.uplog.uplog.member.exception.handler;
 
 import com.uplog.uplog.global.error.ErrorResponse;
+import com.uplog.uplog.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.member.exception.NotFoundMemberByEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,16 @@ public class MemberExceptionHandler {
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);
+    }
+
+    @ExceptionHandler(DuplicatedMemberException.class)
+    protected final ResponseEntity<ErrorResponse> DuplicatedMemberExceptionHandler(DuplicatedMemberException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.NOT_ACCEPTABLE)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+
     }
 
 
