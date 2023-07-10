@@ -71,8 +71,13 @@ public class MemberApplication {
         return member.simpleMemberInfoDTO();
     }
     //비밀번호 변경
-
+    public SimpleMemberInfoDTO changeMemberPassword(ChangePasswordRequest changePasswordRequest){
+        Member member = memberRepository.findMemberById(changePasswordRequest.getId()).orElseThrow(NotFoundIdException::new);
+        member.changePassword(changePasswordRequest.getNewPassword());
+        return member.simpleMemberInfoDTO();
+    }
     //position 변경(있을지 모르겠지만 혹시 모르니까)
+
 
 
     //=========================Member Delete=================================================
