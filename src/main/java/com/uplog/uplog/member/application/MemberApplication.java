@@ -65,7 +65,13 @@ public class MemberApplication {
         return member.simpleMemberInfoDTO();
     }
     //닉네임 변경
+    public SimpleMemberInfoDTO changeMemberNickname(ChangeNicknameRequest changeNicknameRequest){
+        Member member = memberRepository.findMemberById(changeNicknameRequest.getId()).orElseThrow(NotFoundIdException::new);
+        member.changeNickname(changeNicknameRequest.getNewNickname());
+        return member.simpleMemberInfoDTO();
+    }
     //비밀번호 변경
+
     //position 변경(있을지 모르겠지만 혹시 모르니까)
 
 
