@@ -6,6 +6,7 @@ import com.uplog.uplog.member.dto.MemberDTO;
 import com.uplog.uplog.member.dto.MemberDTO.*;
 import com.uplog.uplog.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.member.exception.NotFoundMemberByEmailException;
+import com.uplog.uplog.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.member.model.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +82,14 @@ public class MemberApplication {
     @Transactional(readOnly = true)
     public SimpleMemberInfoDTO changeMemberPassword(ChangePasswordRequest changePasswordRequest){
         Member member = memberRepository.findMemberById(changePasswordRequest.getId()).orElseThrow(NotFoundIdException::new);
-        member.changePassword(changePasswordRequest.getNewPassword());
-        return member.simpleMemberInfoDTO();
+        //기존 비밀번호를 모르면 비밀번호 변경 불가
+        if(member.getPassword().equals(changePasswordRequest.getPassword())) {
+            member.changePassword(changePasswordRequest.getNewPassword());
+            return member.simpleMemberInfoDTO();
+        }
+        else{
+            throw new NotMatchPasswordException("비밀번호가 일치하지 않습니다.");
+        }
     }
     //position 변경(있을지 모르겠지만 혹시 모르니까)
     @Transactional(readOnly = true)
