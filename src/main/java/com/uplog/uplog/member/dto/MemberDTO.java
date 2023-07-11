@@ -36,6 +36,14 @@ public class MemberDTO {
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EmailRequest{
+        private String email;
+    }
+
+    @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MemberInfoDTO{
@@ -63,7 +71,7 @@ public class MemberDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChangePasswordRequest{
-        private Long id;
+       // private Long id;
         private String password;
         private String newPassword;
     }
@@ -73,7 +81,7 @@ public class MemberDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChangeNameRequest{
-        private Long id;
+        //private Long id;
         private String newName;
     }
 
@@ -82,7 +90,7 @@ public class MemberDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChangeNicknameRequest{
-        private long id;
+        //private long id;
         private String newNickname;
     }
 
@@ -92,7 +100,7 @@ public class MemberDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChangePositionRequest{
-        private long id;
+       // private long id;
         private Position newPosition;
     }
 
