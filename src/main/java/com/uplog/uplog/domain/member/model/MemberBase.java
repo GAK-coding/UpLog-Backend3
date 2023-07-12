@@ -1,4 +1,4 @@
-package com.uplog.uplog.member.model;
+package com.uplog.uplog.domain.member.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,9 +1,9 @@
-package com.uplog.uplog.member.exception.handler;
+package com.uplog.uplog.domain.member.exception.handler;
 
+import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
+import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
+import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.global.error.ErrorResponse;
-import com.uplog.uplog.member.exception.DuplicatedMemberException;
-import com.uplog.uplog.member.exception.NotFoundMemberByEmailException;
-import com.uplog.uplog.member.exception.NotMatchPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

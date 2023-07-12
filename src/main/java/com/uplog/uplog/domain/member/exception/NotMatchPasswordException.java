@@ -1,4 +1,4 @@
-package com.uplog.uplog.member.exception;
+package com.uplog.uplog.domain.member.exception;
 
 public class NotMatchPasswordException extends IllegalArgumentException{
     public NotMatchPasswordException(String m){super(m);}

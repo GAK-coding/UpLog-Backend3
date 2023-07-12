@@ -1,4 +1,4 @@
-package com.uplog.uplog.member.exception;
+package com.uplog.uplog.domain.member.exception;
 
 public class DuplicatedMemberException extends IllegalArgumentException{
     public DuplicatedMemberException(String m){super(m);}

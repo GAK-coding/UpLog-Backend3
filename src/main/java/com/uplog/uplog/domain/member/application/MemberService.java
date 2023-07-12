@@ -1,13 +1,11 @@
-package com.uplog.uplog.member.application;
+package com.uplog.uplog.domain.member.application;
 
+import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
+import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
+import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.global.Exception.NotFoundIdException;
-import com.uplog.uplog.member.dao.MemberRepository;
-import com.uplog.uplog.member.dto.MemberDTO;
-import com.uplog.uplog.member.dto.MemberDTO.*;
-import com.uplog.uplog.member.exception.DuplicatedMemberException;
-import com.uplog.uplog.member.exception.NotFoundMemberByEmailException;
-import com.uplog.uplog.member.exception.NotMatchPasswordException;
-import com.uplog.uplog.member.model.Member;
+import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MemberApplication {
+public class MemberService {
     private final MemberRepository memberRepository;
 
     //================================Member Create=====================================
@@ -57,7 +55,7 @@ public class MemberApplication {
 
     //멤버 이메일로 조회
     @Transactional(readOnly = true)
-    public MemberInfoDTO findMemberById(String email){
+    public MemberInfoDTO findMemberByEmail(String email){
         Member member = memberRepository.findMemberByEmail(email).orElseThrow(NotFoundIdException::new);
         return member.toMemberInfoDTO();
     }
@@ -66,22 +64,22 @@ public class MemberApplication {
     //TODO postman으로 변경사항 잘 반영되어 들어오는지 확인할것!!!!!!! + transaction공부
     //이름 변경
     @Transactional(readOnly = true)
-    public SimpleMemberInfoDTO changeMemberName(ChangeNameRequest changeNameRequest){
-        Member member = memberRepository.findMemberById(changeNameRequest.getId()).orElseThrow(NotFoundIdException::new);
+    public SimpleMemberInfoDTO changeMemberName(Long id,ChangeNameRequest changeNameRequest){
+        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         member.changeName(changeNameRequest.getNewName());
         return member.simpleMemberInfoDTO();
     }
     //닉네임 변경
     @Transactional(readOnly = true)
-    public SimpleMemberInfoDTO changeMemberNickname(ChangeNicknameRequest changeNicknameRequest){
-        Member member = memberRepository.findMemberById(changeNicknameRequest.getId()).orElseThrow(NotFoundIdException::new);
+    public SimpleMemberInfoDTO changeMemberNickname(Long id,ChangeNicknameRequest changeNicknameRequest){
+        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         member.changeNickname(changeNicknameRequest.getNewNickname());
         return member.simpleMemberInfoDTO();
     }
     //비밀번호 변경
     @Transactional(readOnly = true)
-    public SimpleMemberInfoDTO changeMemberPassword(ChangePasswordRequest changePasswordRequest){
-        Member member = memberRepository.findMemberById(changePasswordRequest.getId()).orElseThrow(NotFoundIdException::new);
+    public SimpleMemberInfoDTO changeMemberPassword(Long id,ChangePasswordRequest changePasswordRequest){
+        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         //기존 비밀번호를 모르면 비밀번호 변경 불가
         if(member.getPassword().equals(changePasswordRequest.getPassword())) {
             member.changePassword(changePasswordRequest.getNewPassword());
@@ -93,8 +91,8 @@ public class MemberApplication {
     }
     //position 변경(있을지 모르겠지만 혹시 모르니까)
     @Transactional(readOnly = true)
-    public SimpleMemberInfoDTO changeMemberPostion(ChangePositionRequest changePositionRequest){
-        Member member = memberRepository.findMemberById(changePositionRequest.getId()).orElseThrow(NotFoundIdException::new);
+    public SimpleMemberInfoDTO changeMemberPostion(Long id, ChangePositionRequest changePositionRequest){
+        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         member.changePosition(changePositionRequest.getNewPosition());
         return member.simpleMemberInfoDTO();
     }

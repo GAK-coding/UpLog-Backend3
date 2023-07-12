@@ -1,6 +1,6 @@
-package com.uplog.uplog.member.dao;
+package com.uplog.uplog.domain.member.dao;
 
-import com.uplog.uplog.member.model.Member;
+import com.uplog.uplog.domain.member.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

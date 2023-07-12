@@ -1,8 +1,8 @@
-package com.uplog.uplog.member.dto;
+package com.uplog.uplog.domain.member.dto;
 
-import com.uplog.uplog.member.model.LoginType;
-import com.uplog.uplog.member.model.Member;
-import com.uplog.uplog.member.model.Position;
+import com.uplog.uplog.domain.member.model.LoginType;
+import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.member.model.Position;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
