@@ -10,6 +10,6 @@ import javax.persistence.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Group extends GroupBase{
+public class PowerGroup extends GroupBase{
 
 }
