@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.member.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
+import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.global.Exception.NotFoundIdException;
@@ -40,6 +41,12 @@ public class MemberService {
         else{//이미 존재하는 회원
             throw new DuplicatedMemberException("이미 존재하는 회원입니다.");
         }
+    }
+    //로그인
+    @Transactional(readOnly = true)
+    public MemberInfoDTO login(LoginRequest loginRequest){
+        Member member = memberRepository.findMemberByEmail(loginRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+        return member.toMemberInfoDTO();
     }
 
     //인증 이메일 전송
