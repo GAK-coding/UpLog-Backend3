@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.group.model;
+package com.uplog.uplog.domain.team.model;
 
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
@@ -13,14 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Group extends BaseTime {
+public class Team extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_id")
     private Long id;
 
     @OneToMany(mappedBy = "group")
-    private List<MemberGroup> memberGroupList;
+    private List<MemberTeam> memberTeamList;
 
     private String name;
 

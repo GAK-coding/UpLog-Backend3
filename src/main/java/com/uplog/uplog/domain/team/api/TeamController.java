@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.group.api;
+package com.uplog.uplog.domain.team.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class GroupController {
+public class TeamController {
 }
