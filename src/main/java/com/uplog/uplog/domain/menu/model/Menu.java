@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.group.model;
+package com.uplog.uplog.domain.menu.model;
 
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
@@ -11,14 +11,10 @@ import javax.persistence.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Group extends BaseTime {
+public class Menu extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id")
+    @Column(name = "menu_id")
     private Long id;
-
-    //@
-    //private List<Member> memberList;
 
 }
