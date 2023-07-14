@@ -16,10 +16,10 @@ import java.util.List;
 public class Team extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id")
+    @Column(name = "team_id")
     private Long id;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "team")
     private List<MemberTeam> memberTeamList;
 
     private String name;
