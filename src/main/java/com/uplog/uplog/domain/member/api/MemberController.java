@@ -45,7 +45,7 @@ public class MemberController {
         return ResponseEntity.ok(simpleMemberInfoDTO);
         }
 
-    @PatchMapping(value = "member/{member_id}")
+    @PatchMapping(value = "member/update/{member_id}")
     public ResponseEntity<SimpleMemberInfoDTO> changeMemberNickname(@PathVariable(name = "member_id") Long id, @RequestBody @Validated ChangeNicknameRequest changeNicknameRequest){
         SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.changeMemberNickname(id, changeNicknameRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
