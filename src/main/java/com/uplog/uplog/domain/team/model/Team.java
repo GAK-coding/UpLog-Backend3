@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.team.model;
 
+import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,10 @@ public class Team extends BaseTime {
 
     @OneToMany(mappedBy = "group")
     private List<MemberTeam> memberTeamList;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     private String name;
 
