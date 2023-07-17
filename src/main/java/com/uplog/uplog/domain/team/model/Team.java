@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,8 +21,8 @@ public class Team extends BaseTime {
     @Column(name = "group_id")
     private Long id;
 
-    @OneToMany(mappedBy = "group")
-    private List<MemberTeam> memberTeamList;
+    @OneToMany(mappedBy = "team")
+    private List<MemberTeam> memberTeamList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
