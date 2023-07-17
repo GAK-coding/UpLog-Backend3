@@ -28,7 +28,9 @@ public class Task extends BaseTime {
     @JoinColumn(name = "menu_id")
     private Menu menu;
 
+    @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
