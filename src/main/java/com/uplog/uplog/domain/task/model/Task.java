@@ -74,10 +74,15 @@ public class Task extends BaseTime {
 
 
     }
+    public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}
+    public void updateTaskTeam(ProjectTeam team){this.projectTeam=team;}
+    public void updateTaskMenu(Menu menu){this.menu=menu;}
+
 
     public void updateTaskStatus(TaskStatus taskStatus){
         this.taskStatus=taskStatus;
     }
+
 
 //    public updateTaskStatusDTO toUpdateTaskStatusDTO (UpdateTaskStatusRequest updateTaskStatusRequest){
 //        return updateTaskStatusDTO.builder()

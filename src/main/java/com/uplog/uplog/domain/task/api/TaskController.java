@@ -28,9 +28,11 @@ public class TaskController {
 //            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
 //            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
 //    })
-    @PostMapping(value="/task")
-    public ResponseEntity<TaskInfoDTO> createTask(@RequestBody TaskSaveRequest taskSaveRequest) {
-        Task createdTask = taskService.createTask(taskSaveRequest);
+
+    //나중에 토큰 구현하면 bareer로 받을 예정이라 일단 pathvariable로 뺌
+    @PostMapping(value="/task/{member_id}")
+    public ResponseEntity<TaskInfoDTO> createTask(@PathVariable(name = "member_id") Long id,@RequestBody CreateTaskRequest createTaskRequest) {
+        Task createdTask = taskService.createTask(id,createTaskRequest);
         TaskInfoDTO taskInfoDTO = createdTask.toTaskInfoDTO();
         return ResponseEntity.ok(taskInfoDTO);
     }

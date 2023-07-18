@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class TaskDTO {
-    private Long id;
     private MemberDTO targetMember;
     private TaskStatus taskStatus;
     private String taskDetail;
@@ -23,20 +22,46 @@ public class TaskDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class TaskSaveRequest {
+//        private Member targetMember;
+//        private Menu menu;
+//        private TaskStatus taskStatus;
+//        private ProjectTeam projectTeam;
+//        private String taskDetail;
+//        private LocalDateTime startTime;
+//        private LocalDateTime endTime;
+//
+//        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
+//            return Task.builder()
+//                    .targetMember(targetMember)
+//                    .menu(menu)
+//                    .taskStatus(taskStatus)
+//                    .projectTeam(projectTeam)
+//                    .taskDetail(taskDetail)
+//                    .startTime(startTime)
+//                    .endTime(endTime)
+//                    .build();
+//        }
+//    }
+
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TaskSaveRequest {
-        private Member targetMember;
-        private Menu menu;
+    public static class CreateTaskRequest{
+        private String taskName;
+        private Long menuId;
         private TaskStatus taskStatus;
-        private ProjectTeam projectTeam;
+        private Long projectTeamId;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
 
-        public Task toEntity() {
+        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
             return Task.builder()
                     .targetMember(targetMember)
                     .menu(menu)
@@ -48,6 +73,7 @@ public class TaskDTO {
                     .build();
         }
     }
+
 
     @Getter
     @Builder
@@ -91,21 +117,21 @@ public class TaskDTO {
 
     }
 
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class UpdateTaskDTO{
-//        private Long id;
-//        private String taskName;
-//        private Member targetmember;
-//        private ProjectTeam projectTeam;
-//        private Menu menu;
-//        private TaskStatus taskStatus;
-//        private String taskDetail;
-//        private LocalDateTime startTime;
-//        private LocalDateTime endTime;
-//    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskDTO{
+        private Long id;
+        private String taskName;
+        private Member targetmember;
+        private ProjectTeam projectTeam;
+        private Menu menu;
+        private TaskStatus taskStatus;
+        private String taskDetail;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+    }
 
     @Getter
     @Builder
