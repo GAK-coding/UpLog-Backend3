@@ -55,7 +55,6 @@ public class TaskDTO {
     public static class CreateTaskRequest{
         private String taskName;
         private Long menuId;
-        private TaskStatus taskStatus;
         private Long projectTeamId;
         private String taskDetail;
         private LocalDateTime startTime;
@@ -65,7 +64,7 @@ public class TaskDTO {
             return Task.builder()
                     .targetMember(targetMember)
                     .menu(menu)
-                    .taskStatus(taskStatus)
+                    .taskStatus(TaskStatus.PROGRESS_BEFORE)
                     .projectTeam(projectTeam)
                     .taskDetail(taskDetail)
                     .startTime(startTime)
