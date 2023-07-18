@@ -1,13 +1,19 @@
 package com.uplog.uplog.domain.member.model;
 
+import com.uplog.uplog.domain.chatting.model.MemberChattingRoom;
 import com.uplog.uplog.domain.member.dto.MemberDTO.MemberInfoDTO;
 import com.uplog.uplog.domain.member.dto.MemberDTO.SimpleMemberInfoDTO;
+import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.scrap.model.Scrap;
+import com.uplog.uplog.domain.team.model.MemberTeam;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,6 +21,18 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 public class Member extends MemberBase{
     private LoginType loginType;
+
+
+    //TODO 의논할 것 -> product list대신 얘를 갖고 있는것 어떤지
+    @OneToMany(mappedBy = "member")
+    private List<MemberTeam> memberTeamList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<MemberChattingRoom> memberChattingRoomList = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "scrap_id")
+    private Scrap scrap;
 
 
     @Builder

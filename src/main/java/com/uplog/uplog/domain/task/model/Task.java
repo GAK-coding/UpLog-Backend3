@@ -9,13 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Task extends BaseTime {
@@ -60,12 +59,6 @@ public class Task extends BaseTime {
                 .endTime(this.getEndTime())
                 .build();
     }
-
-// this.content=(updateFormData.getContent()!=null) ? updateFormData.getContent() : this.content;
-//        this.fix=(updateFormData.getFix()!=null) ? updateFormData.getFix() : this.fix;
-//        this.title=(updateFormData.getTitle()!=null) ? updateFormData.getTitle() : this.title;
-//        this.fimage =(updateFormData.getFimage()!=null) ? updateFormData.getFimage() : this.fimage;
-//        this.fcolor=(updateFormData.getFcolor()!=null) ? updateFormData.getFcolor() :this.fcolor;
 
     //수정될거(메뉴,멤버,팀,이름,상세설명,시작날짜,끝날짜)
     public void UpdateTask(UpdateTaskData updateTaskData){

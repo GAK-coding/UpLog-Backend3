@@ -22,8 +22,7 @@ public class Product extends BaseTime {
     @Column(name = "product_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "product")
     private Team team;
 
     @OneToMany(mappedBy = "product")

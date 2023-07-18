@@ -1,7 +1,7 @@
-package com.uplog.uplog.domain.team.model;
-
+package com.uplog.uplog.domain.chatting.model;
 
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,23 +12,17 @@ import javax.persistence.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
-public class MemberTeam {
+public class MemberChattingRoom extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "memberTeam_id")
+    @Column(name = "memberChattingRoom_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
-    private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Enumerated(EnumType.STRING)
-    private PowerType powerType;
-
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chattingRoom_id")
+    private ChattingRoom chattingRoom;
 }

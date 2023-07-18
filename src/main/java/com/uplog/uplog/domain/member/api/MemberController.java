@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.member.api;
 
 import com.uplog.uplog.domain.member.application.MemberService;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.domain.member.model.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,14 @@ public class MemberController {
         MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
+
+    //로그인
+    @PostMapping(value = "/member/login")
+    public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
+        MemberInfoDTO memberInfoDTO = memberService.login(loginRequest);
+        return ResponseEntity.ok(memberInfoDTO);
+    }
+
 
     //=============================read======================================
     @GetMapping(value = "/member/{member_id}")

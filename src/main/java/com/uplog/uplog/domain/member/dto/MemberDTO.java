@@ -38,6 +38,15 @@ public class MemberDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class LoginRequest{
+        private String email;
+        private String password;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class EmailRequest{
         private String email;
     }
