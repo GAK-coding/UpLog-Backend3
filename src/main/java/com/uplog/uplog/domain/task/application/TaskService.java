@@ -31,18 +31,18 @@ public class TaskService {
         return taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
     }
 
-    //변경사항 있는것만 확인하고 걔네만 업데이트 하는걸로 바꿔야함
+//    변경사항 있는것만 확인하고 걔네만 업데이트 하는걸->task에서 처리함
     @Transactional
-    public Task updateTask(UpdateTaskRequest updateTaskRequest) {
-        Task task = taskRepository.findById(updateTaskRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
-        task.toUpdateTaskDTO(updateTaskRequest);
+    public Task updateTask(UpdateTaskData updateTaskData) {
+        Task task = taskRepository.findById(updateTaskData.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        task.UpdateTask(updateTaskData);
         return taskRepository.save(task);
     }
 
     @Transactional
-    public Task updateTaskStatus(UpdateTaskStatusRequest updateTaskStatusRequest){
-        Task task=taskRepository.findById(updateTaskStatusRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
-        task.toUpdateTaskStatusDTO(updateTaskStatusRequest);
+    public Task updateTaskStatus(UpdateTaskStatusData updateTaskStatusData){
+        Task task=taskRepository.findById(updateTaskStatusData.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        task.updateTaskStatus(updateTaskStatusData.getTaskStatus());
         return taskRepository.save(task);
     }
 

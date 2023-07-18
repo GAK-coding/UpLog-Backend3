@@ -3,14 +3,15 @@ package com.uplog.uplog.domain.task.model;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.task.dto.TaskDTO.*;
+import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,23 +24,35 @@ public class Task extends BaseTime {
     @Column(name = "task_id")
     private Long id;
 
+    private String taskName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member targetMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "projectTeam_id")
+    private ProjectTeam projectTeam;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
     private Menu menu;
 
+    @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
+
     private String taskDetail;
-    private LocalDate startTime;
-    private LocalDate endTime;
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
 
 
     public TaskInfoDTO toTaskInfoDTO(){
         return TaskInfoDTO.builder()
                 .id(this.getId())
+                .taskName(this.getTaskName())
                 .targetmember(this.getTargetMember())
                 .menu(this.getMenu())
                 .taskStatus(this.getTaskStatus())
@@ -48,24 +61,35 @@ public class Task extends BaseTime {
                 .build();
     }
 
-    public UpdateTaskDTO toUpdateTaskDTO(UpdateTaskRequest updateTaskRequest){
-        return UpdateTaskDTO.builder()
-                .id(this.getId())
-                .targetmember(this.getTargetMember())
-                .menu(this.getMenu())
-                .taskStatus(this.getTaskStatus())
-                .startTime(this.getStartTime())
-                .endTime(this.getEndTime())
-                .build();
+// this.content=(updateFormData.getContent()!=null) ? updateFormData.getContent() : this.content;
+//        this.fix=(updateFormData.getFix()!=null) ? updateFormData.getFix() : this.fix;
+//        this.title=(updateFormData.getTitle()!=null) ? updateFormData.getTitle() : this.title;
+//        this.fimage =(updateFormData.getFimage()!=null) ? updateFormData.getFimage() : this.fimage;
+//        this.fcolor=(updateFormData.getFcolor()!=null) ? updateFormData.getFcolor() :this.fcolor;
+
+    //수정될거(메뉴,멤버,팀,이름,상세설명,시작날짜,끝날짜)
+    public void UpdateTask(UpdateTaskData updateTaskData){
+        this.menu=(updateTaskData.getMenu()!=null)? updateTaskData.getMenu():this.menu;
+        this.targetMember=(updateTaskData.getTargetmember()!=null)? updateTaskData.getTargetmember():this.targetMember;
+        this.projectTeam=(updateTaskData.getProjectTeam()!=null)? updateTaskData.getProjectTeam():this.projectTeam;
+        this.taskName=(updateTaskData.getTaskName()!=null)? updateTaskData.getTaskName():this.taskName;
+        this.taskDetail=(updateTaskData.getTaskDetail()!=null)? updateTaskData.getTaskDetail():this.taskDetail;
+        this.startTime=(updateTaskData.getStartTime()!=null)? updateTaskData.getStartTime():this.startTime;
+        this.endTime=(updateTaskData.getEndTime()!=null)? updateTaskData.getEndTime():this.endTime;
+        this.taskStatus=(updateTaskData.getTaskStatus()!=null)? updateTaskData.getTaskStatus():this.taskStatus;
+
+
     }
-    public updateTaskStatusDTO toUpdateTaskStatusDTO (UpdateTaskStatusRequest updateTaskStatusRequest){
-        return updateTaskStatusDTO.builder()
-                .id(this.getId())
-                .taskStatus(this.getTaskStatus())
-                .build();
+
+    public void updateTaskStatus(TaskStatus taskStatus){
+        this.taskStatus=taskStatus;
     }
 
-
-
+//    public updateTaskStatusDTO toUpdateTaskStatusDTO (UpdateTaskStatusRequest updateTaskStatusRequest){
+//        return updateTaskStatusDTO.builder()
+//                .id(this.getId())
+//                .taskStatus(this.getTaskStatus())
+//                .build();
+//    }
 
 }

@@ -5,6 +5,7 @@ import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.team.model.ProjectTeam;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,8 +19,9 @@ public class TaskDTO {
     private MemberDTO targetMember;
     private TaskStatus taskStatus;
     private String taskDetail;
-    private LocalDate startTime;
-    private LocalDate endTime;
+    private ProjectTeam projectTeam;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     @Getter
     @Builder
@@ -29,14 +31,18 @@ public class TaskDTO {
         private Member targetMember;
         private Menu menu;
         private TaskStatus taskStatus;
-        private LocalDate startTime;
-        private LocalDate endTime;
+        private ProjectTeam projectTeam;
+        private String taskDetail;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
 
         public Task toEntity() {
             return Task.builder()
                     .targetMember(targetMember)
                     .menu(menu)
                     .taskStatus(taskStatus)
+                    .projectTeam(projectTeam)
+                    .taskDetail(taskDetail)
                     .startTime(startTime)
                     .endTime(endTime)
                     .build();
@@ -49,51 +55,57 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class TaskInfoDTO{
         private Long id;
+        private String taskName;
         private Member targetmember;
         private Menu menu;
         private TaskStatus taskStatus;
+        private ProjectTeam projectTeam;
         private String taskDetail;
-        private LocalDate startTime;
-        private LocalDate endTime;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
     }
 
     @Getter
-    @Builder
+//    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateTaskRequest{
+    public static class UpdateTaskData{
         private Long id;
+        private String taskName;
         private Member targetmember;
         private Menu menu;
+        private ProjectTeam projectTeam;
         private TaskStatus taskStatus;
         private String taskDetail;
-        private LocalDate startTime;
-        private LocalDate endTime;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
     }
 
     @Getter
-    @Builder
+//    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateTaskStatusRequest{
+    public static class UpdateTaskStatusData{
         private Long id;
         private TaskStatus taskStatus;
 
     }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UpdateTaskDTO{
-        private Long id;
-        private Member targetmember;
-        private Menu menu;
-        private TaskStatus taskStatus;
-        private String taskDetail;
-        private LocalDate startTime;
-        private LocalDate endTime;
-    }
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class UpdateTaskDTO{
+//        private Long id;
+//        private String taskName;
+//        private Member targetmember;
+//        private ProjectTeam projectTeam;
+//        private Menu menu;
+//        private TaskStatus taskStatus;
+//        private String taskDetail;
+//        private LocalDateTime startTime;
+//        private LocalDateTime endTime;
+//    }
 
     @Getter
     @Builder
