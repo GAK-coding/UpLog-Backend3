@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.task.model;
 
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,11 @@ public class Task extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member targetMember;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "projectTeam_id")
+    private ProjectTeam projectTeam;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
