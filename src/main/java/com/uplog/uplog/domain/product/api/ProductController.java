@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
-    private final ProductService productService;
-
-    @PostMapping(value="/product")
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
-        ProductDTO createdProduct = productService.createProduct(productDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
-    }
+//    private final ProductService productService;
+//
+//    @PostMapping(value="/product")
+//    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
+//        ProductDTO createdProduct = productService.createProduct(productDTO);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+//    }
 }
