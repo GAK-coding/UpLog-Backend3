@@ -15,39 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class TaskDTO {
-    private MemberDTO targetMember;
-    private TaskStatus taskStatus;
-    private String taskDetail;
-    private ProjectTeam projectTeam;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class TaskSaveRequest {
-//        private Member targetMember;
-//        private Menu menu;
-//        private TaskStatus taskStatus;
-//        private ProjectTeam projectTeam;
-//        private String taskDetail;
-//        private LocalDateTime startTime;
-//        private LocalDateTime endTime;
-//
-//        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
-//            return Task.builder()
-//                    .targetMember(targetMember)
-//                    .menu(menu)
-//                    .taskStatus(taskStatus)
-//                    .projectTeam(projectTeam)
-//                    .taskDetail(taskDetail)
-//                    .startTime(startTime)
-//                    .endTime(endTime)
-//                    .build();
-//        }
-//    }
-
     @Getter
     @Builder
     @NoArgsConstructor
@@ -74,6 +41,7 @@ public class TaskDTO {
     }
 
 
+
     @Getter
     @Builder
     @NoArgsConstructor
@@ -81,14 +49,16 @@ public class TaskDTO {
     public static class TaskInfoDTO{
         private Long id;
         private String taskName;
-        private Member targetmember;
-        private Menu menu;
+        private String targetmember;
+        private String menu;
         private TaskStatus taskStatus;
-        private ProjectTeam projectTeam;
+        private String projectTeam;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
     }
+
+
 
     @Getter
 //    @Builder
