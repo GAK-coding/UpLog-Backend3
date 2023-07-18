@@ -33,16 +33,27 @@ public class TaskService {
 
 //    변경사항 있는것만 확인하고 걔네만 업데이트 하는걸->task에서 처리함
     @Transactional
-    public Task updateTask(UpdateTaskData updateTaskData) {
+    public Task updateTask(Long id,UpdateTaskData updateTaskData) {
         Task task = taskRepository.findById(updateTaskData.getId()).orElseThrow(NotFoundTaskByIdException::new);
-        task.UpdateTask(updateTaskData);
+        if(!updateTaskData.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.UpdateTask(updateTaskData);
+        }
         return taskRepository.save(task);
     }
 
+    //task상태 변경(이건 아무곳에서나 변경 가능해서 로직 따로 뺐음)
     @Transactional
-    public Task updateTaskStatus(UpdateTaskStatusData updateTaskStatusData){
+    public Task updateTaskStatus(Long id,UpdateTaskStatusData updateTaskStatusData){
         Task task=taskRepository.findById(updateTaskStatusData.getId()).orElseThrow(NotFoundTaskByIdException::new);
-        task.updateTaskStatus(updateTaskStatusData.getTaskStatus());
+        if(!updateTaskStatusData.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.updateTaskStatus(updateTaskStatusData.getTaskStatus());
+        }
         return taskRepository.save(task);
     }
 
