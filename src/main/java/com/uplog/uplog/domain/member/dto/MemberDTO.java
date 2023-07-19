@@ -49,6 +49,7 @@ public class MemberDTO {
     @NoArgsConstructor
     public static class EmailRequest{
         private String email;
+        private int type;
     }
 
     @Getter
