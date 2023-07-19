@@ -80,6 +80,28 @@ public class TaskController {
         return ResponseEntity.ok(taskInfoDTO);
     }
 
+    @PatchMapping("/task/taskMember/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTaskStatus(@PathVariable Long id, @RequestBody UpdateTaskMemberRequest updateTaskMemberRequest) {
+        Task updatedTask = taskService.updateTaskMember(id,updateTaskMemberRequest);
+        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
+        return ResponseEntity.ok(taskInfoDTO);
+    }
+
+    @PatchMapping("/task/taskMemnu/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTaskMenu(@PathVariable Long id, @RequestBody UpdateTaskMenuRequest updateTaskMenuRequest) {
+        Task updatedTask = taskService.updateTaskMenu(id,updateTaskMenuRequest);
+        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
+        return ResponseEntity.ok(taskInfoDTO);
+    }
+
+
+    @PatchMapping("/task/taskTeam/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTaskTeam(@PathVariable Long id, @RequestBody UpdateTaskTeamRequest updateTaskTeamRequest) {
+        Task updatedTask = taskService.updateTaskProjectTeam(id,updateTaskTeamRequest);
+        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
+        return ResponseEntity.ok(taskInfoDTO);
+    }
+
 
     //상태 수정
     @PatchMapping("/task/taskStatus/{id}")

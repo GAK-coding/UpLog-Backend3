@@ -120,7 +120,7 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class UpdateTaskMenuRequest{
         private Long id;
-        private Menu updateMenu;
+        private Long updateMenuId;
 
     }
 
@@ -130,7 +130,7 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class UpdateTaskTeamRequest{
         private Long id;
-        private ProjectTeam updateTeam;
+        private Long updateTeamId;
 
     }
     @Getter
@@ -139,7 +139,7 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class UpdateTaskMemberRequest{
         private Long id;
-        private Member updateTargetMember;
+        private Long updateTargetMemberId;
 
     }
     @Getter
@@ -160,22 +160,22 @@ public class TaskDTO {
         private TaskStatus taskStatus;
 
     }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UpdateTaskDTO{
-        private Long id;
-        private String taskName;
-        private Member targetmember;
-        private ProjectTeam projectTeam;
-        private Menu menu;
-        private TaskStatus taskStatus;
-        private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
-    }
+//
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class UpdateTaskDTO{
+//        private Long id;
+//        private String taskName;
+//        private Member targetmember;
+//        private ProjectTeam projectTeam;
+//        private Menu menu;
+//        private TaskStatus taskStatus;
+//        private String taskDetail;
+//        private LocalDateTime startTime;
+//        private LocalDateTime endTime;
+//    }
 
 
 

@@ -70,19 +70,19 @@ public class Task extends BaseTime {
     }
 
 
-    //수정될거(메뉴,멤버,팀,이름,상세설명,시작날짜,끝날짜)
-    public void UpdateTask(UpdateTaskData updateTaskData){
-        this.menu=(updateTaskData.getMenu()!=null)? updateTaskData.getMenu():this.menu;
-        this.targetMember=(updateTaskData.getTargetmember()!=null)? updateTaskData.getTargetmember():this.targetMember;
-        this.projectTeam=(updateTaskData.getProjectTeam()!=null)? updateTaskData.getProjectTeam():this.projectTeam;
-        this.taskName=(updateTaskData.getTaskName()!=null)? updateTaskData.getTaskName():this.taskName;
-        this.taskDetail=(updateTaskData.getTaskDetail()!=null)? updateTaskData.getTaskDetail():this.taskDetail;
-        this.startTime=(updateTaskData.getStartTime()!=null)? updateTaskData.getStartTime():this.startTime;
-        this.endTime=(updateTaskData.getEndTime()!=null)? updateTaskData.getEndTime():this.endTime;
-        this.taskStatus=(updateTaskData.getTaskStatus()!=null)? updateTaskData.getTaskStatus():this.taskStatus;
-
-
-    }
+//    //수정될거(메뉴,멤버,팀,이름,상세설명,시작날짜,끝날짜)
+//    public void UpdateTask(UpdateTaskData updateTaskData){
+//        this.menu=(updateTaskData.getMenu()!=null)? updateTaskData.getMenu():this.menu;
+//        this.targetMember=(updateTaskData.getTargetmember()!=null)? updateTaskData.getTargetmember():this.targetMember;
+//        this.projectTeam=(updateTaskData.getProjectTeam()!=null)? updateTaskData.getProjectTeam():this.projectTeam;
+//        this.taskName=(updateTaskData.getTaskName()!=null)? updateTaskData.getTaskName():this.taskName;
+//        this.taskDetail=(updateTaskData.getTaskDetail()!=null)? updateTaskData.getTaskDetail():this.taskDetail;
+//        this.startTime=(updateTaskData.getStartTime()!=null)? updateTaskData.getStartTime():this.startTime;
+//        this.endTime=(updateTaskData.getEndTime()!=null)? updateTaskData.getEndTime():this.endTime;
+//        this.taskStatus=(updateTaskData.getTaskStatus()!=null)? updateTaskData.getTaskStatus():this.taskStatus;
+//
+//
+//    }
 
     public void updateTaskName(String updateName){this.taskName=updateName;}
     public void updateTaskDate(LocalDateTime updateStartTime, LocalDateTime updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}

@@ -109,7 +109,50 @@ public class TaskService {
     }
 
     //멤버, 메뉴, 그룹 업데이트 짜야함
+    @Transactional
+    public Task updateTaskMenu(Long id,UpdateTaskMenuRequest updateTaskMenuRequest){
+        Menu menu = menuRepository.findById(updateTaskMenuRequest.getUpdateMenuId())
+                .orElseThrow(() -> new RuntimeException("Menu not found"));
+        Task task=taskRepository.findById(updateTaskMenuRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!updateTaskMenuRequest.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.updateTaskMenu(menu);
+            taskRepository.save(task);
+        }
+        return task;
+    }
 
+    @Transactional
+    public Task updateTaskMember(Long id,UpdateTaskMemberRequest updateTaskMemberRequest){
+        Member member = memberRepository.findById(updateTaskMemberRequest.getUpdateTargetMemberId())
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        Task task=taskRepository.findById(updateTaskMemberRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!updateTaskMemberRequest.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.updateTaskmember(member);
+            taskRepository.save(task);
+        }
+        return task;
+    }
+
+    @Transactional
+    public Task updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest){
+        ProjectTeam projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
+                .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
+        Task task=taskRepository.findById(updateTaskTeamRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!updateTaskTeamRequest.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.updateTaskTeam(projectTeam);
+            taskRepository.save(task);
+        }
+        return task;
+    }
 
 
 
