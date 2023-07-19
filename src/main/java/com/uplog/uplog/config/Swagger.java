@@ -21,7 +21,7 @@ public class Swagger {
     //member
     @Bean
     public GroupedOpenApi memberOpenApi() {
-        String[] paths = {"/test/**"};
+        String[] paths = {"/member/**"};
 
         return GroupedOpenApi.builder()
                 .group("member")
