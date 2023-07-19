@@ -55,28 +55,73 @@ public class TaskService {
     }
 
 //    변경사항 있는것만 확인하고 걔네만 업데이트 하는걸->task에서 처리함
+//    @Transactional
+//    public Task updateTask(Long id,UpdateTaskData updateTaskData) {
+//        Task task = taskRepository.findById(updateTaskData.getId()).orElseThrow(NotFoundTaskByIdException::new);
+//        if(!updateTaskData.getId().equals(id)){
+//            throw new NotMatchTaskToUpdateException();
+//        }
+//        else{
+//            task.UpdateTask(updateTaskData);
+//            taskRepository.save(task);
+//        }
+//        return task;
+//    }
+
+
     @Transactional
-    public Task updateTask(Long id,UpdateTaskData updateTaskData) {
-        Task task = taskRepository.findById(updateTaskData.getId()).orElseThrow(NotFoundTaskByIdException::new);
-        if(!updateTaskData.getId().equals(id)){
+    public Task updateTaskName(Long id,UpdateTaskNameRequest updateTaskNameRequest){
+        Task task=taskRepository.findById(updateTaskNameRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!updateTaskNameRequest.getId().equals(id)){
             throw new NotMatchTaskToUpdateException();
         }
         else{
-            task.UpdateTask(updateTaskData);
+            task.updateTaskName(updateTaskNameRequest.getUpdatetaskName());
             taskRepository.save(task);
         }
         return task;
     }
 
-    //task상태 변경(이건 아무곳에서나 변경 가능해서 로직 따로 뺐음)
     @Transactional
-    public Task updateTaskStatus(Long id,UpdateTaskStatusData updateTaskStatusData){
-        Task task=taskRepository.findById(updateTaskStatusData.getId()).orElseThrow(NotFoundTaskByIdException::new);
-        if(!updateTaskStatusData.getId().equals(id)){
+    public Task updateTaskDate(Long id,UpdateTaskDateRequest updateTaskDateRequest){
+        Task task=taskRepository.findById(updateTaskDateRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!updateTaskDateRequest.getId().equals(id)){
             throw new NotMatchTaskToUpdateException();
         }
         else{
-            task.updateTaskStatus(updateTaskStatusData.getTaskStatus());
+            task.updateTaskDate(updateTaskDateRequest.getUpdateStartTime(),updateTaskDateRequest.getUpdateEndTime());
+            taskRepository.save(task);
+        }
+        return task;
+    }
+
+    @Transactional
+    public Task updateTaskContent(Long id,UpdateTaskContentRequest updateTaskContentRequest){
+        Task task=taskRepository.findById(updateTaskContentRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!updateTaskContentRequest.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.updateTaskContent(updateTaskContentRequest.getUpdateContent());
+            taskRepository.save(task);
+        }
+        return task;
+    }
+
+    //멤버, 메뉴, 그룹 업데이트 짜야함
+
+
+
+
+    //task상태 변경(이건 아무곳에서나 변경 가능해서 로직 따로 뺐음)
+    @Transactional
+    public Task updateTaskStatus(Long id,UpdateTaskStatusRequest UpdateTaskStatusRequest){
+        Task task=taskRepository.findById(UpdateTaskStatusRequest.getId()).orElseThrow(NotFoundTaskByIdException::new);
+        if(!UpdateTaskStatusRequest.getId().equals(id)){
+            throw new NotMatchTaskToUpdateException();
+        }
+        else{
+            task.updateTaskStatus(UpdateTaskStatusRequest.getTaskStatus());
             taskRepository.save(task);
         }
         return task;

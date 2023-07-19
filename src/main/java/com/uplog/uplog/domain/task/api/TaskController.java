@@ -45,18 +45,46 @@ public class TaskController {
         return ResponseEntity.ok(taskInfoDTO);
     }
 
-    //수정
-    @PutMapping("/task/{id}")
-    public ResponseEntity<TaskInfoDTO> updateTask(@PathVariable Long id, @RequestBody UpdateTaskData updateTaskData) {
-        Task updatedTask = taskService.updateTask(id,updateTaskData);
+//    //수정
+//    @PutMapping("/task/{id}")
+//    public ResponseEntity<TaskInfoDTO> updateTask(@PathVariable Long id, @RequestBody UpdateTaskData updateTaskData) {
+//        Task updatedTask = taskService.updateTask(id,updateTaskData);
+//        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
+//        return ResponseEntity.ok(taskInfoDTO);
+//    }
+
+
+
+    //수정부분에서 path에 task_id가 있어서 dto에 id빼도 되는데 혹시 몰라서 일단 넣어둠
+    //이름 수정
+    @PatchMapping("/task/taskName/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTaskName(@PathVariable Long id, @RequestBody UpdateTaskNameRequest updateTaskNameRequest) {
+        Task updatedTask = taskService.updateTaskName(id,updateTaskNameRequest);
         TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
         return ResponseEntity.ok(taskInfoDTO);
     }
 
+    //날짜 수정(시작날짜,종료날짜)
+    @PatchMapping("/task/taskDate/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTaskDate(@PathVariable Long id, @RequestBody UpdateTaskDateRequest updateTaskDateRequest) {
+        Task updatedTask = taskService.updateTaskDate(id,updateTaskDateRequest);
+        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
+        return ResponseEntity.ok(taskInfoDTO);
+    }
+
+    //상세 내용 수정
+    @PatchMapping("/task/taskContent/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTaskContent(@PathVariable Long id, @RequestBody UpdateTaskContentRequest updateTaskContentRequest) {
+        Task updatedTask = taskService.updateTaskContent(id,updateTaskContentRequest);
+        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
+        return ResponseEntity.ok(taskInfoDTO);
+    }
+
+
     //상태 수정
     @PatchMapping("/task/taskStatus/{id}")
-    public ResponseEntity<TaskInfoDTO> updateTaskStatus(@PathVariable Long id, @RequestBody UpdateTaskStatusData updateTaskStatusData) {
-        Task updatedTask = taskService.updateTaskStatus(id,updateTaskStatusData);
+    public ResponseEntity<TaskInfoDTO> updateTaskStatus(@PathVariable Long id, @RequestBody UpdateTaskStatusRequest UpdateTaskStatusRequest) {
+        Task updatedTask = taskService.updateTaskStatus(id,UpdateTaskStatusRequest);
         TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
         return ResponseEntity.ok(taskInfoDTO);
     }
