@@ -67,6 +67,17 @@ public class MemberDTO {
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PowerMemberInfoDTO{
+        private Long id;
+        private String name;
+        private String nickname;
+        private Position position;
+    }
+
+    @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SimpleMemberInfoDTO{

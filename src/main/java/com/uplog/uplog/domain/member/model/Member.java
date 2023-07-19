@@ -1,7 +1,9 @@
 package com.uplog.uplog.domain.member.model;
 
 import com.uplog.uplog.domain.chatting.model.MemberChattingRoom;
+import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.dto.MemberDTO.MemberInfoDTO;
+import com.uplog.uplog.domain.member.dto.MemberDTO.PowerMemberInfoDTO;
 import com.uplog.uplog.domain.member.dto.MemberDTO.SimpleMemberInfoDTO;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.scrap.model.Scrap;
@@ -59,6 +61,15 @@ public class Member extends MemberBase{
                 .name(this.getName())
                 .nickname(this.getNickname())
                 .password(this.getPassword())
+                .build();
+    }
+
+    public PowerMemberInfoDTO powerMemberInfoDTO(){
+        return PowerMemberInfoDTO.builder()
+                .id(this.getId())
+                .name(this.getName())
+                .nickname(this.getNickname())
+                .position(this.getPosition())
                 .build();
     }
 }
