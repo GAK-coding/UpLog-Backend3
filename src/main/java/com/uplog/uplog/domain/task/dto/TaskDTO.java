@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.task.dto;
 
 import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.menu.model.Menu;
@@ -49,10 +50,13 @@ public class TaskDTO {
     public static class TaskInfoDTO{
         private Long id;
         private String taskName;
-        private String targetmember;
-        private String menu;
+        private MemberDTO.MemberInfoDTO targetmemberInfo;
+        //private Long targetMemberId;
+        //private String targetmemberName;
+        //private Long menuId;
+        //private String menuName;
         private TaskStatus taskStatus;
-        private String projectTeam;
+        private String projectTeamName;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;

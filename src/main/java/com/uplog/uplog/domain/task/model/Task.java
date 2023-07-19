@@ -53,14 +53,16 @@ public class Task extends BaseTime {
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
-                .targetmember(this.getTargetMember().getName())
-                .menu(this.getMenu().getMenuName())
-                .projectTeam(this.getProjectTeam().getName())
+                .targetmemberInfo(this.getTargetMember().toMemberInfoDTO())
+                //.targetmemberName(this.getTargetMember().getName())
+                //.menuName(this.getMenu().getMenuName())
+                //.projectTeamName(this.getProjectTeam().getName())
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
                 .build();
     }
+
 
     //수정될거(메뉴,멤버,팀,이름,상세설명,시작날짜,끝날짜)
     public void UpdateTask(UpdateTaskData updateTaskData){
