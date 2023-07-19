@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -49,14 +50,19 @@ public class Task extends BaseTime {
 
 
 
+//
+//    public TaskDTO taskDTO?(){
+//        return
+//    }
     public TaskInfoDTO toTaskInfoDTO(){
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
-                .targetmemberInfo(this.getTargetMember().toMemberInfoDTO())
-                //.targetmemberName(this.getTargetMember().getName())
-                //.menuName(this.getMenu().getMenuName())
-                //.projectTeamName(this.getProjectTeam().getName())
+                .targetMemberInfoDTO(this.getTargetMember().powerMemberInfoDTO())
+                .menuId(this.getMenu().getId())
+                .menuName(this.getMenu().getMenuName())
+                .projectTeamId(this.getProjectTeam().getId())
+                .projectTeamName(this.getProjectTeam().getName())
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
@@ -77,10 +83,14 @@ public class Task extends BaseTime {
 
 
     }
+
+    public void updateTaskName(String updateName){this.taskName=updateName;}
+    public void updateTaskDate(LocalDateTime updateStartTime, LocalDateTime updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
+    public void updateTaskContent(String updateContent){this.taskDetail=updateContent;}
+
     public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}
     public void updateTaskTeam(ProjectTeam team){this.projectTeam=team;}
     public void updateTaskMenu(Menu menu){this.menu=menu;}
-
 
     public void updateTaskStatus(TaskStatus taskStatus){
         this.taskStatus=taskStatus;
