@@ -41,6 +41,18 @@ public class TaskDTO {
         }
     }
 
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class TaskSimpleDTO{
+//        private Long id;
+//        private String taskName;
+//        private S
+//
+//
+//    }
+
 
 
     @Getter
@@ -50,13 +62,14 @@ public class TaskDTO {
     public static class TaskInfoDTO{
         private Long id;
         private String taskName;
-        private MemberDTO.MemberInfoDTO targetmemberInfo;
+        private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
         //private Long targetMemberId;
         //private String targetmemberName;
-        //private Long menuId;
-        //private String menuName;
-        private TaskStatus taskStatus;
+        private Long menuId;
+        private String menuName;
+        private Long projectTeamId;
         private String projectTeamName;
+        private TaskStatus taskStatus;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
@@ -81,10 +94,68 @@ public class TaskDTO {
     }
 
     @Getter
-//    @Builder
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateTaskStatusData{
+    public static class UpdateTaskNameRequest{
+        private Long id;
+        private String updatetaskName;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskDateRequest{
+        private Long id;
+        private LocalDateTime updateStartTime;
+        private LocalDateTime updateEndTime;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskMenuRequest{
+        private Long id;
+        private Menu updateMenu;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskTeamRequest{
+        private Long id;
+        private ProjectTeam updateTeam;
+
+    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskMemberRequest{
+        private Long id;
+        private Member updateTargetMember;
+
+    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskContentRequest{
+        private Long id;
+        private String updateContent;
+
+    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskStatusRequest{
         private Long id;
         private TaskStatus taskStatus;
 
@@ -106,14 +177,6 @@ public class TaskDTO {
         private LocalDateTime endTime;
     }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class updateTaskStatusDTO{
-        private Long id;
-        private TaskStatus taskStatus;
-    }
 
 
 }
