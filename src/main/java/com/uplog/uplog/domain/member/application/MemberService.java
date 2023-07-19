@@ -4,7 +4,9 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
+import com.uplog.uplog.domain.member.model.LoginType;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.global.Exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +113,7 @@ public class MemberService {
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         //TODO SpringSecurity 하고 나서 getCurrentMember 하고나서 로직 수정 필요함.
         //TODO 닉네임(이름)되어있는 것을 -> (알수없음)(이름)으로 바꾸는 과정 있어야함. -> 나중에 프론트와 상의가 필요할 수도 있음.
+        //TODO 비밀번호 확인
         memberRepository.delete(member);
         return "DELETE";
     }
