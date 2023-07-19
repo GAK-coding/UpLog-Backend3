@@ -21,10 +21,20 @@ public class Swagger {
     //member
     @Bean
     public GroupedOpenApi memberOpenApi() {
-        String[] paths = {"/test/**"};
+        String[] paths = {"/member/**"};
 
         return GroupedOpenApi.builder()
                 .group("member")
+                .pathsToMatch(paths)
+                .build();
+    }
+    //task
+    @Bean
+    public GroupedOpenApi TaskOpenApi() {
+        String[] paths = {"/task/**"};
+
+        return GroupedOpenApi.builder()
+                .group("task")
                 .pathsToMatch(paths)
                 .build();
     }
