@@ -11,18 +11,19 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
 @Inheritance(strategy = InheritanceType.JOINED)
 public class MemberBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    private long id;
+    private Long id;
 
     private String email;
     private String name;
     private String nickname;
     private String password;
+
+    @Enumerated(EnumType.STRING)
     private Position position;
 
     public void changeName(String newName){ this.name = newName;}
