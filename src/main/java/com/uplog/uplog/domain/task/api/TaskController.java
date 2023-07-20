@@ -19,15 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class TaskController {
     private final TaskService taskService;
-//    @Operation(summary = "task 생성", description = "task 생성", tags = { "Task Controller" })
-//    // response 코드 별로 응답 시 내용(설명) 작성
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "OK",
-//                    content = @Content(schema = @Schema(implementation = TestController.class))),
-//            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-//            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
-//            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
-//    })
 
     //나중에 토큰 구현하면 bareer로 받을 예정이라 일단 pathvariable로 뺌
     @PostMapping(value="/task/{member_id}")
