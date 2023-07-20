@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn
+@DiscriminatorValue("Team")
 public class Team extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
