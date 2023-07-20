@@ -4,6 +4,7 @@ import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,5 +29,12 @@ public class Product extends BaseTime {
     private List<Project> projectList = new ArrayList<>();
 
     private String company;
+
+    @Builder
+    public Product(Long id, Team team, String company){
+        this.id=id;
+        this.team=team;
+        this.company=company;
+    }
 
 }
