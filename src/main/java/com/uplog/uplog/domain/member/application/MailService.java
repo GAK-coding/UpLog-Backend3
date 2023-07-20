@@ -15,6 +15,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -80,6 +81,7 @@ public class MailService {
     //메일 발송
     //MimeMessage 객체 안에 전송할 메일의 내용을 담는다.
     //bean으로 등록해둔 javaMail 객체를 사용해서 이메일을 보낸다.
+    @Transactional
     public ErrorResponse sendSimpleMessage(EmailRequest emailRequest) throws Exception{
         GlobalMethod globalMethod = new GlobalMethod();
         authNum = globalMethod.makeRandNum(emailRequest.getType());
