@@ -30,11 +30,14 @@ public class Product extends BaseTime {
 
     private String company;
 
+    private String name;
+
     @Builder
-    public Product(Long id, Team team, String company){
-        this.id=id;
-        this.team=team;
-        this.company=company;
+    public Product(Long id, Team team, String company, String name){
+        this.id = id;
+        this.team = team;
+        this.company = company;
+        this.name = name;
     }
 
 }

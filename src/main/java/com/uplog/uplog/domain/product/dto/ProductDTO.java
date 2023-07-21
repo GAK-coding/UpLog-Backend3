@@ -17,14 +17,15 @@ public class ProductDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SaveProductRequest{
-        private Long id;
-        private Team team;
-        private String company;
+        //제품 생성시, 제품 이름과 마스터만 지정됨. pathvariable로 들어오는건 기업인멤버
+        private String name;
+        //private Team team;
+        private String masterEmail;
 
-        public Product toProductEntity(){
+        public Product toProductEntity(String company){
             return Product.builder()
-                    .id(id)
-                    .team(team)
+                    .name(this.name)
+                    //.team(this.team)
                     .company(company)
                     .build();
         }
