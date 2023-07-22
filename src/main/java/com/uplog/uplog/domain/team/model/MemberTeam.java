@@ -3,6 +3,7 @@ package com.uplog.uplog.domain.team.model;
 
 import com.uplog.uplog.domain.member.model.Member;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 //@Inheritance(strategy = InheritanceType.JOINED)
 public class MemberTeam {
@@ -29,6 +30,14 @@ public class MemberTeam {
 
     @Enumerated(EnumType.STRING)
     private PowerType powerType;
+
+    @Builder
+    public MemberTeam(Long id, Team team, Member member, PowerType powerType){
+        this.id = id;
+        this.team = team;
+        this.member = member;
+        this.powerType = powerType;
+    }
 
 
 }
