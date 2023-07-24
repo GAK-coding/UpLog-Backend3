@@ -26,6 +26,7 @@ public class TaskService {
     private final MenuRepository menuRepository;
 
 
+    //========================================create========================================
     //task 생성
 
     @Transactional
@@ -47,12 +48,15 @@ public class TaskService {
         return task;
     }
 
+    //========================================read========================================
     //task읽기
     @Transactional(readOnly = true)
     public Task getTaskById(Long id) {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         return task;
     }
+
+
 
 //    변경사항 있는것만 확인하고 걔네만 업데이트 하는걸->task에서 처리함
 //    @Transactional
@@ -68,7 +72,7 @@ public class TaskService {
 //        return task;
 //    }
 
-
+    //========================================update========================================
     @Transactional
     public Task updateTaskName(Long id,UpdateTaskNameRequest updateTaskNameRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
@@ -149,6 +153,8 @@ public class TaskService {
         return task;
     }
 
+
+    //========================================delete========================================
     @Transactional
     public void deleteTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
