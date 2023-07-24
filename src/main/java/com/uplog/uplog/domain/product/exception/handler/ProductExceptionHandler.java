@@ -18,7 +18,7 @@ public class ProductExceptionHandler {
     @ExceptionHandler(DuplicatedProductNameException.class)
     protected final ResponseEntity<ErrorResponse> duplicatedProductNameExceptionHandler(DuplicatedProductNameException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
-                .httpStatus(HttpStatus.NOT_ACCEPTABLE)
+                .httpStatus(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);
