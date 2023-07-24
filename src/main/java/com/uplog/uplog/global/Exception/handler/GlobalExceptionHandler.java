@@ -15,7 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorityException.class)
-    protected final ResponseEntity<ErrorResponse> AuthorityExceptionHandler(AuthorityException e, WebRequest webRequest){
+    protected final ResponseEntity<ErrorResponse> authorityExceptionHandler(AuthorityException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.FORBIDDEN)
                 .message(e.getMessage())
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundIdException.class)
-    protected final ResponseEntity<ErrorResponse> NotFoundIdExceptionHandler(NotFoundIdException e, WebRequest webRequest){
+    protected final ResponseEntity<ErrorResponse> notFoundIdExceptionHandler(NotFoundIdException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())
