@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class EmailController {
     private final MailService mailService;
-    @PostMapping("/member/email-request")
+    @PostMapping("/members/email-request")
     public ResponseEntity<ErrorResponse> sendEmail(@RequestBody @Validated EmailRequest emailRequest) throws Exception {
         ErrorResponse errorResponse = mailService.sendSimpleMessage(emailRequest);
         return new ResponseEntity<>(errorResponse, HttpStatus.OK);
