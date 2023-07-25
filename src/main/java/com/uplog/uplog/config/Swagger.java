@@ -38,4 +38,13 @@ public class Swagger {
                 .pathsToMatch(paths)
                 .build();
     }
+    @Bean
+    public GroupedOpenApi commentOpenApi(){
+        String[] paths = {"/comment/**"};
+
+        return GroupedOpenApi.builder()
+                .group("comment")
+                .pathsToMatch(paths)
+                .build();
+    }
 }
