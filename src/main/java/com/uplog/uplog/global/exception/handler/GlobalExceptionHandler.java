@@ -1,7 +1,7 @@
-package com.uplog.uplog.global.Exception.handler;
+package com.uplog.uplog.global.exception.handler;
 
-import com.uplog.uplog.global.Exception.AuthorityException;
-import com.uplog.uplog.global.Exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

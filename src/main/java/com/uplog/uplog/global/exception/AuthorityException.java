@@ -1,4 +1,4 @@
-package com.uplog.uplog.global.Exception;
+package com.uplog.uplog.global.exception;
 
 public class AuthorityException extends IllegalArgumentException{
     public AuthorityException(String m){super(m);}
