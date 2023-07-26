@@ -63,4 +63,11 @@ public class Post extends BaseTime {
                 .build();
     }
 
+    public void updatePostTitle(String updateTitle){this.title=updateTitle;}
+    public void updatePostContent(String updatecontent){this.content=updatecontent;}
+    public void updatePostMenu(Menu menu){this.menu=menu;}
+    public void updatePostType(PostType updatepostType){this.postType=updatepostType;}
+    public  void updatePostProductName(String updateProductName){this.productName=updateProductName;}
+    public void updatePostVersion(String updateVersion){this.version=updateVersion;}
+
 }
