@@ -60,6 +60,13 @@ public class CommentController {
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
+    @GetMapping(value="/comment/{comment-id}/singlecomment")
+    public ResponseEntity<List<ReadCommentInfo>> ReadSingleComment(@PathVariable("comment-id")Long commentId){
+
+        List<ReadCommentInfo> readSingleList=commentApplication.ReadPostSingleComment(commentId);
+        return new ResponseEntity<>(readSingleList,HttpStatus.OK);
+    }
+
      /*
         UPDATE
      */

@@ -84,7 +84,7 @@ public class CommentApplication {
 
     public List<ReadCommentInfo> ReadPostComment(Long postId){
 
-        //post 만들어지면 post로 바꿔야함.
+        // TODO: post 만들어지면 post로 바꿔야함.
         List<Comment> commentList=commentRepository.findByAuthorId(postId);
 
         if(commentList==null||commentList.isEmpty()){
@@ -99,6 +99,30 @@ public class CommentApplication {
         return commentInfos;
 
 
+
+    }
+
+    /*
+     멘션에서 눌렀을 때 해당 댓글만 따로 보여주거나 대댓글일 때는 댓글과 대댓글만 보여주는
+     기능이 있으면 좋을 것 같다는 생각에 넣어봄
+    */
+    public List<ReadCommentInfo> ReadPostSingleComment(Long commentId){
+
+        List<ReadCommentInfo> readCommentInfos=new ArrayList<>();
+        Comment comment=commentRepository.findById(commentId)
+                .orElseThrow(()->new NotFoundCommentException(commentId));
+
+
+        //대댓글일 시 그의 부모 댓글과 함께 조회
+        if(comment.getParent()!=null){
+            Comment comment_parent=commentRepository.findById(comment.getParent().getId())
+                    .orElseThrow(()->new NotFoundCommentException(comment.getParent().getId()));
+            readCommentInfos.add(comment_parent.of());
+
+        }
+        readCommentInfos.add(comment.of());
+
+        return readCommentInfos;
 
     }
 
