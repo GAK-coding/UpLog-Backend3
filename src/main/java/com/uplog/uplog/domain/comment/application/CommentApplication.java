@@ -1,9 +1,11 @@
 package com.uplog.uplog.domain.comment.application;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.comment.dao.CommentRepository;
 import com.uplog.uplog.domain.comment.dto.CommentDTO;
 import com.uplog.uplog.domain.comment.dto.CommentDTO.CommentInfo;
 import com.uplog.uplog.domain.comment.model.Comment;
+import com.uplog.uplog.domain.comment.model.QComment;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
@@ -14,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,8 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Slf4j
 public class CommentApplication {
 
-
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
@@ -116,9 +121,18 @@ public class CommentApplication {
     @Transactional
     public String DeleteComment(Long commentId){
 
+
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QComment comment= QComment.comment;
+
         //삭제 된 comment들 id도 넘겨주면 좋으려나?
-        Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
-        commentRepository.delete(comment);
+        Comment comment_sgl=query
+                .selectFrom(comment)
+                .where(comment.id.eq(commentId))
+                .fetchOne();
+
+        //Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
+        commentRepository.delete(comment_sgl);
         return "DELETE OK";
     }
 
