@@ -68,7 +68,16 @@ public class CommentController {
     public ResponseEntity<ReadCommentInfo> UpdateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
                                                          @PathVariable("comment-id")Long commentId){
         ReadCommentInfo readCommentInfo=commentApplication.UpdateCommentContent(updateCommentContent,commentId);
-
         return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
+    }
+
+     /*
+        DELETE
+     */
+
+    @DeleteMapping(value="/comment/delete/{comment-id}")
+    public ResponseEntity<String> DeleteComment(@PathVariable("comment-id")Long commentId){
+        String message= commentApplication.DeleteComment(commentId);
+        return ResponseEntity.ok(message);
     }
 }

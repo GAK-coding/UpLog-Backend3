@@ -99,6 +99,7 @@ public class CommentApplication {
     @Transactional
     public ReadCommentInfo UpdateCommentContent(UpdateCommentContent updateCommentContent,Long commentId){
 
+        //업데이트 사항은 content 단일 항목이고 업데이트 후 해당 comment의 정보를 모두 넘겨줌
         Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
         comment.UpdateCommentContent(updateCommentContent.getContent());
         ReadCommentInfo readCommentInfo=comment.of();
@@ -106,6 +107,19 @@ public class CommentApplication {
 
 
 
+    }
+
+     /*
+        DELETE
+     */
+
+    @Transactional
+    public String DeleteComment(Long commentId){
+
+        //삭제 된 comment들 id도 넘겨주면 좋으려나?
+        Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
+        commentRepository.delete(comment);
+        return "DELETE OK";
     }
 
 
