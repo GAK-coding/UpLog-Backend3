@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PostController {
     private final PostService postService;
-    @PostMapping(value="/post/{member_id}")
+    @PostMapping(value="/posts/{member_id}")
     public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member_id") Long id, @RequestBody CreatePostRequest createPostRequest) {
         Post createdPost = postService.createPost(id,createPostRequest);
         PostInfoDTO postInfoDTO = createdPost.toPostInfoDTO();
