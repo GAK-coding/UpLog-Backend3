@@ -29,22 +29,21 @@ public class Team extends BaseTime {
     @OneToMany(mappedBy = "team")
     private List<MemberTeam> memberTeamList = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "product_id")
+//    private Product product;
 
     private String name;
     @Builder
     public Team(Long id,Product product, String name){
         this.id = id;
-        this.product = product;
+        //this.product = product;
         this.name = name;
     }
 
     public TeamInfoDTO toTeamInfoDTO(){
         return TeamInfoDTO.builder()
                 .id(this.id)
-                .productId(this.product.getId())
                 .productName(this.name)
                 .memberTeamList(this.memberTeamList)
                 .createdTime(this.getCreatedTime())
