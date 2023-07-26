@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.uplog'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOTONE'
 
 java {
 	sourceCompatibility = '11'
