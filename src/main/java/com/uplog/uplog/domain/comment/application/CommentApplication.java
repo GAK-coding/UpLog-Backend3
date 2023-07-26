@@ -102,10 +102,15 @@ public class CommentApplication {
      */
 
     @Transactional
-    public ReadCommentInfo UpdateCommentContent(UpdateCommentContent updateCommentContent,Long commentId){
+    public ReadCommentInfo UpdateCommentContent(UpdateCommentContent updateCommentContent,Long commentId,Long memberId){
 
         //업데이트 사항은 content 단일 항목이고 업데이트 후 해당 comment의 정보를 모두 넘겨줌
         Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
+
+        if(!MemberValidate(comment.getAuthor().getId(),memberId)){
+            throw new NotFoundIdException();
+        }
+
         comment.UpdateCommentContent(updateCommentContent.getContent());
         ReadCommentInfo readCommentInfo=comment.of();
         return readCommentInfo;
@@ -119,7 +124,7 @@ public class CommentApplication {
      */
 
     @Transactional
-    public String DeleteComment(Long commentId){
+    public String DeleteComment(Long commentId,Long memberId){
 
 
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
@@ -130,10 +135,23 @@ public class CommentApplication {
                 .selectFrom(comment)
                 .where(comment.id.eq(commentId))
                 .fetchOne();
+        if(!MemberValidate(comment_sgl.getAuthor().getId(),memberId)){
+            throw new NotFoundIdException();
+        }
 
         //Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
         commentRepository.delete(comment_sgl);
         return "DELETE OK";
+    }
+
+     /*
+        VALIDATE
+     */
+
+    public boolean MemberValidate(Long CommentMemberId, Long currMemberId ){
+
+        return (CommentMemberId==currMemberId)?true:false;
+
     }
 
 

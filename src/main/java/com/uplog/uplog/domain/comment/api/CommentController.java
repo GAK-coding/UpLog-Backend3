@@ -64,10 +64,11 @@ public class CommentController {
         UPDATE
      */
 
-    @PatchMapping(value="/comment/update/{comment-id}")
+    @PatchMapping(value="/comment/update/{comment-id}/{member-id}")
     public ResponseEntity<ReadCommentInfo> UpdateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
-                                                         @PathVariable("comment-id")Long commentId){
-        ReadCommentInfo readCommentInfo=commentApplication.UpdateCommentContent(updateCommentContent,commentId);
+                                                         @PathVariable("comment-id")Long commentId,
+                                                         @PathVariable("member-id")Long memberId){
+        ReadCommentInfo readCommentInfo=commentApplication.UpdateCommentContent(updateCommentContent,commentId,memberId);
         return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
     }
 
@@ -75,9 +76,10 @@ public class CommentController {
         DELETE
      */
 
-    @DeleteMapping(value="/comment/delete/{comment-id}")
-    public ResponseEntity<String> DeleteComment(@PathVariable("comment-id")Long commentId){
-        String message= commentApplication.DeleteComment(commentId);
+    @DeleteMapping(value="/comment/delete/{comment-id}/{member-id}")
+    public ResponseEntity<String> DeleteComment(@PathVariable("comment-id")Long commentId,
+                                                @PathVariable("member-id")Long memberId){
+        String message= commentApplication.DeleteComment(commentId,memberId);
         return ResponseEntity.ok(message);
     }
 }
