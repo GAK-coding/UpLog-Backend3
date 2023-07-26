@@ -4,6 +4,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.comment.dao.CommentRepository;
 import com.uplog.uplog.domain.comment.dto.CommentDTO;
 import com.uplog.uplog.domain.comment.dto.CommentDTO.CommentInfo;
+import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
+import com.uplog.uplog.domain.comment.exception.NotFoundCommentByPostException;
+import com.uplog.uplog.domain.comment.exception.NotFoundCommentException;
 import com.uplog.uplog.domain.comment.model.Comment;
 import com.uplog.uplog.domain.comment.model.QComment;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
@@ -44,7 +47,8 @@ public class CommentApplication {
     public CommentInfo createComment(CommentInfo commentData, Long postId, Long memberId){
 
         //Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
-        Member member = memberRepository.findById(memberId).orElseThrow(NotFoundMemberByEmailException::new);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(NotFoundMemberByEmailException::new);
 
         //parentId가 null일 때 기본 정보만 저장.
         if(commentData.getParentId()==null && commentData.getChildId()==null){
@@ -60,7 +64,8 @@ public class CommentApplication {
         //ParentId가 존재할 때 부모 객체를 mapping && 기본 정보 저장.
         else {
                 //parent만 존재
-                Comment ParentComment=commentRepository.findById(commentData.getParentId()).orElseThrow(NotFoundIdException::new);
+                Comment ParentComment=commentRepository.findById(commentData.getParentId())
+                        .orElseThrow(()->new NotFoundCommentException(commentData.getParentId()));
                 Comment comment=commentData.of(member,ParentComment,null);
 
                 commentRepository.save(comment);
@@ -83,7 +88,7 @@ public class CommentApplication {
         List<Comment> commentList=commentRepository.findByAuthorId(postId);
 
         if(commentList==null||commentList.isEmpty()){
-            throw new NotFoundIdException();
+            throw new NotFoundCommentByPostException(postId);
         }
 
         List<ReadCommentInfo> commentInfos=new ArrayList<>();
@@ -105,7 +110,8 @@ public class CommentApplication {
     public ReadCommentInfo UpdateCommentContent(UpdateCommentContent updateCommentContent,Long commentId,Long memberId){
 
         //업데이트 사항은 content 단일 항목이고 업데이트 후 해당 comment의 정보를 모두 넘겨줌
-        Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
+        Comment comment=commentRepository.findById(commentId)
+                .orElseThrow(()->new NotFoundCommentException(commentId));
 
         if(!MemberValidate(comment.getAuthor().getId(),memberId)){
             throw new NotFoundIdException();
@@ -135,8 +141,13 @@ public class CommentApplication {
                 .selectFrom(comment)
                 .where(comment.id.eq(commentId))
                 .fetchOne();
+
+        if(comment_sgl==null){
+            throw new NotFoundCommentException(commentId);
+        }
+
         if(!MemberValidate(comment_sgl.getAuthor().getId(),memberId)){
-            throw new NotFoundIdException();
+            throw new MemberAuthorizedException(memberId);
         }
 
         //Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
