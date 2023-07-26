@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import com.uplog.uplog.domain.post.dto.PostDTO.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,5 +46,21 @@ public class Post extends BaseTime {
     private String productName;
     private String version;
     private LocalDateTime createTime;
+
+
+    public PostInfoDTO toPostInfoDTO(){
+        return PostInfoDTO.builder()
+                .id(this.getId())
+                .title(this.getTitle())
+                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
+                .menuId(this.getMenu().getId())
+                .menuName(this.getMenu().getMenuName())
+                .productName(this.getProductName())
+                .projectName(this.getVersion())
+                .postType(this.getPostType())
+                .content(this.getContent())
+                .createTime(this.getCreateTime())
+                .build();
+    }
 
 }
