@@ -5,14 +5,17 @@ import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -42,5 +45,6 @@ public class Post extends BaseTime {
     private String content;
     private String projectName;
     private String version;
+    private LocalDateTime createTime;
 
 }
