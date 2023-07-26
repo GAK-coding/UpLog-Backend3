@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MemberDTO {
 
     @Builder
@@ -49,6 +51,7 @@ public class MemberDTO {
     @NoArgsConstructor
     public static class EmailRequest{
         private String email;
+        private int type;
     }
 
     @Getter
@@ -61,6 +64,17 @@ public class MemberDTO {
         private String name;
         private String nickname;
         private String password;
+        private Position position;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PowerMemberInfoDTO{
+        private Long id;
+        private String name;
+        private String nickname;
         private Position position;
     }
 
@@ -111,6 +125,14 @@ public class MemberDTO {
     public static class ChangePositionRequest{
        // private long id;
         private Position newPosition;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DeleteMemberRequest{
+        private String password;
     }
 
 

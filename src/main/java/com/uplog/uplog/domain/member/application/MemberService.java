@@ -5,7 +5,7 @@ import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.global.Exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
+
     private final MemberRepository memberRepository;
 
     //================================Member Create=====================================
@@ -70,21 +71,21 @@ public class MemberService {
     //==========================Member Update====================================================
     //TODO postman으로 변경사항 잘 반영되어 들어오는지 확인할것!!!!!!! + transaction공부
     //이름 변경
-    @Transactional(readOnly = true)
+    @Transactional
     public SimpleMemberInfoDTO changeMemberName(Long id,ChangeNameRequest changeNameRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         member.changeName(changeNameRequest.getNewName());
         return member.simpleMemberInfoDTO();
     }
     //닉네임 변경
-    @Transactional(readOnly = true)
+    @Transactional
     public SimpleMemberInfoDTO changeMemberNickname(Long id,ChangeNicknameRequest changeNicknameRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         member.changeNickname(changeNicknameRequest.getNewNickname());
         return member.simpleMemberInfoDTO();
     }
     //비밀번호 변경
-    @Transactional(readOnly = true)
+    @Transactional
     public SimpleMemberInfoDTO changeMemberPassword(Long id,ChangePasswordRequest changePasswordRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         //기존 비밀번호를 모르면 비밀번호 변경 불가
@@ -97,7 +98,7 @@ public class MemberService {
         }
     }
     //position 변경(있을지 모르겠지만 혹시 모르니까)
-    @Transactional(readOnly = true)
+    @Transactional
     public SimpleMemberInfoDTO changeMemberPostion(Long id, ChangePositionRequest changePositionRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         member.changePosition(changePositionRequest.getNewPosition());
@@ -107,12 +108,19 @@ public class MemberService {
 
     //=========================Member Delete=================================================
     @Transactional
-    public String deleteMember(Long id){
+    public String deleteMember(Long id, DeleteMemberRequest deleteMemberRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         //TODO SpringSecurity 하고 나서 getCurrentMember 하고나서 로직 수정 필요함.
         //TODO 닉네임(이름)되어있는 것을 -> (알수없음)(이름)으로 바꾸는 과정 있어야함. -> 나중에 프론트와 상의가 필요할 수도 있음.
-        memberRepository.delete(member);
-        return "DELETE";
+        if(member.getPassword().equals(deleteMemberRequest.getPassword())){
+            memberRepository.delete(member);
+            return "DELETE";
+        }
+        else{
+            throw new NotMatchPasswordException("비밀번호가 일치하지 않습니다.");
+        }
+
+
     }
 
 
