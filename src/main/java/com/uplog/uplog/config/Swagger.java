@@ -41,10 +41,10 @@ public class Swagger {
 
     @Bean
     public GroupedOpenApi PostOpenApi() {
-        String[] paths = {"/post/**"};
+        String[] paths = {"/posts/**"};
 
         return GroupedOpenApi.builder()
-                .group("post")
+                .group("posts")
                 .pathsToMatch(paths)
                 .build();
     }
