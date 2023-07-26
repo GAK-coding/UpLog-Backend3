@@ -22,13 +22,27 @@ public class ProductDTO {
         //private Team team;
         private String masterEmail;
 
-        public Product toProductEntity(String company){
+        public Product toProductEntity(String company, Team team){
             return Product.builder()
                     .name(this.name)
-                    //.team(this.team)
+                    .team(team)
                     .company(company)
                     .build();
         }
+
+    }
+
+    //TODO project list 추가하기
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ProductInfoDTO{
+        private Long id;
+        private String name;
+        private String company;
+        private Long teamId;
+        private List<Long> projectListId;
     }
 
 
