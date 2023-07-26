@@ -30,8 +30,6 @@ public class Post extends BaseTime {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    private String image;
-    private String codeBlock;
     private String title;
     private String content;
     private String projectName;
