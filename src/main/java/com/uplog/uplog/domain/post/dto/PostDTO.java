@@ -29,7 +29,6 @@ public class PostDTO {
         private String content;
         private Long porductId;
         private Long projectId;
-        private LocalDateTime createTime;
 
 
 // TODO POSTTYPE 관련해서 좀 더 수정해야함
@@ -38,11 +37,10 @@ public class PostDTO {
             Post.PostBuilder postBuilder = Post.builder()
                     .author(member)
                     .menu(menu)
-                    .title(title)
+                    .title(this.title)
                     .content(content)
                     .productName(product.getName())
-                    .version(project.getVersion())
-                    .createTime(createTime);
+                    .version(project.getVersion());
 
             if (postType != null) {
                 postBuilder.postType(PostType.valueOf(postType));
@@ -70,5 +68,61 @@ public class PostDTO {
         private String content;
         private LocalDateTime createTime;
 
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostTitleRequest{
+        private Long id;
+        private String updateTitle;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostContentRequest{
+        private Long id;
+        private String updateContent;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostTypeRequest{
+        private Long id;
+        private String updatePostType;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostMenuRequest{
+        private Long id;
+        private Long updateMenuId;
+    }
+
+    //updateTag
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostProductRequest{
+        private Long id;
+        private String updateProductName;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostVersionRequest{
+        private Long id;
+        private String updateVersion;
     }
 }
