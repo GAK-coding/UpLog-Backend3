@@ -1,4 +1,4 @@
-package com.uplog.uplog.global.Exception;
+package com.uplog.uplog.global.exception;
 
 public class NotFoundIdException extends IllegalArgumentException{
     public NotFoundIdException(String m){ super(m); }
