@@ -30,7 +30,7 @@ public class CommentController {
     private final CommentApplication commentApplication;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
-    @Operation(summary = "Comment", description = "comment", tags = { "Comment Controller" })
+    @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
     // response 코드 별로 응답 시 내용(설명) 작성
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK",
@@ -43,7 +43,7 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/comment/create/{post-id}/{member-id}")
+    @PostMapping(value = "/comment/{post-id}/{member-id}")
     public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
                                                      @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
         CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
@@ -53,7 +53,7 @@ public class CommentController {
      /*
         READ
      */
-    @GetMapping(value="/comment/read/{post-id}")
+    @GetMapping(value="/comment/{post-id}/comments")
     public ResponseEntity<List<ReadCommentInfo>> ReadComment(@PathVariable("post-id")Long postId){
 
         List<ReadCommentInfo> readList=commentApplication.ReadPostComment(postId);
@@ -64,7 +64,7 @@ public class CommentController {
         UPDATE
      */
 
-    @PatchMapping(value="/comment/update/{comment-id}/{member-id}")
+    @PatchMapping(value="/comment/{comment-id}/{member-id}/content")
     public ResponseEntity<ReadCommentInfo> UpdateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
                                                          @PathVariable("comment-id")Long commentId,
                                                          @PathVariable("member-id")Long memberId){
@@ -76,7 +76,7 @@ public class CommentController {
         DELETE
      */
 
-    @DeleteMapping(value="/comment/delete/{comment-id}/{member-id}")
+    @DeleteMapping(value="/comment/{comment-id}/{member-id}")
     public ResponseEntity<String> DeleteComment(@PathVariable("comment-id")Long commentId,
                                                 @PathVariable("member-id")Long memberId){
         String message= commentApplication.DeleteComment(commentId,memberId);
