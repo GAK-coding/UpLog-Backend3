@@ -11,6 +11,7 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,10 @@ public class PostService {
         return post;
 
     }
-
+//  ================================DELETE=================================
+    @Transactional
+    public void deletePost(Long id){
+        Post post=postRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        postRepository.delete(post);
+    }
 }

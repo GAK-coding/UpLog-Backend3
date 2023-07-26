@@ -6,10 +6,7 @@ import com.uplog.uplog.domain.post.model.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +18,12 @@ public class PostController {
         Post createdPost = postService.createPost(id,createPostRequest);
         PostInfoDTO postInfoDTO = createdPost.toPostInfoDTO();
         return ResponseEntity.ok(postInfoDTO);
+    }
+
+    @DeleteMapping("posts/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long id){
+        postService.deletePost(id);
+        return ResponseEntity.noContent().build();
     }
 
 
