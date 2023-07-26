@@ -43,7 +43,7 @@ public class Post extends BaseTime {
     private String title;
     //content에 image랑 codeblock이 한번에 포함된것
     private String content;
-    private String projectName;
+    private String productName;
     private String version;
     private LocalDateTime createTime;
 
