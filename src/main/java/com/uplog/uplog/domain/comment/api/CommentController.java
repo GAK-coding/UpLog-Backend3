@@ -14,10 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -37,10 +39,24 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
-    @PostMapping(value = "/comment/edit/{post-id}/{member-id}")
-    public ResponseEntity<CommentDTO.CommentInfo> createComment(@RequestBody @Validated CommentDTO.CommentInfo commentData,
-                                                                @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
-        CommentDTO.CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
+
+     /*
+        CREATE
+     */
+    @PostMapping(value = "/comment/create/{post-id}/{member-id}")
+    public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
+                                                     @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
+        CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
         return new ResponseEntity<>(commentInfo, HttpStatus.CREATED);
+    }
+
+     /*
+        READ
+     */
+    @GetMapping(value="/comment/read/{post-id}")
+    public ResponseEntity<List<ReadCommentInfo>> ReadComment(@PathVariable("post-id")Long postId){
+
+        List<ReadCommentInfo> readList=commentApplication.ReadPostComment(postId);
+        return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 }

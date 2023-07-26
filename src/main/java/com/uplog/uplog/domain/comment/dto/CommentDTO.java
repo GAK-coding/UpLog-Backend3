@@ -59,4 +59,19 @@ public class CommentDTO {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReadCommentInfo{
+
+        private Long id;
+        private Long memberId;
+        private Long parentId;
+        private String content;
+
+
+
+    }
 }

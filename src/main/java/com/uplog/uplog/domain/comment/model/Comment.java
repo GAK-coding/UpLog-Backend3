@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.comment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.uplog.uplog.domain.comment.dto.CommentDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.global.BaseTime;
@@ -31,6 +32,7 @@ public class Comment extends BaseTime {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "member_id")
     private Member author;
 
@@ -53,6 +55,18 @@ public class Comment extends BaseTime {
         this.parent=parent;
         this.childList=childList;
         this.content=content;
+    }
+    public CommentDTO.ReadCommentInfo of(){
+        return CommentDTO.ReadCommentInfo.builder()
+                .content(this.content)
+                .id(this.id)
+                .parentId((this.parent==null)?null:this.parent.getId())
+                .memberId(this.author.getId())
+                .build();
+    }
+
+    public void settingPostId(Post post){
+        this.post=post;
     }
 
 

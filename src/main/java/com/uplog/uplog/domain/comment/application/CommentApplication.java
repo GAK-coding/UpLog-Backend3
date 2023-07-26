@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.comment.application;
 
 import com.uplog.uplog.domain.comment.dao.CommentRepository;
 import com.uplog.uplog.domain.comment.dto.CommentDTO;
+import com.uplog.uplog.domain.comment.dto.CommentDTO.CommentInfo;
 import com.uplog.uplog.domain.comment.model.Comment;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
@@ -14,8 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +32,11 @@ public class CommentApplication {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
+     /*
+        CREATE
+     */
     @Transactional
-    public CommentDTO.CommentInfo createComment(CommentDTO.CommentInfo commentData,Long postId, Long memberId){
+    public CommentInfo createComment(CommentInfo commentData, Long postId, Long memberId){
 
         //Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundMemberByEmailException::new);
@@ -39,6 +46,8 @@ public class CommentApplication {
 
 
             Comment comment=commentData.of(member,null,null);
+
+
             commentRepository.save(comment);
 
         }
@@ -48,11 +57,37 @@ public class CommentApplication {
                 //parent만 존재
                 Comment ParentComment=commentRepository.findById(commentData.getParentId()).orElseThrow(NotFoundIdException::new);
                 Comment comment=commentData.of(member,ParentComment,null);
+
                 commentRepository.save(comment);
 
             }
 
         return commentData;
+
+
+    }
+
+
+     /*
+        READ
+     */
+
+    public List<ReadCommentInfo> ReadPostComment(Long postId){
+
+        //post 만들어지면 post로 바꿔야함.
+        List<Comment> commentList=commentRepository.findByAuthorId(postId);
+
+        if(commentList==null||commentList.isEmpty()){
+            throw new NotFoundIdException();
+        }
+
+        List<ReadCommentInfo> commentInfos=new ArrayList<>();
+
+        for(Comment comment_tmp : commentList)
+            commentInfos.add(comment_tmp.of());
+
+        return commentInfos;
+
 
 
     }
