@@ -7,10 +7,13 @@ import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.dto.PostDTO.*;
 import com.uplog.uplog.domain.post.model.Post;
+import com.uplog.uplog.domain.post.model.PostType;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.task.exception.handler.NotFoundTaskByIdException;
+import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +30,10 @@ public class PostService {
     private final ProjectRepository projectRepository;
     private final MenuRepository menuRepository;
 
-//  ================================CREATE=================================
+    //  ================================CREATE=================================
     @Transactional
-    public Post createPost(Long id, CreatePostRequest createPostRequest){
-        Member author=memberRepository.findMemberById(id)
+    public Post createPost(Long id, CreatePostRequest createPostRequest) {
+        Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
         Menu menu = menuRepository.findById(createPostRequest.getMenuId())
@@ -43,18 +46,126 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
 
-
-        Post post=createPostRequest.toEntity(author,menu,product,project);
+        Post post = createPostRequest.toEntity(author, menu, product, project);
 
         postRepository.save(post);
 
         return post;
 
     }
-//  ================================DELETE=================================
+
+
+    //  ================================DELETE=================================
     @Transactional
-    public void deletePost(Long id){
-        Post post=postRepository.findById(id).orElseThrow(NotFoundIdException::new);
+    public void deletePost(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundIdException::new);
         postRepository.delete(post);
     }
+
+//  ================================UPDATE=================================
+//TODO update 권한 설정해야
+    @Transactional
+    public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
+        return post;
+        //        if(post.getAuthor().getId().equals(currentMemberId)){
+//            post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
+//            return post;
+//        }
+//        else{
+//            throw new AuthorityException();
+//        }
+
+    }
+
+    @Transactional
+    public Post updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        post.updatePostContent(updatePostContentRequest.getUpdateContent());
+        return post;
+        //        if(post.getAuthor().getId().equals(currentMemberId)){
+//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
+//            return post;
+//        }
+//        else{
+//            throw new AuthorityException();
+//        }
+
+    }
+
+    //TODO Enum수정
+    @Transactional
+    public Post updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        post.updatePostType(PostType.valueOf(updatePostTypeRequest.getUpdatePostType()));
+        return post;
+        //        if(post.getAuthor().getId().equals(currentMemberId)){
+//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
+//            return post;
+//        }
+//        else{
+//            throw new AuthorityException();
+//        }
+
+    }
+
+    @Transactional
+    public Post updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        Menu menu = menuRepository.findById(updatePostMenuRequest.getUpdateMenuId())
+                .orElseThrow(() -> new RuntimeException("Menu not found"));
+        post.updatePostMenu(menu);
+
+        return post;
+        //        if(post.getAuthor().getId().equals(currentMemberId)){
+//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
+//            return post;
+//        }
+//        else{
+//            throw new AuthorityException();
+//        }
+
+    }
+
+
+    //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스임
+    @Transactional
+    public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
+        return post;
+        //        if(post.getAuthor().getId().equals(currentMemberId)){
+//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
+//            return post;
+//        }
+//        else{
+//            throw new AuthorityException();
+//        }
+
+    }
+
+    //TODO 이건 나중에 프로젝트 수정할때 같이 불러야하는 서비스임
+
+    @Transactional
+    public Post updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
+        return post;
+        //        if(post.getAuthor().getId().equals(currentMemberId)){
+//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
+//            return post;
+//        }
+//        else{
+//            throw new AuthorityException();
+//        }
+
+    }
+
+
+
+
 }
