@@ -31,17 +31,24 @@ public class PostDTO {
         private Long projectId;
         private LocalDateTime createTime;
 
+
+// TODO POSTTYPE 관련해서 좀 더 수정해야함
+
         public Post toEntity(Member member, Menu menu, Product product, Project project){
-            return Post.builder()
+            Post.PostBuilder postBuilder = Post.builder()
                     .author(member)
                     .menu(menu)
-                    .postType(PostType.valueOf(postType))
                     .title(title)
                     .content(content)
                     .productName(product.getName())
                     .version(project.getVersion())
-                    .createTime(createTime)
-                    .build();
+                    .createTime(createTime);
+
+            if (postType != null) {
+                postBuilder.postType(PostType.valueOf(postType));
+            }
+
+            return postBuilder.build();
         }
 
     }

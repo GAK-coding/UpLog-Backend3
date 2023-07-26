@@ -41,6 +41,8 @@ public class PostService {
         Product product = productRepository.findById(createPostRequest.getPorductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+
+
         Post post=createPostRequest.toEntity(author,menu,product,project);
 
         postRepository.save(post);
