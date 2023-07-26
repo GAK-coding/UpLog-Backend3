@@ -26,6 +26,16 @@ public class memberTeamDTO {
                     .powerType(powerType)
                     .build();
         }
+    }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberTeamInfoDTO{
+        private Long id;
+        private Long memberId;
+        private String memberName;
+        private Long teamId;
     }
 }

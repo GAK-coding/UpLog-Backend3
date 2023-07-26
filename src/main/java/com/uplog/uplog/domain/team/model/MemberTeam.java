@@ -2,6 +2,8 @@ package com.uplog.uplog.domain.team.model;
 
 
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberTeamInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +39,15 @@ public class MemberTeam {
         this.team = team;
         this.member = member;
         this.powerType = powerType;
+    }
+
+    public MemberTeamInfoDTO toMemberTeamInfoDTO(){
+        return MemberTeamInfoDTO.builder()
+                .id(this.id)
+                .memberId(this.getMember().getId())
+                .memberName(this.getMember().getName())
+                .teamId(this.getTeam().getId())
+                .build();
     }
 
 
