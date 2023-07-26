@@ -91,4 +91,22 @@ public class CommentApplication {
 
 
     }
+
+     /*
+        UPDATE
+     */
+
+    @Transactional
+    public ReadCommentInfo UpdateCommentContent(UpdateCommentContent updateCommentContent,Long commentId){
+
+        Comment comment=commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
+        comment.UpdateCommentContent(updateCommentContent.getContent());
+        ReadCommentInfo readCommentInfo=comment.of();
+        return readCommentInfo;
+
+
+
+    }
+
+
 }

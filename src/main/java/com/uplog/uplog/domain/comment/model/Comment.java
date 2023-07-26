@@ -65,8 +65,8 @@ public class Comment extends BaseTime {
                 .build();
     }
 
-    public void settingPostId(Post post){
-        this.post=post;
+    public void UpdateCommentContent(String content){
+        this.content=content;
     }
 
 

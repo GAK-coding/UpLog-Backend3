@@ -59,4 +59,16 @@ public class CommentController {
         List<ReadCommentInfo> readList=commentApplication.ReadPostComment(postId);
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
+
+     /*
+        UPDATE
+     */
+
+    @PatchMapping(value="/comment/update/{comment-id}")
+    public ResponseEntity<ReadCommentInfo> UpdateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
+                                                         @PathVariable("comment-id")Long commentId){
+        ReadCommentInfo readCommentInfo=commentApplication.UpdateCommentContent(updateCommentContent,commentId);
+
+        return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
+    }
 }

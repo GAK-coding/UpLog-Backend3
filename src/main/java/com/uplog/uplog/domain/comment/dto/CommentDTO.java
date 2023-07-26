@@ -74,4 +74,16 @@ public class CommentDTO {
 
 
     }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateCommentContent{
+
+
+        private String content;
+
+
+
+    }
 }
