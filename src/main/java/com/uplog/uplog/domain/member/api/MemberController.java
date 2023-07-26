@@ -41,10 +41,17 @@ public class MemberController {
     }
 
     //이메일은 pathVariable로 넘기지 않고 DTO로 넘김
-    @GetMapping(value = "/members")
+    @GetMapping(value = "/members/email-request")
     public ResponseEntity<MemberInfoDTO> readMemberByEmail(@RequestBody @Validated EmailRequest emailRequest){
         MemberInfoDTO memberInfoDTO = memberService.findMemberByEmail(emailRequest.getEmail());
         return ResponseEntity.ok(memberInfoDTO);
+    }
+
+    //member 전체 조회
+    @GetMapping(value = "/members")
+    public ResponseEntity<ReadMembersDTO> readTotalMember(){
+        ReadMembersDTO readMembersDTO = memberService.findAllMembers();
+        return new ResponseEntity<>(readMembersDTO, HttpStatus.OK);
     }
 
     //============================update===================================

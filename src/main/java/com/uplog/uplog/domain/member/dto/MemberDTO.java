@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 public class MemberDTO {
 
@@ -133,6 +135,15 @@ public class MemberDTO {
     @NoArgsConstructor
     public static class DeleteMemberRequest{
         private String password;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ReadMembersDTO{
+        int memberCount;
+        List<MemberInfoDTO> memberInfoDTOList;
     }
 
 

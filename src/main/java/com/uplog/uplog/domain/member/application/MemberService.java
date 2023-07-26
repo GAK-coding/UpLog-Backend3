@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
 닉네임, 이름 중복 가능. 고유값은 email 하나뿐.
 탈퇴시에 해당 멤버 정보는 싹 날리고 리스트나 기록에서는 닉네임대신에 알수없음(이름)이런식으로!!
@@ -67,6 +70,24 @@ public class MemberService {
         Member member = memberRepository.findMemberByEmail(email).orElseThrow(NotFoundIdException::new);
         return member.toMemberInfoDTO();
     }
+
+    //멤버 전체 조회
+    @Transactional(readOnly = true)
+    public ReadMembersDTO findAllMembers(){
+        List<Member> members = memberRepository.findAll();
+        List<MemberInfoDTO> memberInfoDTOList = new ArrayList<>();
+        for(Member m : members){
+            MemberInfoDTO memberInfoDTO = m.toMemberInfoDTO();
+            memberInfoDTOList.add(memberInfoDTO);
+        }
+
+        return ReadMembersDTO.builder()
+                .memberCount(members.size())
+                .memberInfoDTOList(memberInfoDTOList)
+                .build();
+    }
+
+
 
     //==========================Member Update====================================================
     //TODO postman으로 변경사항 잘 반영되어 들어오는지 확인할것!!!!!!! + transaction공부
