@@ -5,7 +5,9 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,7 +58,8 @@ public class ProductDTO {
     public static class UpdateProductRequest{
         private String link;
         private String newName;
-        private List<String> clientEmailList;
+        private List<String> memberEmailList;
+        private PowerType powerType;
     }
 
     @Builder
@@ -73,9 +76,9 @@ public class ProductDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpdateProductInfoDTO{
-        private Long id;
-        private String name;
-        private List<MemberPowerDTO> memberPowerDTOList;
+//        private Long id;
+//        private String name;
+        private MemberPowerListDTO memberPowerListDTO;
         private UpdateResultDTO updateResultDTO;
     }
 

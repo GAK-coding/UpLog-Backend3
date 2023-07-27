@@ -14,13 +14,20 @@ import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
 import com.uplog.uplog.domain.team.application.TeamService;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO.SaveTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.SaveMemberTeamRequest;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.mail.MailDTO;
+import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
+import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,9 +43,11 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
+    private final MemberTeamRepository memberTeamRepository;
 
     private final TeamService teamService;
     private final MemberTeamService memberTeamService;
+    private final MailService mailService;
 
     //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
@@ -94,32 +103,85 @@ public class ProductService {
 
     //제품 수정
     @Transactional
-    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) {
+    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> failMemberList = new ArrayList<>();
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
         }
-        if (!updateProductRequest.getClientEmailList().isEmpty()) {
-            for (String s : updateProductRequest.getClientEmailList()) {
+        if (!updateProductRequest.getMemberEmailList().isEmpty()) {
+            for (String s : updateProductRequest.getMemberEmailList()) {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
                 if (memberRepository.existsByEmail(s)) {
                     SaveMemberTeamRequest saveMemberTeamRequest = SaveMemberTeamRequest.builder()
                             .teamId(product.getTeam().getId())
                             .memberEmail(s)
+                            .powerType(updateProductRequest.getPowerType())
                             .build();
                     memberTeamService.saveMemberTeam(saveMemberTeamRequest);
-                }
-                else{
+                    EmailRequest emailRequest = EmailRequest.builder()
+                            .email(s)
+                            .type(2)
+                            .link(updateProductRequest.getLink())
+                            .build();
+                    mailService.sendSimpleMessage(emailRequest);
+                } else {
                     failMemberList.add(s);
                 }
-                }
+            }
+
         }
         return UpdateResultDTO.builder()
                 .failCnt(failMemberList.size())
                 .failMemberList(failMemberList)
                 .build();
+
     }
+
+    //프로덕트 내에 멤버 리스트 출력
+    @Transactional(readOnly = true)
+    public MemberPowerListDTO findMemberPowerList(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        Team team = teamRepository.findById(product.getTeam().getId()).orElseThrow(NotFoundIdException::new);
+        List<String> leaderList = new ArrayList<>();
+        List<String> clientList = new ArrayList<>();
+        List<String> workerList = new ArrayList<>();
+        String master = "";
+
+        List<MemberTeam> masterL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.MASTER);
+        List<MemberTeam> leaderL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.LEADER);
+        List<MemberTeam> clientL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.CLIENT);
+        List<MemberTeam> workerL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.DEFAULT);
+
+        //마스터
+        for (MemberTeam m : masterL) {
+            master = m.getMember().getEmail();
+        }
+        //리더 리스트
+        for (MemberTeam l : leaderL) {
+            leaderList.add(l.getMember().getEmail());
+        }
+        //작업자 리스트
+        for (MemberTeam w : workerL) {
+            workerList.add(w.getMember().getEmail());
+        }
+        //의뢰인 리스트
+        for (MemberTeam c : clientL) {
+            clientList.add(c.getMember().getEmail());
+        }
+        return MemberPowerListDTO.builder()
+                .poductId(productId)
+                .productName(product.getName())
+                .master(master)
+                .leaderCnt(leaderList.size())
+                .leaderList(leaderList)
+                .workerCnt(workerList.size())
+                .workerList(workerList)
+                .clientCnt(clientList.size())
+                .clientList(clientList)
+                .build();
+    }
+
     //마스터, 리더들이 제품에 멤버 추가할때
 
 
