@@ -65,103 +65,87 @@ public class PostService {
 //  ================================UPDATE=================================
 //TODO update 권한 설정해야
     @Transactional
-    public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest) {
+    public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-        return post;
-        //        if(post.getAuthor().getId().equals(currentMemberId)){
-//            post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-//            return post;
-//        }
-//        else{
-//            throw new AuthorityException();
-//        }
+          if(post.getAuthor().getId().equals(currentUserId)){
+              post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
+              return post;
+        }
+        else{
+            throw new AuthorityException();
+        }
 
     }
 
     @Transactional
-    public Post updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest) {
+    public Post updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        post.updatePostContent(updatePostContentRequest.getUpdateContent());
-        return post;
-        //        if(post.getAuthor().getId().equals(currentMemberId)){
-//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
-//            return post;
-//        }
-//        else{
-//            throw new AuthorityException();
-//        }
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostContent(updatePostContentRequest.getUpdateContent());
+            return post;
+        }
+        else{
+            throw new AuthorityException();
+        }
 
     }
 
     //TODO Enum수정
     @Transactional
-    public Post updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest) {
+    public Post updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-
-        post.updatePostType(PostType.valueOf(updatePostTypeRequest.getUpdatePostType()));
-        return post;
-        //        if(post.getAuthor().getId().equals(currentMemberId)){
-//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
-//            return post;
-//        }
-//        else{
-//            throw new AuthorityException();
-//        }
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostContent(updatePostTypeRequest.getUpdatePostType());
+            return post;
+        }
+        else{
+            throw new AuthorityException();
+        }
 
     }
 
     @Transactional
-    public Post updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest) {
+    public Post updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         Menu menu = menuRepository.findById(updatePostMenuRequest.getUpdateMenuId())
                 .orElseThrow(() -> new RuntimeException("Menu not found"));
-        post.updatePostMenu(menu);
-
-        return post;
-        //        if(post.getAuthor().getId().equals(currentMemberId)){
-//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
-//            return post;
-//        }
-//        else{
-//            throw new AuthorityException();
-//        }
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostMenu(menu);
+            return post;
+        }
+        else{
+            throw new AuthorityException();
+        }
 
     }
 
 
     //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스임
     @Transactional
-    public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest) {
+    public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-
-        post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
-        return post;
-        //        if(post.getAuthor().getId().equals(currentMemberId)){
-//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
-//            return post;
-//        }
-//        else{
-//            throw new AuthorityException();
-//        }
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
+            return post;
+        }
+        else{
+            throw new AuthorityException();
+        }
 
     }
 
     //TODO 이건 나중에 프로젝트 수정할때 같이 불러야하는 서비스임
 
     @Transactional
-    public Post updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest) {
+    public Post updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-
-        post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
-        return post;
-        //        if(post.getAuthor().getId().equals(currentMemberId)){
-//            post.updatePostContent(updatePostContentRequest.getUpdateContent());
-//            return post;
-//        }
-//        else{
-//            throw new AuthorityException();
-//        }
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
+            return post;
+        }
+        else{
+            throw new AuthorityException();
+        }
 
     }
 

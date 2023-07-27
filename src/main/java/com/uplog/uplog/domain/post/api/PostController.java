@@ -32,28 +32,28 @@ public class PostController {
 
     //update
     @PatchMapping("/posts/{post_id}/title")
-    public ResponseEntity<PostInfoDTO> updatePostTitle(@PathVariable Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest){
-        Post updatedPost=postService.updatePostTitle(id,updatePostTitleRequest);
+    public ResponseEntity<PostInfoDTO> updatePostTitle(@PathVariable Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId){
+        Post updatedPost=postService.updatePostTitle(id,updatePostTitleRequest,currentUserId);
         PostInfoDTO postInfoDTO=updatedPost.toPostInfoDTO();
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post_id}/content")
-    public ResponseEntity<PostInfoDTO> updatePostContent(@PathVariable Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest){
-        Post updatedPost=postService.updatePostContent(id,updatePostContentRequest);
+    public ResponseEntity<PostInfoDTO> updatePostContent(@PathVariable Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest,Long currentUserId){
+        Post updatedPost=postService.updatePostContent(id,updatePostContentRequest,currentUserId);
         PostInfoDTO postInfoDTO=updatedPost.toPostInfoDTO();
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post_id}/type")
-    public ResponseEntity<PostInfoDTO> updatePostType(@PathVariable Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest){
-        Post updatedPost=postService.updatePostType(id,updatePostTypeRequest);
+    public ResponseEntity<PostInfoDTO> updatePostType(@PathVariable Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId){
+        Post updatedPost=postService.updatePostType(id,updatePostTypeRequest,currentUserId);
         PostInfoDTO postInfoDTO=updatedPost.toPostInfoDTO();
         return ResponseEntity.ok(postInfoDTO);
     }
     @PatchMapping("/posts/{post_id}/menu")
-    public ResponseEntity<PostInfoDTO> updatePostMenu(@PathVariable Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest){
-        Post updatedPost=postService.updatePostMenu(id,updatePostMenuRequest);
+    public ResponseEntity<PostInfoDTO> updatePostMenu(@PathVariable Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest,Long currentUserId){
+        Post updatedPost=postService.updatePostMenu(id,updatePostMenuRequest,currentUserId);
         PostInfoDTO postInfoDTO=updatedPost.toPostInfoDTO();
         return ResponseEntity.ok(postInfoDTO);
     }
