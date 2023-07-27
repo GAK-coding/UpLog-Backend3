@@ -1,9 +1,7 @@
-package com.uplog.uplog.domain.member.api;
+package com.uplog.uplog.global.mail;
 
-import com.uplog.uplog.domain.member.application.MailService;
-import com.uplog.uplog.domain.member.dto.MemberDTO;
-import com.uplog.uplog.domain.member.dto.MemberDTO.EmailRequest;
 import com.uplog.uplog.global.error.ErrorResponse;
+import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
