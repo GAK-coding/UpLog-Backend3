@@ -28,6 +28,7 @@ public class TeamDTO {
         //private Long productId;
         private String teamName;
         //팀의 이름은 제품의 이름으로 들어가게 됨!
+        private String link;
 
         public Team toEntity(){
             return Team.builder()
