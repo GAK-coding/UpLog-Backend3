@@ -23,7 +23,7 @@ public class ProjectService {
     @Transactional
     public CreateInitInfo createInit(CreateInitInfo createInitInfo, Long prodId){
 
-
+        //변경이슈 먼저 하고 product랑 team완료되면 시작
         return createInitInfo;
     }
 }

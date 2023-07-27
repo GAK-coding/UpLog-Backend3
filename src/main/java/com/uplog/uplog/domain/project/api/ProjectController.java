@@ -37,7 +37,7 @@ public class ProjectController {
     @PostMapping(value="/project/{product-id}")
     public CreateInitInfo CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("project-id")Long pjId) {
 
-
+        //변경이슈 먼저 하고 product랑 team완료되면 시작
 
         return createInitInfo;
     }
