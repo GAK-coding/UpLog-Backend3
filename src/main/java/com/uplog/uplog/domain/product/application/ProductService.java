@@ -5,13 +5,19 @@ import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.dto.ProductDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.ProductInfoDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.SaveProductRequest;
+import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateProductRequest;
+import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateResultDTO;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.team.application.MemberTeamService;
 import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO.SaveTeamRequest;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.SaveMemberTeamRequest;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
@@ -20,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,6 +38,7 @@ public class ProductService {
     private final TeamRepository teamRepository;
 
     private final TeamService teamService;
+    private final MemberTeamService memberTeamService;
 
     //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
@@ -38,14 +46,14 @@ public class ProductService {
     //기업이 처음 제품 생성할때
     //기업만 제품을 생성할 수 있음.
     @Transactional
-    public Long saveProduct(Long memberId, SaveProductRequest saveProductRequest){
+    public Long saveProduct(Long memberId, SaveProductRequest saveProductRequest) {
         Member master = memberRepository.findMemberByEmail(saveProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
-        if(member.getPosition() == Position.COMPANY) {
+        if (member.getPosition() == Position.COMPANY) {
             List<Product> productList = productRepository.findProductsByCompany(member.getName());
-            for(Product p : productList){
+            for (Product p : productList) {
                 //제품들의 이름이 중복되지 않는지 확인
-                if(saveProductRequest.getName().equals(p.getName())){
+                if (saveProductRequest.getName().equals(p.getName())) {
                     throw new DuplicatedProductNameException("제품 이름이 중복됩니다.");
                 }
             }
@@ -53,6 +61,7 @@ public class ProductService {
             SaveTeamRequest saveTeamRequest = SaveTeamRequest.builder()
                     .teamName(saveProductRequest.getName())
                     .memberEmail(saveProductRequest.getMasterEmail())
+                    .link(saveProductRequest.getLink())
                     .build();
             Long teamId = teamService.saveTeam(saveTeamRequest);
 
@@ -68,29 +77,49 @@ public class ProductService {
             productRepository.save(product);
 
             return product.getId();
-        }
-        else{
+        } else {
             throw new AuthorityException("제품 생성 권한이 없습니다.");
         }
 
     }
 
-    @Transactional(readOnly = true)
-    public ProductInfoDTO asdasd (Long pId) {
-
-        Product product = productRepository.findById(pId).orElseThrow(NotFoundIdException::new);
-        return product.toProductInfoDTO(null);
-    }
-
 
     //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
     @Transactional(readOnly = true)
-    public ProductInfoDTO readProductById(Long id){
+    public ProductInfoDTO readProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
 
         return product.toProductInfoDTO(null);
     }
 
+    //제품 수정
+    @Transactional
+    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        List<String> failMemberList = new ArrayList<>();
+        if (updateProductRequest.getNewName() != null) {
+            product.updateName(updateProductRequest.getNewName());
+        }
+        if (!updateProductRequest.getClientEmailList().isEmpty()) {
+            for (String s : updateProductRequest.getClientEmailList()) {
+                //존재하지 않는 멤버라면 리스트에 저장하고 출력
+                if (memberRepository.existsByEmail(s)) {
+                    SaveMemberTeamRequest saveMemberTeamRequest = SaveMemberTeamRequest.builder()
+                            .teamId(product.getTeam().getId())
+                            .memberEmail(s)
+                            .build();
+                    memberTeamService.saveMemberTeam(saveMemberTeamRequest);
+                }
+                else{
+                    failMemberList.add(s);
+                }
+                }
+        }
+        return UpdateResultDTO.builder()
+                .failCnt(failMemberList.size())
+                .failMemberList(failMemberList)
+                .build();
+    }
     //마스터, 리더들이 제품에 멤버 추가할때
 
 
