@@ -60,8 +60,8 @@ public class MailService {
 
         String msg = "";
         msg += "<div style='margin:100px;'>";
-        msg += "<h1>안녕하세요</h1>";
-        msg += "<h3>release를 누구나 간편하게!<h3>";
+        //msg += "<h1>안녕하세요</h1>";
+        msg += "<h2>안녕하세요, release를 누구나 간편하게!<h3>";
         msg += "<h1>UpLog입니다.";
         msg += "<br>";
         msg += "<p>만족스러운 서비스를 제공하도록 노력하겠습니다. 감사합니다!";
