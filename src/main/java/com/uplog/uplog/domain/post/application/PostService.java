@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,7 +33,9 @@ public class PostService {
     private final ProjectRepository projectRepository;
     private final MenuRepository menuRepository;
 
-    //  ================================CREATE=================================
+    /*
+    Create
+     */
     @Transactional
     public Post createPost(Long id, CreatePostRequest createPostRequest) {
         Member author = memberRepository.findMemberById(id)
@@ -55,15 +60,19 @@ public class PostService {
     }
 
 
-    //  ================================DELETE=================================
+    /*
+    Delete
+     */
     @Transactional
     public void deletePost(Long id) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundIdException::new);
         postRepository.delete(post);
     }
 
-//  ================================UPDATE=================================
-//TODO update 권한 설정해야
+    /*
+        update
+    */
+    //TODO update 권한 설정해야
     @Transactional
     public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
@@ -149,7 +158,20 @@ public class PostService {
 
     }
 
+    /*
+    Get
+     */
+    @Transactional
+    public List<PostInfoDTO> getPostByMenu(Long menuId){
+        List<Post> postList=postRepository.findByMenuId(menuId);
+        List<PostInfoDTO> postInfoDTOs=new ArrayList<>();
+        for(Post post:postList){
+            PostInfoDTO postInfoDTO=post.toPostInfoDTO();
+            postInfoDTOs.add(postInfoDTO);
+        }
+        return postInfoDTOs;
 
+    }
 
 
 }
