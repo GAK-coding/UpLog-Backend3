@@ -47,4 +47,24 @@ public class Swagger {
                 .pathsToMatch(paths)
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi projectOpenApi(){
+        String[] paths = {"/project/**"};
+
+        return GroupedOpenApi.builder()
+                .group("project")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi changedIssueOpenApi(){
+        String[] paths = {"/changedIssue/**"};
+
+        return GroupedOpenApi.builder()
+                .group("changedIssue")
+                .pathsToMatch(paths)
+                .build();
+    }
 }
