@@ -38,7 +38,7 @@ public class ChangedIssueService {
                 .orElseThrow(()->new NotFoundProjectException(projId));
         Member member=memberRepository.findMemberById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
-        //수정, 삭제 권한 -> teamId로 memberTeam 쿼리
+        //수정, 삭제 권한 -> memberId로 memberTeam 쿼리
 
         ChangedIssue changedIssue=createInitChangedIssueInfo.of(member,project);
         changedIssueRepository.save(changedIssue);
