@@ -47,14 +47,6 @@ public class MemberDTO {
         private String password;
     }
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class EmailRequest{
-        private String email;
-        private int type;
-    }
 
     @Getter
     @Builder

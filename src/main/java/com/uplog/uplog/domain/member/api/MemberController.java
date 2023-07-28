@@ -3,6 +3,7 @@ package com.uplog.uplog.domain.member.api;
 import com.uplog.uplog.domain.member.application.MemberService;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.global.mail.MailDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ public class MemberController {
 
     //이메일은 pathVariable로 넘기지 않고 DTO로 넘김
     @GetMapping(value = "/members/email-request")
-    public ResponseEntity<MemberInfoDTO> readMemberByEmail(@RequestBody @Validated EmailRequest emailRequest){
+    public ResponseEntity<MemberInfoDTO> readMemberByEmail(@RequestBody @Validated MailDTO.EmailRequest emailRequest){
         MemberInfoDTO memberInfoDTO = memberService.findMemberByEmail(emailRequest.getEmail());
         return ResponseEntity.ok(memberInfoDTO);
     }
