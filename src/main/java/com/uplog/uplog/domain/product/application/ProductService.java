@@ -55,7 +55,7 @@ public class ProductService {
     //기업이 처음 제품 생성할때
     //기업만 제품을 생성할 수 있음.
     @Transactional
-    public Long saveProduct(Long memberId, SaveProductRequest saveProductRequest) {
+    public Long saveProduct(Long memberId, SaveProductRequest saveProductRequest) throws Exception {
         Member master = memberRepository.findMemberByEmail(saveProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
         if (member.getPosition() == Position.COMPANY) {
@@ -123,6 +123,7 @@ public class ProductService {
                             .email(s)
                             .type(2)
                             .link(updateProductRequest.getLink())
+                            .powerType(updateProductRequest.getPowerType())
                             .build();
                     mailService.sendSimpleMessage(emailRequest);
                 } else {

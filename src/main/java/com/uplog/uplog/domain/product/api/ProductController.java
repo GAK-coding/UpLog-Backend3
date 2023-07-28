@@ -25,7 +25,7 @@ public class ProductController {
     private final ProductRepository productRepository;
 
     @PostMapping(value="/products/{member-id}")
-    public ResponseEntity<ProductInfoDTO> saveProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated SaveProductRequest saveProductRequest) {
+    public ResponseEntity<ProductInfoDTO> saveProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated SaveProductRequest saveProductRequest) throws Exception {
         Long pId = productService.saveProduct(companyId,saveProductRequest);
         ProductInfoDTO productInfoDTO = productService.readProductById(pId);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.CREATED);
