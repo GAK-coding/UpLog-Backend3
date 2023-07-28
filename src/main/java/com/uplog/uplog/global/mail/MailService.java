@@ -45,6 +45,7 @@ public class MailService {
         log.info("authNum : " + authNum);
         MimeMessage message = javaMailSender.createMimeMessage();
         String guide ="";
+        String powerType= "";
 //        String title = "";
 //        String subtitle = "";
 
@@ -63,6 +64,7 @@ public class MailService {
             subtitle = "TeamSpace 링크입니다.";
             authNum = emailRequest.getLink();
             guide = "Link";
+            powerType= emailRequest.getPowerType().toString();
         }
         message.addRecipients(RecipientType.TO, emailRequest.getEmail()); //보내는 대상
         message.setSubject(title); //제목
@@ -75,8 +77,9 @@ public class MailService {
         msg += "<br>";
         msg += "<p>만족스러운 서비스를 제공하도록 노력하겠습니다. 감사합니다!";
         msg += "<div align='center' style='border:1px solid black; font-family:verdana; font-size:80%';>";
-        msg += "<h3 style='color:blue'>";
-        msg += subtitle + "</h3>";
+        msg += "<div><h3 style='color:blue'>";
+        msg += subtitle+"</h3>";
+        if(powerType!=""){msg += powerType + " 권한으로 초대되었습니다.</div>";}
         msg += "<div>";
         msg += guide + " : <strong>";
         msg += authNum + "</strong><div><br/>"; //메일에 인증번호 넣기
