@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class memberTeamDTO {
     @Builder
     @Getter
@@ -18,6 +20,7 @@ public class memberTeamDTO {
         private String memberEmail;
         private Long teamId;
         private PowerType powerType;
+        private String link;
 
         public MemberTeam toMemberTeam(Team team, Member member, PowerType powerType){
             return MemberTeam.builder()
@@ -37,5 +40,30 @@ public class memberTeamDTO {
         private Long memberId;
         private String memberName;
         private Long teamId;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberPowerDTO{
+        private String memberEmail;
+        private PowerType powerType;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberPowerListDTO{
+        private Long poductId;
+        private String productName;
+        private String master;
+        private int leaderCnt;
+        private List<String> leaderList;
+        private int workerCnt;
+        private List<String> workerList;
+        private int clientCnt;
+        private List<String> clientList;
     }
 }
