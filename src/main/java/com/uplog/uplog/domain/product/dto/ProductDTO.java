@@ -69,6 +69,8 @@ public class ProductDTO {
     public static class UpdateResultDTO{
         private int failCnt;
         private List<String> failMemberList;
+        private int duplicatedCnt;
+        private List<String> duplicatedMemberList;
     }
 
     @Builder

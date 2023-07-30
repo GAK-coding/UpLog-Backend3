@@ -106,6 +106,8 @@ public class ProductService {
     public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> failMemberList = new ArrayList<>();
+        List<String> duplicatedMemberList = new ArrayList<>();
+
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
         }
@@ -113,19 +115,25 @@ public class ProductService {
             for (String s : updateProductRequest.getMemberEmailList()) {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
                 if (memberRepository.existsByEmail(s)) {
-                    SaveMemberTeamRequest saveMemberTeamRequest = SaveMemberTeamRequest.builder()
-                            .teamId(product.getTeam().getId())
-                            .memberEmail(s)
-                            .powerType(updateProductRequest.getPowerType())
-                            .build();
-                    memberTeamService.saveMemberTeam(saveMemberTeamRequest);
-                    EmailRequest emailRequest = EmailRequest.builder()
-                            .email(s)
-                            .type(2)
-                            .link(updateProductRequest.getLink())
-                            .powerType(updateProductRequest.getPowerType())
-                            .build();
-                    mailService.sendSimpleMessage(emailRequest);
+                    //팀 멤버 내에 초대된 사람인지 중복 확인
+                    if(!memberTeamRepository.existsMemberTeamByMember_EmailAndTeamId( s,product.getTeam().getId())) {
+                        SaveMemberTeamRequest saveMemberTeamRequest = SaveMemberTeamRequest.builder()
+                                .teamId(product.getTeam().getId())
+                                .memberEmail(s)
+                                .powerType(updateProductRequest.getPowerType())
+                                .build();
+                        memberTeamService.saveMemberTeam(saveMemberTeamRequest);
+                        EmailRequest emailRequest = EmailRequest.builder()
+                                .email(s)
+                                .type(2)
+                                .link(updateProductRequest.getLink())
+                                .powerType(updateProductRequest.getPowerType())
+                                .build();
+                        mailService.sendSimpleMessage(emailRequest);
+                    }
+                    else{
+                        duplicatedMemberList.add(s);
+                    }
                 } else {
                     failMemberList.add(s);
                 }
@@ -135,6 +143,8 @@ public class ProductService {
         return UpdateResultDTO.builder()
                 .failCnt(failMemberList.size())
                 .failMemberList(failMemberList)
+                .duplicatedCnt(duplicatedMemberList.size())
+                .duplicatedMemberList(duplicatedMemberList)
                 .build();
 
     }
