@@ -1,9 +1,6 @@
 package com.uplog.uplog.domain.comment.api;
 
 import com.uplog.uplog.domain.comment.application.CommentApplication;
-import com.uplog.uplog.domain.comment.dto.CommentDTO;
-import com.uplog.uplog.domain.member.api.TestController;
-import com.uplog.uplog.domain.member.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,7 +40,7 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/comment/{post-id}/{member-id}")
+    @PostMapping(value = "/comments/{post-id}/{member-id}")
     public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
                                                      @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
         CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
@@ -53,17 +50,17 @@ public class CommentController {
      /*
         READ
      */
-    @GetMapping(value="/comment/{post-id}/comments")
-    public ResponseEntity<List<ReadCommentInfo>> ReadComment(@PathVariable("post-id")Long postId){
+    @GetMapping(value="/comments/{post-id}/comments")
+    public ResponseEntity<List<ReadCommentInfo>> readComment(@PathVariable("post-id")Long postId){
 
-        List<ReadCommentInfo> readList=commentApplication.ReadPostComment(postId);
+        List<ReadCommentInfo> readList=commentApplication.readPostComment(postId);
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
-    @GetMapping(value="/comment/{comment-id}/singlecomment")
-    public ResponseEntity<List<ReadCommentInfo>> ReadSingleComment(@PathVariable("comment-id")Long commentId){
+    @GetMapping(value="/comments/{comment-id}/singlecomment")
+    public ResponseEntity<List<ReadCommentInfo>> readSingleComment(@PathVariable("comment-id")Long commentId){
 
-        List<ReadCommentInfo> readSingleList=commentApplication.ReadPostSingleComment(commentId);
+        List<ReadCommentInfo> readSingleList=commentApplication.readPostSingleComment(commentId);
         return new ResponseEntity<>(readSingleList,HttpStatus.OK);
     }
 
@@ -71,11 +68,11 @@ public class CommentController {
         UPDATE
      */
 
-    @PatchMapping(value="/comment/{comment-id}/{member-id}/content")
-    public ResponseEntity<ReadCommentInfo> UpdateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
+    @PatchMapping(value="/comments/{comment-id}/{member-id}/content")
+    public ResponseEntity<ReadCommentInfo> updateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
                                                          @PathVariable("comment-id")Long commentId,
                                                          @PathVariable("member-id")Long memberId){
-        ReadCommentInfo readCommentInfo=commentApplication.UpdateCommentContent(updateCommentContent,commentId,memberId);
+        ReadCommentInfo readCommentInfo=commentApplication.updateCommentContent(updateCommentContent,commentId,memberId);
         return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
     }
 
@@ -83,10 +80,10 @@ public class CommentController {
         DELETE
      */
 
-    @DeleteMapping(value="/comment/{comment-id}/{member-id}")
-    public ResponseEntity<String> DeleteComment(@PathVariable("comment-id")Long commentId,
+    @DeleteMapping(value="/comments/{comment-id}/{member-id}")
+    public ResponseEntity<String> deleteComment(@PathVariable("comment-id")Long commentId,
                                                 @PathVariable("member-id")Long memberId){
-        String message= commentApplication.DeleteComment(commentId,memberId);
+        String message= commentApplication.deleteComment(commentId,memberId);
         return ResponseEntity.ok(message);
     }
 }
