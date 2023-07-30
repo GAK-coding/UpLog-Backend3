@@ -36,7 +36,7 @@ public class ChangedIssueController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
 
-    @PostMapping(value="/changedIssue/{project-id}/{member-id}")
+    @PostMapping(value="/changedIssues/{project-id}/{member-id}")
     public createInitChangedIssueInfo createInitIssue(@RequestBody @Validated createInitChangedIssueInfo createInitChangedIssueInfo,
                                                       @PathVariable("project-id")Long projId,
                                                       @PathVariable("member-id")Long memberId){

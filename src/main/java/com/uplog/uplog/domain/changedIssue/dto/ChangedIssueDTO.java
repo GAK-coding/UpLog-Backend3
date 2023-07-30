@@ -27,7 +27,7 @@ public class ChangedIssueDTO {
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;
 
-        public ChangedIssue of(Member author, Project project){
+        public ChangedIssue toEntity(Member author, Project project){
             return ChangedIssue.builder()
                     .project(project)
                     .author(author)

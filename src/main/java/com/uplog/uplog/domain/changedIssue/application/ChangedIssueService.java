@@ -40,10 +40,10 @@ public class ChangedIssueService {
                 .orElseThrow(NotFoundMemberByEmailException::new);
         //수정, 삭제 권한 -> memberId로 memberTeam 쿼리
 
-        ChangedIssue changedIssue=createInitChangedIssueInfo.of(member,project);
+        ChangedIssue changedIssue=createInitChangedIssueInfo.toEntity(member,project);
         changedIssueRepository.save(changedIssue);
 
-        createInitChangedIssueInfo IssueData=changedIssue.of();
+        createInitChangedIssueInfo IssueData=changedIssue.toCreateInitChangedIssueInfo();
 
         return IssueData;
 
