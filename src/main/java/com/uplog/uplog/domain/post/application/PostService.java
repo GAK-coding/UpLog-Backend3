@@ -72,7 +72,7 @@ public class PostService {
     /*
         update
     */
-    //TODO update 권한 설정해야
+    //TODO update 권한 설정해야,==으로 바꾸기
     @Transactional
     public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);

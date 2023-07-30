@@ -64,7 +64,7 @@ public class TaskController {
     }
 
     //상세 내용 수정
-    @PatchMapping("/tasks/{task_id}/content")
+    @PatchMapping("/tasks/{task_id}/content ")
     public ResponseEntity<TaskInfoDTO> updateTaskContent(@PathVariable(name="task_id") Long id, @RequestBody UpdateTaskContentRequest updateTaskContentRequest) {
         Task updatedTask = taskService.updateTaskContent(id,updateTaskContentRequest);
         TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
