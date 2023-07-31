@@ -127,6 +127,14 @@ public class MemberDTO {
         private Position newPosition;
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DeleteMemberRequest{
+        private String password;
+    }
+
 
 
 }
