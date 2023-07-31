@@ -51,7 +51,7 @@ public class TaskService {
     //========================================read========================================
     //task읽기
     @Transactional(readOnly = true)
-    public Task getTaskById(Long id) {
+    public Task findTaskById(Long id) {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         return task;
     }
@@ -78,7 +78,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskName(updateTaskNameRequest.getUpdatetaskName());
-        taskRepository.save(task);
 
         return task;
     }
@@ -88,7 +87,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskDate(updateTaskDateRequest.getUpdateStartTime(),updateTaskDateRequest.getUpdateEndTime());
-        taskRepository.save(task);
 
         return task;
     }
@@ -98,7 +96,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskContent(updateTaskContentRequest.getUpdateContent());
-        taskRepository.save(task);
 
         return task;
     }
@@ -111,7 +108,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskMenu(menu);
-        taskRepository.save(task);
 
         return task;
     }
@@ -123,7 +119,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskmember(member);
-        taskRepository.save(task);
 
         return task;
     }
@@ -135,7 +130,6 @@ public class TaskService {
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskTeam(projectTeam);
-        taskRepository.save(task);
 
         return task;
     }
@@ -148,7 +142,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskStatus(UpdateTaskStatusRequest.getTaskStatus());
-        taskRepository.save(task);
 
         return task;
     }

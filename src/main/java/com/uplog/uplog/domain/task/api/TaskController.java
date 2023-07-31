@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,13 +26,13 @@ public class TaskController {
     public ResponseEntity<TaskInfoDTO> createTask(@PathVariable(name = "member_id") Long id,@RequestBody CreateTaskRequest createTaskRequest) {
         Task createdTask = taskService.createTask(id,createTaskRequest);
         TaskInfoDTO taskInfoDTO = createdTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        return new ResponseEntity<>(taskInfoDTO, HttpStatus.CREATED);
     }
 
     //조회
     @GetMapping("/tasks/{task_id}")
-    public ResponseEntity<TaskInfoDTO> getTaskById(@PathVariable(name="task_id") Long id) {
-        Task task = taskService.getTaskById(id);
+    public ResponseEntity<TaskInfoDTO> findTaskById(@PathVariable(name="task_id") Long id) {
+        Task task = taskService.findTaskById(id);
         TaskInfoDTO taskInfoDTO = task.toTaskInfoDTO();
         return ResponseEntity.ok(taskInfoDTO);
     }
