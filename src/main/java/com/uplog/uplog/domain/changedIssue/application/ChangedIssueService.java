@@ -69,8 +69,8 @@ public class ChangedIssueService {
                                                       Long projId, Long memberId,Long productId){
 
 
-        //진행 중 project가 있으면 접근 제한
-        checkProcessProject(productId);
+        //진행 중 project가 아니면 접근 제한
+        checkProjectProgress(memberId,projId);
 
         Project project=projectRepository.findById(projId)
                 .orElseThrow(()->new NotFoundProjectException(projId));
@@ -187,8 +187,7 @@ public class ChangedIssueService {
 
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QProject project=QProject.project;
-        //우선 접근 권한 있는 사용자인지 확인
-        powerValidate(memberId);
+
 
         ProjectStatus projectStatus=query
                 .select(project.projectStatus)
@@ -200,31 +199,14 @@ public class ChangedIssueService {
             throw new ExistProcessProjectExeption(projectId,projectStatus);
         }
 
+        //접근 권한 있는 사용자인지 확인
+        powerValidate(memberId);
+
 
 
         return AccessProperty.ACCESS_OK.toString();
     }
 
 
-    //진행 중 project가 있으면 접근 제한
-    public void checkProcessProject(Long productId){
 
-        JPAQueryFactory query=new JPAQueryFactory(entityManager);
-        QProject project=QProject.project;
-        List<Project> projectList=query
-                .selectFrom(project)
-                .where(project.product.id.eq(productId))
-                .fetch();
-
-
-        for(Project project1: projectList){
-
-
-            if(project1.getProjectStatus()== ProjectStatus.PROGRESS_IN){
-
-                throw new ExistProcessProjectExeption(project1.getId());
-            }
-        }
-
-    }
 }
