@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@DiscriminatorValue("Project_Team")
 public class ProjectTeam extends Team {
     @OneToMany(mappedBy = "projectTeam")
     private List<Task> taskList = new ArrayList<>();
@@ -28,5 +29,7 @@ public class ProjectTeam extends Team {
 
     @OneToMany(mappedBy = "parentTeam")
     private List<ProjectTeam> childTeam = new ArrayList<ProjectTeam>();
+
+    private String name;
 
 }

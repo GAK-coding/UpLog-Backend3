@@ -1,11 +1,11 @@
-package com.uplog.uplog.domain.member.application;
+package com.uplog.uplog.global.mail;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
-import com.uplog.uplog.domain.member.dto.MemberDTO.EmailRequest;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.global.error.ErrorResponse;
+import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.method.GlobalMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,32 +44,44 @@ public class MailService {
         log.info("보내는 대상" + emailRequest.getEmail());
         log.info("authNum : " + authNum);
         MimeMessage message = javaMailSender.createMimeMessage();
+        String guide ="";
+        String powerType= "";
 //        String title = "";
 //        String subtitle = "";
 
         if(emailRequest.getType() == 0){
             title = "UpLog 회원가입 이메일 인증";
             subtitle = "회원가입 인증 코드입니다.";
+            guide = "CODE";
         }
         else if(emailRequest.getType() == 1){
             title = "UpLog 비밀번호 변경 이메일 인증";
             subtitle = "비밀번호 변경 인증 코드입니다.";
+            guide = "CODE";
+        }
+        else if(emailRequest.getType() == 2){
+            title = "UpLog TeamSpace 초대 이메일";
+            subtitle = "TeamSpace 링크입니다.";
+            authNum = emailRequest.getLink();
+            guide = "Link";
+            powerType= emailRequest.getPowerType().toString();
         }
         message.addRecipients(RecipientType.TO, emailRequest.getEmail()); //보내는 대상
         message.setSubject(title); //제목
 
         String msg = "";
         msg += "<div style='margin:100px;'>";
-        msg += "<h1>안녕하세요</h1>";
-        msg += "<h3>release를 누구나 간편하게!<h3>";
+        //msg += "<h1>안녕하세요</h1>";
+        msg += "<h2>안녕하세요, release를 누구나 간편하게!<h3>";
         msg += "<h1>UpLog입니다.";
         msg += "<br>";
         msg += "<p>만족스러운 서비스를 제공하도록 노력하겠습니다. 감사합니다!";
         msg += "<div align='center' style='border:1px solid black; font-family:verdana; font-size:80%';>";
-        msg += "<h3 style='color:blue'>";
-        msg += subtitle + "</h3>";
+        msg += "<div><h3 style='color:blue'>";
+        msg += subtitle+"</h3>";
+        if(powerType!=""){msg += powerType + " 권한으로 초대되었습니다.</div>";}
         msg += "<div>";
-        msg += "CODE : <strong>";
+        msg += guide + " : <strong>";
         msg += authNum + "</strong><div><br/>"; //메일에 인증번호 넣기
         msg += "</div>";
         message.setText(msg, "utf-8","html"); //내용, charset 타입, subtype
