@@ -1,19 +1,30 @@
 package com.uplog.uplog.domain.project.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
+import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
+import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
+import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
+import com.uplog.uplog.domain.project.exception.NotFoundProjectException;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.project.model.QProject;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
+import com.uplog.uplog.domain.team.model.QMemberTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+
 
 import java.util.List;
 
@@ -43,6 +54,19 @@ public class ProjectService {
         return createInitInfo1;
     }
 
+    @Transactional
+    public UpdateProjectInfo updateProject(UpdateProjectStatus updateProjectStatus,Long projectId){
+
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundProjectException(projectId));
+
+        project.updateProjectStatus(updateProjectStatus);
+
+        UpdateProjectInfo updateProjectInfo=project.toUpdateProjectInfo();
+
+        return updateProjectInfo;
+    }
+
     //진행 중 project가 있으면 접근 제한
     public void checkProcessProject(Long productId){
 
@@ -62,6 +86,31 @@ public class ProjectService {
                 throw new ExistProcessProjectExeption(project1.getId());
             }
         }
+
+    }
+
+    //권한 확인
+    public PowerType powerValidate(Long memberId ){
+
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QMemberTeam memberTeam=QMemberTeam.memberTeam;
+
+        PowerType powerType =query
+                .select(memberTeam.powerType)
+                .from(memberTeam)
+                .where(memberTeam.member.id.eq(memberId))
+                .fetchOne();
+
+        if(powerType==null){
+            throw new notFoundPowerByMemberException(memberId);
+        }
+
+        if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){
+
+            throw new MemberAuthorizedException(memberId);
+        }
+
+        return powerType;
 
     }
 

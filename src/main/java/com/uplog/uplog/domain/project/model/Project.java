@@ -58,4 +58,17 @@ public class Project extends BaseTime {
                 .version(this.version)
                 .build();
     }
+
+    public ProjectDTO.UpdateProjectInfo toUpdateProjectInfo(){
+        return ProjectDTO.UpdateProjectInfo.builder()
+                .id(this.id)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .build();
+    }
+
+    public void updateProjectStatus(ProjectDTO.UpdateProjectStatus updateProjectStatus){
+        this.version=(updateProjectStatus.getVersion()!=null)?updateProjectStatus.getVersion():this.version;
+        this.projectStatus=ProjectStatus.PROGRESS_COMPLETE;
+    }
 }

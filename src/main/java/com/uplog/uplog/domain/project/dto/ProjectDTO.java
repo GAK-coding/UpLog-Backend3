@@ -30,4 +30,23 @@ public class ProjectDTO {
         }
 
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateProjectStatus{
+        private String version;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateProjectInfo{
+        private Long id;
+        private String version;
+        private ProjectStatus projectStatus;
+
+    }
 }

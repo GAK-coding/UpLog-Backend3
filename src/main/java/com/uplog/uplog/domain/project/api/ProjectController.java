@@ -10,11 +10,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.uplog.uplog.domain.project.dto.ProjectDTO.*;
 
@@ -38,7 +37,7 @@ public class ProjectController {
     })
 
     @PostMapping(value="/projects/{product-id}")
-    public CreateInitInfo CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long productId) {
+    public ResponseEntity<CreateInitInfo> CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long productId) {
 
         //진행 중인 프로젝트가 있을 시 접근 제한
         projectService.checkProcessProject(productId);
@@ -46,6 +45,19 @@ public class ProjectController {
         projectService.createInit(createInitInfo,productId);
 
 
-        return createInitInfo;
+        return new ResponseEntity<>(createInitInfo, HttpStatus.CREATED);
+    }
+
+    @PatchMapping(value="/projects/{project-id}/{member-id}")
+    public ResponseEntity<UpdateProjectInfo> updateProjectInfo(@RequestBody UpdateProjectStatus updateProjectStatus,
+                                               @PathVariable("project-id")Long projectId,
+                                               @PathVariable("member-id")Long memberId){
+
+        //권한 확인
+        projectService.powerValidate(memberId);
+        UpdateProjectInfo updateProjectInfo=projectService.updateProject(updateProjectStatus,projectId);
+
+        return new ResponseEntity<>(updateProjectInfo,HttpStatus.OK);
+
     }
 }
