@@ -122,14 +122,35 @@ public class ChangedIssueService {
 
     }
 
+    //진행 완료 된 프로젝트에 변경사항 추가 누를 시 접근 제한
+    public String checkProjectProgress(Long memberId,Long projectId){
+
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QProject project=QProject.project;
+        //우선 접근 권한 있는 사용자인지 확인
+        powerValidate(memberId);
+
+        ProjectStatus projectStatus=query
+                .select(project.projectStatus)
+                .from(project)
+                .where(project.id.eq(projectId))
+                .fetchOne();
+
+        if(projectStatus==ProjectStatus.PROGRESS_COMPLETE){
+            throw new ExistProcessProjectExeption(projectId,projectStatus);
+        }
+
+
+
+        return AccessProperty.ACCESS_OK.toString();
+    }
+
 
     //진행 중 project가 있으면 접근 제한
     public void checkProcessProject(Long productId){
 
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QProject project=QProject.project;
-        QComment comment= QComment.comment;
-        QMemberTeam memberTeam=QMemberTeam.memberTeam;
         List<Project> projectList=query
                 .selectFrom(project)
                 .where(project.product.id.eq(productId))

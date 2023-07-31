@@ -42,6 +42,14 @@ public class ChangedIssueController {
         return changedIssueService.checkMemberPower(memberId);
     }
 
+    @GetMapping(value="/changedIssues/{member-id}/{project-id}/validate")
+    public String checkProjectProcess(@PathVariable("member-id")Long memberId,
+                                   @PathVariable("prorject-id")Long projectId){
+
+        return changedIssueService.checkProjectProgress(memberId,projectId);
+    }
+
+
 
     @PostMapping(value="/changedIssues/{project-id}/{member-id}/{product-id}")
     public ResponseEntity<createInitChangedIssueInfo> createInitIssue(@RequestBody @Validated createInitChangedIssueInfo createInitChangedIssueInfo,
