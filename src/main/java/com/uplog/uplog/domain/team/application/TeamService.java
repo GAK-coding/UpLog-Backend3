@@ -62,4 +62,9 @@ public class TeamService {
         return team.getId();
     }
 
+    @Transactional
+    public String deleteTeam(){
+        return "DELETE";
+    }
+
 }
