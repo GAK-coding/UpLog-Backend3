@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.changedIssue.api;
 
+import com.sun.mail.iap.Response;
 import com.uplog.uplog.domain.changedIssue.application.ChangedIssueService;
 import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
 import com.uplog.uplog.domain.comment.api.CommentController;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,14 +42,26 @@ public class ChangedIssueController {
         return changedIssueService.checkMemberPower(memberId);
     }
 
-    @PostMapping(value="/changedIssues/{project-id}/{member-id}")
-    public createInitChangedIssueInfo createInitIssue(@RequestBody @Validated createInitChangedIssueInfo createInitChangedIssueInfo,
-                                                      @PathVariable("project-id")Long projId,
-                                                      @PathVariable("member-id")Long memberId){
 
-        createInitChangedIssueInfo createInitChangedIssueInfo1=changedIssueService.createInitIssue(createInitChangedIssueInfo,projId,memberId);
+    @PostMapping(value="/changedIssues/{project-id}/{member-id}/{product-id}")
+    public ResponseEntity<createInitChangedIssueInfo> createInitIssue(@RequestBody @Validated createInitChangedIssueInfo createInitChangedIssueInfo,
+                                                                     @PathVariable("project-id")Long projId,
+                                                                     @PathVariable("member-id")Long memberId,
+                                                                      @PathVariable("product-id")Long productId) {
 
-        return createInitChangedIssueInfo1;
+        createInitChangedIssueInfo createInitChangedIssueInfo1=changedIssueService.createInitIssue(createInitChangedIssueInfo,projId,memberId,productId);
+
+        return new ResponseEntity<>(createInitChangedIssueInfo1, HttpStatus.CREATED);
+    }
+
+    @PatchMapping(value="/changeIssues/{issue-id}/{member-id}/updateissue")
+    public ResponseEntity<updateChangedIssue> updateChangedIssue(@RequestBody @Validated updateChangedIssue updateChangedIssue,
+                                                                 @PathVariable("issue-id")Long issueId){
+
+        updateChangedIssue updateChangedIssue1=changedIssueService.updateChangedIssue(updateChangedIssue,issueId);
+
+        return new ResponseEntity<>(updateChangedIssue1,HttpStatus.OK);
+
     }
 
 

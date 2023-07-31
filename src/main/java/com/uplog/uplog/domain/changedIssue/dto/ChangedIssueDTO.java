@@ -39,4 +39,15 @@ public class ChangedIssueDTO {
         }
 
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class updateChangedIssue{
+        private String title;
+        private String content;
+        private IssueStatus issueStatus;
+
+    }
 }

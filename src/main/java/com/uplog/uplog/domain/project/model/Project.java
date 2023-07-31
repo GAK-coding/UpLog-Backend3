@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.project.model;
 
+import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
@@ -35,13 +36,17 @@ public class Project extends BaseTime {
 
     private String version;
 
+    @Enumerated(EnumType.STRING)
+    private ProjectStatus projectStatus;
+
     @Builder
-    public Project(List<ProjectTeam> projectTeamList, Product product, List<Menu> menuList, String version){
+    public Project(List<ProjectTeam> projectTeamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
 
         this.projectTeamList=projectTeamList;
         this.product=product;
         this.menuList=menuList;
         this.version=version;
+        this.projectStatus=projectStatus;
 
     }
 }
