@@ -49,6 +49,9 @@ public class ChangedIssue extends BaseTime {
     public ChangedIssueDTO.createInitChangedIssueInfo toCreateInitChangedIssueInfo(){
         return ChangedIssueDTO.createInitChangedIssueInfo.builder()
                 .id(this.id)
+                .title(this.title)
+                .content(this.content)
+                .issueStatus(this.issueStatus)
                 .createdTime(this.getCreatedTime())
                 .modifiedTime(this.getModifiedTime())
                 .build();

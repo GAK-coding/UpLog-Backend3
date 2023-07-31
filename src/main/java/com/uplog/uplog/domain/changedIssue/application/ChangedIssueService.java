@@ -14,15 +14,21 @@ import com.uplog.uplog.domain.comment.model.QComment;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.product.model.QProduct;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.exception.NotFoundProjectException;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.project.model.QProject;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.dto.TeamDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,11 +51,14 @@ public class ChangedIssueService {
     private final ChangedIssueRepository changedIssueRepository;
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final MemberTeamRepository memberTeamRepository;
+    private final ProductRepository productRepository;
+    private final TeamRepository teamRepository;
 
 
     //todo 완료 눌러서 상태 업데이트는 project 단에서 진행.
     //권한(마스터, 리더)가 아닌 사용자 제외
-    @Transactional(readOnly = true)
+    @Transactional
     public String checkMemberPower(Long memberId){
         PowerType powerType=powerValidate(memberId);
 
@@ -136,7 +145,24 @@ public class ChangedIssueService {
 
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QMemberTeam memberTeam=QMemberTeam.memberTeam;
+////////////테스트//////////
+        Product product=productRepository.findById(1L)
+                .orElseThrow(NotFoundMemberByEmailException::new);
+        Team team= Team.builder()
+                .name("dd")
+                .product(product)
+                .build();
 
+        teamRepository.save(team);
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(NotFoundMemberByEmailException::new);
+        MemberTeam memberTeam1=MemberTeam.builder()
+                .member(member)
+                .team(team)
+                .powerType(PowerType.MASTER)
+                .build();
+        memberTeamRepository.save(memberTeam1);
+////////////테스트//////////
         PowerType powerType =query
                 .select(memberTeam.powerType)
                 .from(memberTeam)
