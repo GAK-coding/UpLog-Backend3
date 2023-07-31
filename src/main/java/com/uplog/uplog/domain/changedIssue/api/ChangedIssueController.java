@@ -36,18 +36,7 @@ public class ChangedIssueController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
 
-    @GetMapping(value="/changedIssues/{member-id}/validate")
-    public String checkMemberPower(@PathVariable("member-id")Long memberId){
 
-        return changedIssueService.checkMemberPower(memberId);
-    }
-
-    @GetMapping(value="/changedIssues/{member-id}/{project-id}/validate")
-    public String checkProjectProcess(@PathVariable("member-id")Long memberId,
-                                   @PathVariable("prorject-id")Long projectId){
-
-        return changedIssueService.checkProjectProgress(memberId,projectId);
-    }
 
 
 
@@ -70,6 +59,19 @@ public class ChangedIssueController {
         return new ResponseEntity<>(issueInfo,HttpStatus.OK);
     }
 
+    @GetMapping(value="/changedIssues/{member-id}/validate")
+    public String checkMemberPower(@PathVariable("member-id")Long memberId){
+
+        return changedIssueService.checkMemberPower(memberId);
+    }
+
+    @GetMapping(value="/changedIssues/{member-id}/{project-id}/validate")
+    public String checkProjectProcess(@PathVariable("member-id")Long memberId,
+                                      @PathVariable("prorject-id")Long projectId){
+
+        return changedIssueService.checkProjectProgress(memberId,projectId);
+    }
+
     @PatchMapping(value="/changedIssues/{issue-id}/{member-id}/updateissue")
     public ResponseEntity<updateChangedIssue> updateChangedIssue(@RequestBody @Validated updateChangedIssue updateChangedIssue,
                                                                  @PathVariable("issue-id")Long issueId){
@@ -77,6 +79,18 @@ public class ChangedIssueController {
         updateChangedIssue updateChangedIssue1=changedIssueService.updateChangedIssue(updateChangedIssue,issueId);
 
         return new ResponseEntity<>(updateChangedIssue1,HttpStatus.OK);
+
+    }
+
+    @DeleteMapping(value="/changedIssues/{issue-id}/{member-id}")
+    public String deleteChangedIssue(@PathVariable("issue-id")Long issueId,
+                                     @PathVariable("member-id")Long memberId){
+
+        //접근 권한 확인
+        changedIssueService.powerValidate(memberId);
+
+        return changedIssueService.deleteChangedIssue(issueId);
+
 
     }
 

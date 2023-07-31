@@ -117,6 +117,18 @@ public class ChangedIssueService {
         return changedIssue.toUpdateChangedIssueInfo();
     }
 
+    @Transactional
+    public String deleteChangedIssue(Long issueId){
+
+
+        ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
+                .orElseThrow(()->new NotFoundProjectException(issueId));
+
+        changedIssueRepository.delete(changedIssue);
+
+        return "Delete OK";
+    }
+
 
 
     //권한 확인
