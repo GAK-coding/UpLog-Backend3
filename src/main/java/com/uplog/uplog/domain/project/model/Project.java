@@ -1,8 +1,10 @@
 package com.uplog.uplog.domain.project.model;
 
+import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
 import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
@@ -48,5 +50,12 @@ public class Project extends BaseTime {
         this.version=version;
         this.projectStatus=projectStatus;
 
+    }
+
+    public ProjectDTO.CreateInitInfo toCreateInitChangedIssueInfo(){
+        return ProjectDTO.CreateInitInfo.builder()
+                .id(this.id)
+                .version(this.version)
+                .build();
     }
 }

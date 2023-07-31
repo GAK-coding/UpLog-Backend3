@@ -38,10 +38,12 @@ public class ProjectController {
     })
 
     @PostMapping(value="/projects/{product-id}")
-    public CreateInitInfo CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long prodId) {
+    public CreateInitInfo CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long productId) {
 
-        //변경이슈 먼저 하고 product랑 team완료되면 시작
-        projectService.createInit(createInitInfo,prodId);
+        //진행 중인 프로젝트가 있을 시 접근 제한
+        projectService.checkProcessProject(productId);
+
+        projectService.createInit(createInitInfo,productId);
 
 
         return createInitInfo;

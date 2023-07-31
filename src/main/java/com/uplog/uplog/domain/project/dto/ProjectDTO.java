@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.project.dto;
 
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.project.model.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,9 +22,10 @@ public class ProjectDTO {
         private Long id;
         private String version;
 
-        public Project of(){
+        public Project toEntity(ProjectStatus projectStatus){
             return Project.builder()
                     .version(version)
+                    .projectStatus(projectStatus)
                     .build();
         }
 
