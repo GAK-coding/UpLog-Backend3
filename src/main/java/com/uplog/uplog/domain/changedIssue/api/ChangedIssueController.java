@@ -74,7 +74,11 @@ public class ChangedIssueController {
 
     @PatchMapping(value="/changedIssues/{issue-id}/{member-id}/updateissue")
     public ResponseEntity<updateChangedIssue> updateChangedIssue(@RequestBody @Validated updateChangedIssue updateChangedIssue,
-                                                                 @PathVariable("issue-id")Long issueId){
+                                                                 @PathVariable("issue-id")Long issueId,
+                                                                 @PathVariable("member-id")Long memberId){
+
+        //접근 권한 확인
+        changedIssueService.powerValidate(memberId);
 
         updateChangedIssue updateChangedIssue1=changedIssueService.updateChangedIssue(updateChangedIssue,issueId);
 
