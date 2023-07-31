@@ -60,4 +60,14 @@ public class ProjectController {
         return new ResponseEntity<>(updateProjectInfo,HttpStatus.OK);
 
     }
+
+    @DeleteMapping(value="/projects/{project-id}/{member-id}")
+    public String deleteProject(@PathVariable("project-id")Long projectId,
+                                @PathVariable("member-id")Long memberId){
+
+        //권한 확인
+        projectService.powerValidate(memberId);
+
+        return projectService.deleteProject(projectId);
+    }
 }

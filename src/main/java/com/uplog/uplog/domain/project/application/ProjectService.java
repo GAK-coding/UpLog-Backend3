@@ -8,6 +8,7 @@ import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.project.exception.DuplicateVersionNameException;
 import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
 import com.uplog.uplog.domain.project.exception.NotFoundProjectException;
 import com.uplog.uplog.domain.project.model.Project;
@@ -41,6 +42,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
 
+    //TODO 여기서 member(group) 처리해야 하나?
     @Transactional
     public CreateInitInfo createInit(CreateInitInfo createInitInfo, Long prodId){
 
@@ -57,14 +59,40 @@ public class ProjectService {
     @Transactional
     public UpdateProjectInfo updateProject(UpdateProjectStatus updateProjectStatus,Long projectId){
 
-        Project project=projectRepository.findById(projectId)
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QProject project=QProject.project;
+
+        Project project1=projectRepository.findById(projectId)
                 .orElseThrow(()->new NotFoundProjectException(projectId));
 
-        project.updateProjectStatus(updateProjectStatus);
+        //프로젝트 명 중복일 시 에러처리
+        List<Project> projectList=query
+                .selectFrom(project)
+                .where(project.product.id.eq(project1.getProduct().getId()))
+                .fetch();
 
-        UpdateProjectInfo updateProjectInfo=project.toUpdateProjectInfo();
+        for(Project proj_tmp: projectList){
+
+            if(proj_tmp.getVersion().equals(updateProjectStatus.getVersion())){
+                throw new DuplicateVersionNameException(proj_tmp.getVersion());
+            }
+        }
+
+        project1.updateProjectStatus(updateProjectStatus);
+
+        UpdateProjectInfo updateProjectInfo=project1.toUpdateProjectInfo();
 
         return updateProjectInfo;
+    }
+
+    @Transactional
+    public String deleteProject(Long projectId){
+
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundProjectException(projectId));
+        projectRepository.delete(project);
+        return "Delete Ok";
+
     }
 
     //진행 중 project가 있으면 접근 제한
