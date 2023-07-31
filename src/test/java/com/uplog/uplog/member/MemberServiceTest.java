@@ -3,7 +3,7 @@ package com.uplog.uplog.member;
 import com.uplog.uplog.domain.member.application.MemberService;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
-import com.uplog.uplog.domain.member.dto.MemberDTO.SaveMemberRequest;
+import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Member;
@@ -11,6 +11,7 @@ import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.global.error.ErrorResponse;
 import org.assertj.core.api.Assertions;
+import org.hibernate.sql.Update;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,8 @@ public class MemberServiceTest {
     @Autowired
     MemberRepository memberRepository;
 
-    public SaveMemberRequest saveMemberRequest(){
-        return SaveMemberRequest.builder()
+    public CreateMemberRequest createMemberRequest(){
+        return CreateMemberRequest.builder()
                 .email("jjung@naver.com")
                 .name("김짱")
                 .nickname("짱")
@@ -40,10 +41,10 @@ public class MemberServiceTest {
     @DisplayName("member save 성공 테스트")
     public void successRegisterTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
+        CreateMemberRequest createMemberRequest = createMemberRequest();
 
         //when
-        MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //then
         Assertions.assertThat(memberRepository.existsById(memberInfoDTO.getId())).isEqualTo(true);
@@ -53,13 +54,13 @@ public class MemberServiceTest {
     @DisplayName("member save 실패 테스트 : 이미 존재하는 멤버")
     public void failRegisterTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
+        CreateMemberRequest createMemberRequest = createMemberRequest();
 
-        memberService.saveMember(saveMemberRequest);
+        memberService.createMember(createMemberRequest);
 
         //when & then
         org.junit.jupiter.api.Assertions.assertThrows(DuplicatedMemberException.class, () -> {
-            MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+            MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
         });
     }
 
@@ -67,14 +68,14 @@ public class MemberServiceTest {
     @DisplayName("member 수정 성공 테스트 : 멤버 이름 변경")
     public void successChangeNameTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
-        MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+        CreateMemberRequest createMemberRequest = createMemberRequest();
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        MemberDTO.ChangeNameRequest changeNameRequest = MemberDTO.ChangeNameRequest.builder()
+        UpdateNameRequest updateNameRequest = UpdateNameRequest.builder()
                 .newName("김감자")
                 .build();
-        memberService.changeMemberName(memberInfoDTO.getId(), changeNameRequest);
+        memberService.updateMemberName(memberInfoDTO.getId(), updateNameRequest);
 
 
         //then
@@ -86,14 +87,14 @@ public class MemberServiceTest {
     @DisplayName("member 수정 성공 테스트 : 멤버 닉네임 변경")
     public void successChangeNicknameTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
-        MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+        CreateMemberRequest createMemberRequest = createMemberRequest();
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        MemberDTO.ChangeNicknameRequest changeNicknameRequest = MemberDTO.ChangeNicknameRequest.builder()
+        UpdateNicknameRequest updateNicknameRequest = UpdateNicknameRequest.builder()
                 .newNickname("옹심이")
                 .build();
-        memberService.changeMemberNickname(memberInfoDTO.getId(), changeNicknameRequest);
+        memberService.updateMemberNickname(memberInfoDTO.getId(), updateNicknameRequest);
 
 
         //then
@@ -105,15 +106,15 @@ public class MemberServiceTest {
     @DisplayName("member 수정 성공 테스트 : 비밀번호 변경")
     public void successChangePwdTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
-        MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+        CreateMemberRequest createMemberRequest = createMemberRequest();
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        MemberDTO.ChangePasswordRequest changePasswordRequest = MemberDTO.ChangePasswordRequest.builder()
+        UpdatePasswordRequest updatePasswordRequest = UpdatePasswordRequest.builder()
                 .password("12345678")
                 .newPassword("13579973")
                 .build();
-        memberService.changeMemberPassword(memberInfoDTO.getId(), changePasswordRequest);
+        memberService.updateMemberPassword(memberInfoDTO.getId(), updatePasswordRequest);
 
 
         //then
@@ -125,18 +126,18 @@ public class MemberServiceTest {
     @DisplayName("member 수정 실패 테스트 : 비밀번호 변경 실패")
     public void failChangePwdTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
-        MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+        CreateMemberRequest createMemberRequest = createMemberRequest();
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        MemberDTO.ChangePasswordRequest changePasswordRequest = MemberDTO.ChangePasswordRequest.builder()
+        UpdatePasswordRequest updatePasswordRequest = UpdatePasswordRequest.builder()
                 .password("12345677")
                 .newPassword("13579973")
                 .build();
 
         //then
         org.junit.jupiter.api.Assertions.assertThrows(NotMatchPasswordException.class, () ->{
-            memberService.changeMemberPassword(memberInfoDTO.getId(), changePasswordRequest);
+            memberService.updateMemberPassword(memberInfoDTO.getId(), updatePasswordRequest);
         });
     }
 
@@ -144,14 +145,14 @@ public class MemberServiceTest {
     @DisplayName("member 수정 성공 테스트 : 포지션 변경")
     public void successChangePositionTest(){
         //given
-        SaveMemberRequest saveMemberRequest = saveMemberRequest();
-        MemberDTO.MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+        CreateMemberRequest createMemberRequest = createMemberRequest();
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        MemberDTO.ChangePositionRequest changePositionRequest = MemberDTO.ChangePositionRequest.builder()
+        UpdatePositionRequest updatePositionRequest = UpdatePositionRequest.builder()
                 .newPosition(Position.COMPANY)
                 .build();
-        memberService.changeMemberPostion(memberInfoDTO.getId(), changePositionRequest);
+        memberService.updateMemberPostion(memberInfoDTO.getId(), updatePositionRequest);
 
 
         //then
