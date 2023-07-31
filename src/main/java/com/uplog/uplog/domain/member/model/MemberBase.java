@@ -11,23 +11,24 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
 @Inheritance(strategy = InheritanceType.JOINED)
 public class MemberBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    private long id;
+    private Long id;
 
     private String email;
     private String name;
     private String nickname;
     private String password;
+
+    @Enumerated(EnumType.STRING)
     private Position position;
 
-    public void changeName(String newName){ this.name = newName;}
-    public void changeNickname(String newNickname){this.nickname = newNickname;}
-    public void changePassword(String newPassword){this.password = newPassword;}
-    public void changePosition(Position newPosition){this.position = newPosition;}
+    public void updateName(String newName){ this.name = newName;}
+    public void updateNickname(String newNickname){this.nickname = newNickname;}
+    public void updatePassword(String newPassword){this.password = newPassword;}
+    public void updatePosition(Position newPosition){this.position = newPosition;}
 
 }

@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Member extends MemberBase{
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
 
@@ -38,7 +40,7 @@ public class Member extends MemberBase{
 
 
     @Builder
-    public Member(Long id, String name, String nickname, String email, String password, Position position, LoginType loginType){
+    public Member(Long id,String email, String name, String nickname, String password, Position position, LoginType loginType){
         super(id, email, name, nickname, password, position);
         this.loginType = loginType;
 
