@@ -4,9 +4,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
 import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
 import com.uplog.uplog.domain.changedIssue.exception.ExistProcessProjectExeption;
+import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.changedIssue.model.ChangedIssue;
+import com.uplog.uplog.domain.changedIssue.model.QChangedIssue;
 import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
 import com.uplog.uplog.domain.comment.model.QComment;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
@@ -79,6 +81,26 @@ public class ChangedIssueService {
         return IssueData;
 
 
+    }
+
+    @Transactional(readOnly = true)
+    public ChangedIssueDTO.issueInfo readIssueInfo(Long issueId){
+
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QChangedIssue changedIssue=QChangedIssue.changedIssue;
+
+        ChangedIssue changedIssue1=query
+                .selectFrom(changedIssue)
+                .where(changedIssue.id.eq(issueId))
+                .fetchOne();
+
+        if(changedIssue1==null){
+            throw new notFoundIssueException(issueId);
+        }
+
+        ChangedIssueDTO.issueInfo issueInfo=changedIssue1.toIssueInfo();
+
+        return issueInfo;
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.

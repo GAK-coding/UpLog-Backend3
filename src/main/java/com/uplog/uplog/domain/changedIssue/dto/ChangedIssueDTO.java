@@ -50,4 +50,18 @@ public class ChangedIssueDTO {
         private IssueStatus issueStatus;
 
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class issueInfo{
+        private Long projectId;
+        private String title;
+        private String content;
+        private IssueStatus issueStatus;
+        private LocalDateTime createdTime;
+        private LocalDateTime modifiedTime;
+
+    }
 }

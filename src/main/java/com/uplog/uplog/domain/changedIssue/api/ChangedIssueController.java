@@ -62,7 +62,15 @@ public class ChangedIssueController {
         return new ResponseEntity<>(createInitChangedIssueInfo1, HttpStatus.CREATED);
     }
 
-    @PatchMapping(value="/changeIssues/{issue-id}/{member-id}/updateissue")
+    @GetMapping(value="/changedIssues/{issue-id}")
+    public ResponseEntity<issueInfo> readIssueInfo(@PathVariable("issue-id")Long issueId){
+
+        issueInfo issueInfo=changedIssueService.readIssueInfo(issueId);
+
+        return new ResponseEntity<>(issueInfo,HttpStatus.OK);
+    }
+
+    @PatchMapping(value="/changedIssues/{issue-id}/{member-id}/updateissue")
     public ResponseEntity<updateChangedIssue> updateChangedIssue(@RequestBody @Validated updateChangedIssue updateChangedIssue,
                                                                  @PathVariable("issue-id")Long issueId){
 
