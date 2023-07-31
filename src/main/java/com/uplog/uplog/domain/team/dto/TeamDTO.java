@@ -22,7 +22,7 @@ public class TeamDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SaveTeamRequest {
+    public static class CreateTeamRequest {
         //TODO 이부분은 좀 더 고려해봐야할듯.
         private String memberEmail;
         //private Long productId;
