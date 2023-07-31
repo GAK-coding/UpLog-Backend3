@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
@@ -35,6 +32,12 @@ public class ChangedIssueController {
             @ApiResponse(responseCode = "404", description = "NOT FOUND"),
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
+
+    @GetMapping(value="/changedIssues/{member-id}/validate")
+    public String checkMemberPower(@PathVariable("member-id")Long memberId){
+
+        return changedIssueService.checkMemberPower(memberId);
+    }
 
     @PostMapping(value="/changedIssues/{project-id}/{member-id}")
     public createInitChangedIssueInfo createInitIssue(@RequestBody @Validated createInitChangedIssueInfo createInitChangedIssueInfo,

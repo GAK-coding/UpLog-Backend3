@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
@@ -37,6 +37,13 @@ public class ChangedIssueService {
     private final MemberRepository memberRepository;
 
 
+
+    @Transactional(readOnly = true)
+    public String checkMemberPower(Long memberId){
+        PowerType powerType=powerValidate(memberId);
+
+        return "권한이 있는 사용자 입니다.";
+    }
     @Transactional
     public createInitChangedIssueInfo createInitIssue(createInitChangedIssueInfo createInitChangedIssueInfo,
                                                       Long projId, Long memberId){
@@ -50,7 +57,7 @@ public class ChangedIssueService {
         //수정, 삭제 권한 -> memberId로 memberTeam 쿼리
 
 
-        PowerType powerType=powerValidate(memberId);
+        //PowerType powerType=powerValidate(memberId);
         //System.out.println("memberPower : "+powerType.toString());
 
         ChangedIssue changedIssue=createInitChangedIssueInfo.toEntity(member,project);
