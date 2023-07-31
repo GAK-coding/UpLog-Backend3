@@ -14,7 +14,7 @@ import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.model.Post;
-import com.uplog.uplog.global.Exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

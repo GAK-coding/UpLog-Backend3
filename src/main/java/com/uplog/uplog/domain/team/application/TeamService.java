@@ -38,6 +38,7 @@ public class TeamService {
                 .teamId(team.getId())
                 .memberEmail(saveTeamRequest.getMemberEmail())
                 .powerType(PowerType.MASTER)
+                .link(saveTeamRequest.getLink())
                 .build();
         memberTeamService.saveMemberTeam(saveMemberTeamRequest);
         //마스터 멤버 호출
@@ -45,4 +46,5 @@ public class TeamService {
         //TeamInfoDTO teamInfoDTO = team.toTeamInfoDTO();
         return team.getId();
     }
+
 }

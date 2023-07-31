@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.product.dao;
 
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.team.model.MemberTeam;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
