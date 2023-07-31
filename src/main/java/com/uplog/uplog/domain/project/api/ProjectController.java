@@ -37,7 +37,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
 
-    @PostMapping(value="/project/{product-id}")
+    @PostMapping(value="/projects/{product-id}")
     public CreateInitInfo CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long prodId) {
 
         //변경이슈 먼저 하고 product랑 team완료되면 시작

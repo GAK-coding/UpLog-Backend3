@@ -50,10 +50,10 @@ public class Swagger {
 
     @Bean
     public GroupedOpenApi projectOpenApi(){
-        String[] paths = {"/project/**"};
+        String[] paths = {"/projects/**"};
 
         return GroupedOpenApi.builder()
-                .group("project")
+                .group("projects")
                 .pathsToMatch(paths)
                 .build();
     }
