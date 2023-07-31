@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.project.exception.handler;
 
+import com.uplog.uplog.domain.project.exception.DuplicateVersionNameException;
 import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
 import com.uplog.uplog.domain.project.exception.NotFoundProjectException;
 import com.uplog.uplog.global.error.ErrorResponse;
@@ -29,6 +30,15 @@ public class ProjectExceptionHandler {
     protected final ResponseEntity<ErrorResponse> NotFoundProjectExceptionHandler(NotFoundProjectException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
+    @ExceptionHandler(DuplicateVersionNameException.class)
+    protected final ResponseEntity<ErrorResponse> DuplicateVersionNameExceptionHandler(DuplicateVersionNameException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);
