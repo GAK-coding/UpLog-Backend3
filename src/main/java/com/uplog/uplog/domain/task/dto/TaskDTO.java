@@ -26,18 +26,18 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class CreateTaskRequest{
         private String taskName;
-        //private Long menuId;
-        // private Long projectTeamId;
+        private Long menuId;
+        private Long projectTeamId;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
 
-        public Task toEntity(Member targetMember) {
+        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
             return Task.builder()
                     .targetMember(targetMember)
-                    //.menu(menu)
+                    .menu(menu)
                     .taskStatus(TaskStatus.PROGRESS_BEFORE)
-                    //.projectTeam(projectTeam)
+                    .projectTeam(projectTeam)
                     .taskName(taskName)
                     .taskDetail(taskDetail)
                     .startTime(startTime)
@@ -81,12 +81,12 @@ public class TaskDTO {
         private Long id;
         private String taskName;
         private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
-        //private Long targetMemberId;
-        //private String targetmemberName;
-        //private Long menuId;
-        //private String menuName;
-        //private Long projectTeamId;
-        //private String projectTeamName;
+        private Long targetMemberId;
+        private String targetmemberName;
+        private Long menuId;
+        private String menuName;
+        private Long projectTeamId;
+        private String projectTeamName;
         private TaskStatus taskStatus;
         private String taskDetail;
         private LocalDateTime startTime;
