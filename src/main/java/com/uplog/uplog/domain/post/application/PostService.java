@@ -41,18 +41,31 @@ public class PostService {
         Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        Menu menu = menuRepository.findById(createPostRequest.getMenuId())
-                .orElseThrow(() -> new RuntimeException("Menu not found"));
+//        Menu menu = menuRepository.findById(createPostRequest.getMenuId())
+//                .orElseThrow(() -> new RuntimeException("Menu not found"));
+//
+//        Project project = projectRepository.findById(createPostRequest.getProjectId())
+//                .orElseThrow(() -> new RuntimeException("Project not found"));
+//
+//        Product product = productRepository.findById(createPostRequest.getPorductId())
+//                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        Project project = projectRepository.findById(createPostRequest.getProjectId())
-                .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        Product product = productRepository.findById(createPostRequest.getPorductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        //Post post = createPostRequest.toEntity(author, menu, product, project);
+        PostType postType = null;
+        String requestType = createPostRequest.getPostType();
+        if (requestType == null) {
+            postType = PostType.DEFAULT;
+        } else if (requestType.equals(PostType.REQUEST_READ.name())) {
+            postType = PostType.REQUEST_READ;
+        } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
+            postType = PostType.REQUEST_REQUIREMENT;
+        } else {
+            throw new IllegalArgumentException("Invalid PostType: " + requestType);
+        }
 
 
-        Post post = createPostRequest.toEntity(author, menu, product, project);
-
+        Post post=createPostRequest.toEntity(author,postType);
         postRepository.save(post);
 
         return post;

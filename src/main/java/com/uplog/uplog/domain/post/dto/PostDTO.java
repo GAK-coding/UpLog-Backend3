@@ -17,40 +17,69 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostDTO {
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class CreatePostRequest{
+//        private Long menuId;
+//        private String postType;
+////        private List<PostTag> postTagList;
+//        private String title;
+//        private String content;
+//        private Long porductId;
+//        private Long projectId;
+//
+//
+//// TODO POSTTYPE 관련해서 좀 더 수정해야함
+//
+//        public Post toEntity(Member member, Menu menu, Product product, Project project){
+//            Post.PostBuilder postBuilder = Post.builder()
+//                    .author(member)
+//                    .menu(menu)
+//                    .title(this.title)
+//                    .content(content)
+//                    .productName(product.getName())
+//                    .version(project.getVersion());
+//
+//            if (postType != null) {
+//                postBuilder.postType(PostType.valueOf(postType));
+//            }
+//
+//            return postBuilder.build();
+//        }
+//
+//    }
+
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreatePostRequest{
-        private Long menuId;
+        //private Long menuId;
         private String postType;
-//        private List<PostTag> postTagList;
+        //        private List<PostTag> postTagList;
         private String title;
         private String content;
-        private Long porductId;
-        private Long projectId;
+        //private Long porductId;
+        //private Long projectId;
 
 
 // TODO POSTTYPE 관련해서 좀 더 수정해야함
 
-        public Post toEntity(Member member, Menu menu, Product product, Project project){
-            Post.PostBuilder postBuilder = Post.builder()
+        public Post toEntity(Member member, PostType postType){
+            return Post.builder()
                     .author(member)
-                    .menu(menu)
+                    //.menu(menu)
                     .title(this.title)
                     .content(content)
-                    .productName(product.getName())
-                    .version(project.getVersion());
-
-            if (postType != null) {
-                postBuilder.postType(PostType.valueOf(postType));
-            }
-
-            return postBuilder.build();
+                    .postType(postType)
+                    //.productName(product.getName())
+                    //.version(project.getVersion());
+                    .build();
         }
 
     }
-
     @Getter
     @Builder
     @NoArgsConstructor
