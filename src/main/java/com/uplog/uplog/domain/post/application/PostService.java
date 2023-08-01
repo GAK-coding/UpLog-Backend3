@@ -157,7 +157,7 @@ public class PostService {
     }
 
 
-    //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스임
+    //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스
     @Transactional
     public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
