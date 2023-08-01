@@ -52,16 +52,18 @@ public class PostService {
 
 
         //Post post = createPostRequest.toEntity(author, menu, product, project);
-        PostType postType = null;
+        PostType postType = PostType.DEFAULT; // 기본값으로 설정
+
         String requestType = createPostRequest.getPostType();
-        if (requestType == null) {
-            postType = PostType.DEFAULT;
-        } else if (requestType.equals(PostType.REQUEST_READ.name())) {
-            postType = PostType.REQUEST_READ;
-        } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
-            postType = PostType.REQUEST_REQUIREMENT;
-        } else {
-            throw new IllegalArgumentException("Invalid PostType: " + requestType);
+        if (requestType != null) {
+            // requestType이 null이 아닐 때만 비교
+            if (requestType.equals(PostType.REQUEST_READ.name())) {
+                postType = PostType.REQUEST_READ;
+            } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
+                postType = PostType.REQUEST_REQUIREMENT;
+            } else {
+                throw new IllegalArgumentException("Invalid PostType: " + requestType);
+            }
         }
 
 
@@ -116,21 +118,22 @@ public class PostService {
     @Transactional
     public Post updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        PostType updatepostType = null;
+        PostType updatepostType = PostType.DEFAULT; // 기본값으로 설정
+
         String requestType = updatePostTypeRequest.getUpdatePostType();
         if(post.getAuthor().getId().equals(currentUserId)){
-            if(requestType == null) {
-                updatepostType = PostType.DEFAULT;
-            } else if (requestType.equals(PostType.REQUEST_READ.name())) {
-                updatepostType = PostType.REQUEST_READ;
-            } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
-                updatepostType = PostType.REQUEST_REQUIREMENT;
-            } else {
-                throw new IllegalArgumentException("Invalid PostType: " + requestType);
+            if (requestType != null) {
+                // requestType이 null이 아닐 때만 비교
+                if (requestType.equals(PostType.REQUEST_READ.name())) {
+                    updatepostType = PostType.REQUEST_READ;
+                } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
+                    updatepostType = PostType.REQUEST_REQUIREMENT;
+                } else {
+                    throw new IllegalArgumentException("Invalid PostType: " + requestType);
+                }
             }
             post.updatePostType(updatepostType);
             return post;
-        }
         else{
             throw new AuthorityException();
         }
