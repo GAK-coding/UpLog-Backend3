@@ -11,46 +11,64 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StopWatch;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TaskDTO {
+
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateTaskRequest{
         private String taskName;
-        private Long menuId;
-        private Long projectTeamId;
+        //private Long menuId;
+        // private Long projectTeamId;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
 
-        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
+        public Task toEntity(Member targetMember) {
             return Task.builder()
                     .targetMember(targetMember)
-                    .menu(menu)
+                    //.menu(menu)
                     .taskStatus(TaskStatus.PROGRESS_BEFORE)
-                    .projectTeam(projectTeam)
+                    //.projectTeam(projectTeam)
+                    .taskName(taskName)
                     .taskDetail(taskDetail)
                     .startTime(startTime)
                     .endTime(endTime)
                     .build();
         }
     }
-
 //    @Getter
 //    @Builder
 //    @NoArgsConstructor
 //    @AllArgsConstructor
-//    public static class TaskSimpleDTO{
-//        private Long id;
+//    public static class CreateTaskRequest{
 //        private String taskName;
-//        private S
+//        private Long menuId;
+//        private Long projectTeamId;
+//        private String taskDetail;
+//        private LocalDateTime startTime;
+//        private LocalDateTime endTime;
 //
-//
+//        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
+//            return Task.builder()
+//                    .targetMember(targetMember)
+//                    .menu(menu)
+//                    .taskStatus(TaskStatus.PROGRESS_BEFORE)
+//                    .projectTeam(projectTeam)
+//                    .taskName(taskName)
+//                    .taskDetail(taskDetail)
+//                    .startTime(startTime)
+//                    .endTime(endTime)
+//                    .build();
+//        }
 //    }
 
 
@@ -65,10 +83,10 @@ public class TaskDTO {
         private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
         //private Long targetMemberId;
         //private String targetmemberName;
-        private Long menuId;
-        private String menuName;
-        private Long projectTeamId;
-        private String projectTeamName;
+        //private Long menuId;
+        //private String menuName;
+        //private Long projectTeamId;
+        //private String projectTeamName;
         private TaskStatus taskStatus;
         private String taskDetail;
         private LocalDateTime startTime;
@@ -77,28 +95,28 @@ public class TaskDTO {
 
 
 
-    @Getter
-//    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UpdateTaskData{
-        private Long id;
-        private String taskName;
-        private Member targetmember;
-        private Menu menu;
-        private ProjectTeam projectTeam;
-        private TaskStatus taskStatus;
-        private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
-    }
+//    @Getter
+////    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class UpdateTaskData{
+//        private Long id;
+//        private String taskName;
+//        private Member targetmember;
+//        private Menu menu;
+//        private ProjectTeam projectTeam;
+//        private TaskStatus taskStatus;
+//        private String taskDetail;
+//        private LocalDateTime startTime;
+//        private LocalDateTime endTime;
+//    }
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskNameRequest{
-        private Long id;
+        //private Long id;
         private String updatetaskName;
 
     }
@@ -108,7 +126,7 @@ public class TaskDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskDateRequest{
-        private Long id;
+        //private Long id;
         private LocalDateTime updateStartTime;
         private LocalDateTime updateEndTime;
 
@@ -119,7 +137,7 @@ public class TaskDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskMenuRequest{
-        private Long id;
+        //private Long id;
         private Long updateMenuId;
 
     }
@@ -129,7 +147,7 @@ public class TaskDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskTeamRequest{
-        private Long id;
+        //private Long id;
         private Long updateTeamId;
 
     }
@@ -138,7 +156,7 @@ public class TaskDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskMemberRequest{
-        private Long id;
+        //private Long id;
         private Long updateTargetMemberId;
 
     }
@@ -147,7 +165,7 @@ public class TaskDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskContentRequest{
-        private Long id;
+        //private Long id;
         private String updateContent;
 
     }
@@ -156,12 +174,21 @@ public class TaskDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateTaskStatusRequest{
-        private Long id;
+        //private Long id;
         private TaskStatus taskStatus;
 
     }
-//
+
 //    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class TaskListDTO{
+//        private List<TaskInfoDTO> beforeTask =new ArrayList<>();
+//        private List<TaskInfoDTO> inTask =new ArrayList<>();
+//        private List<TaskInfoDTO> completeTask =new ArrayList<>();
+//    }
+ //    @Getter
 //    @Builder
 //    @NoArgsConstructor
 //    @AllArgsConstructor

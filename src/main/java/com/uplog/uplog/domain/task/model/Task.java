@@ -54,15 +54,27 @@ public class Task extends BaseTime {
 //    public TaskDTO taskDTO?(){
 //        return
 //    }
+
+    public TaskInfoDTO toTaskInfoDTO1(){
+        return TaskInfoDTO.builder()
+                .id(this.getId())
+                .taskName(this.getTaskName())
+                .targetMemberInfoDTO(this.getTargetMember().powerMemberInfoDTO())
+                .taskStatus(this.getTaskStatus())
+                .startTime(this.getStartTime())
+                .endTime(this.getEndTime())
+                .build();
+    }
+
     public TaskInfoDTO toTaskInfoDTO(){
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
                 .targetMemberInfoDTO(this.getTargetMember().powerMemberInfoDTO())
-                .menuId(this.getMenu().getId())
-                .menuName(this.getMenu().getMenuName())
-                .projectTeamId(this.getProjectTeam().getId())
-                .projectTeamName(this.getProjectTeam().getName())
+                //.menuId(this.getMenu().getId())
+                //.menuName(this.getMenu().getMenuName())
+                //.projectTeamId(this.getProjectTeam().getId())
+                //.projectTeamName(this.getProjectTeam().getName())
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())

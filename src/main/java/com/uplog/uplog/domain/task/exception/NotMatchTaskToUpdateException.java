@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.task.exception.handler;
+package com.uplog.uplog.domain.task.exception;
 
 public class NotMatchTaskToUpdateException extends IllegalArgumentException{
     public NotMatchTaskToUpdateException(String m){ super(m);}
