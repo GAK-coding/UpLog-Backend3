@@ -41,17 +41,17 @@ public class TaskService {
         Member targetMember = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-//        Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
-//                .orElseThrow(() -> new RuntimeException("Menu not found"));
-//
-//        ProjectTeam projectTeam = teamRepository.findById(createTaskRequest.getProjectTeamId())
-//                .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
+        Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
+                .orElseThrow(() -> new RuntimeException("Menu not found"));
 
-//        Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
-        Task task = createTaskRequest.toEntity(targetMember);
+        ProjectTeam projectTeam = teamRepository.findById(createTaskRequest.getProjectTeamId())
+                .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
+
+        Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
+//        Task task = createTaskRequest.toEntity(targetMember);
 
 
-//        Task task = taskSaveRequest.toEntity();
+        //Task task = taskSaveRequest.toEntity();
 
         taskRepository.save(task);
         return task;
