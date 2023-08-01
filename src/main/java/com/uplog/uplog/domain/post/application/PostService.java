@@ -41,17 +41,17 @@ public class PostService {
         Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-//        Menu menu = menuRepository.findById(createPostRequest.getMenuId())
-//                .orElseThrow(() -> new RuntimeException("Menu not found"));
-//
-//        Project project = projectRepository.findById(createPostRequest.getProjectId())
-//                .orElseThrow(() -> new RuntimeException("Project not found"));
-//
-//        Product product = productRepository.findById(createPostRequest.getPorductId())
-//                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Menu menu = menuRepository.findById(createPostRequest.getMenuId())
+                .orElseThrow(() -> new RuntimeException("Menu not found"));
+
+        Project project = projectRepository.findById(createPostRequest.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        Product product = productRepository.findById(createPostRequest.getPorductId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
 
-        //Post post = createPostRequest.toEntity(author, menu, product, project);
+       // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정
 
         String requestType = createPostRequest.getPostType();
@@ -67,7 +67,7 @@ public class PostService {
         }
 
 
-        Post post=createPostRequest.toEntity(author,postType);
+        Post post=createPostRequest.toEntity(author,menu, product, project,postType);
         postRepository.save(post);
 
         return post;
@@ -121,7 +121,7 @@ public class PostService {
         PostType updatepostType = PostType.DEFAULT; // 기본값으로 설정
 
         String requestType = updatePostTypeRequest.getUpdatePostType();
-        if(post.getAuthor().getId().equals(currentUserId)){
+        if(post.getAuthor().getId().equals(currentUserId)) {
             if (requestType != null) {
                 // requestType이 null이 아닐 때만 비교
                 if (requestType.equals(PostType.REQUEST_READ.name())) {
@@ -134,6 +134,7 @@ public class PostService {
             }
             post.updatePostType(updatepostType);
             return post;
+        }
         else{
             throw new AuthorityException();
         }
@@ -156,7 +157,7 @@ public class PostService {
     }
 
 
-    //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스임
+    //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스
     @Transactional
     public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
