@@ -3,21 +3,16 @@ package com.uplog.uplog.domain.project.application;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
 import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
-import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
-import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
-import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.project.exception.DuplicateVersionNameException;
 import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
 import com.uplog.uplog.domain.project.exception.NotFoundProjectException;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.project.model.QProject;
-import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
-import com.uplog.uplog.domain.team.model.Team;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +35,7 @@ public class ProjectService {
     private EntityManager entityManager;
 
     private final ProjectRepository projectRepository;
+    private final ProductRepository productRepository;
 
 
     //TODO 여기서 member(group) 처리해야 하나?
@@ -54,6 +50,41 @@ public class ProjectService {
         CreateInitInfo createInitInfo1=project.toCreateInitChangedIssueInfo();
 
         return createInitInfo1;
+    }
+
+    @Transactional(readOnly = true)
+    public requestProjectAllInfo readProject(Long projectId, Long memberId){
+
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundProjectException(projectId));
+
+
+        PowerType powerType=checkMemberType(memberId);
+
+
+        requestProjectAllInfo requestProjectAllInfo =project.toRequestProjectAllInfo(powerType,
+                project.getProduct().getName(),
+                project.getProduct().getCompany());
+
+        return requestProjectAllInfo;
+    }
+
+    @Transactional(readOnly = true)
+    public requestProjectInfo readProjectSimple(Long projectId, Long memberId){
+
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundProjectException(projectId));
+
+
+        PowerType powerType=checkMemberType(memberId);
+
+        requestProjectInfo requestProjectInfo=project.toRequestProjectInfo(powerType,
+                project.getProduct().getName(),
+                project.getProduct().getCompany());
+
+        return requestProjectInfo;
+
+
     }
 
     @Transactional
@@ -95,6 +126,25 @@ public class ProjectService {
 
     }
 
+    public PowerType checkMemberType(Long memberId){
+
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QMemberTeam memberTeam=QMemberTeam.memberTeam;
+
+        PowerType powerType =query
+                .select(memberTeam.powerType)
+                .from(memberTeam)
+                .where(memberTeam.member.id.eq(memberId))
+                .fetchOne();
+
+        if(powerType==null){
+            throw new notFoundPowerByMemberException(memberId);
+        }
+
+            return powerType;
+    }
+
+
     //진행 중 project가 있으면 접근 제한
     public void checkProcessProject(Long productId){
 
@@ -120,18 +170,7 @@ public class ProjectService {
     //권한 확인
     public PowerType powerValidate(Long memberId ){
 
-        JPAQueryFactory query=new JPAQueryFactory(entityManager);
-        QMemberTeam memberTeam=QMemberTeam.memberTeam;
-
-        PowerType powerType =query
-                .select(memberTeam.powerType)
-                .from(memberTeam)
-                .where(memberTeam.member.id.eq(memberId))
-                .fetchOne();
-
-        if(powerType==null){
-            throw new notFoundPowerByMemberException(memberId);
-        }
+        PowerType powerType=checkMemberType(memberId);
 
         if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){
 

@@ -2,7 +2,6 @@ package com.uplog.uplog.domain.project.api;
 
 import com.uplog.uplog.domain.comment.api.CommentController;
 import com.uplog.uplog.domain.project.application.ProjectService;
-import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,6 +35,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
 
+    //todo 처음에 default로 일단 해당 제품의 멤버(그룹으로 치면 전체)를 TeamList로 넣어줘야 하나?
     @PostMapping(value="/projects/{product-id}")
     public ResponseEntity<CreateInitInfo> CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long productId) {
 
@@ -46,6 +46,29 @@ public class ProjectController {
 
 
         return new ResponseEntity<>(createInitInfo, HttpStatus.CREATED);
+    }
+
+    //Todo read 어떤 걸 보여줄 지 더 고민 -> projectTeamList, productId, menuList, version
+    //Todo 새로고침 시 전체를 넘겨주는 상황.
+
+    //전체 조회
+    @GetMapping(value="/projects/{project-id}/{member-id}")
+    public ResponseEntity<requestProjectAllInfo> readProjectAllInfo(@PathVariable("project-id")Long projectId,
+                                                                    @PathVariable("member-id")Long memberId){
+
+        requestProjectAllInfo requestProjectAllInfo =projectService.readProject(projectId,memberId);
+        return new ResponseEntity<>(requestProjectAllInfo,HttpStatus.OK);
+    }
+
+    //버전 클릭 시 프론트에게 클라이언트인지 아닌 지를 보내줌
+
+    @GetMapping(value="/projects/{project-id}/{member-id}/power")
+    public ResponseEntity<requestProjectInfo> readProjectInfo(@PathVariable("project-id")Long projectId,
+                                                              @PathVariable("member-id")Long memberId){
+
+        requestProjectInfo requestProjectInfo=projectService.readProjectSimple(projectId,memberId);
+
+        return new ResponseEntity<>(requestProjectInfo,HttpStatus.OK);
     }
 
     @PatchMapping(value="/projects/{project-id}/{member-id}")
