@@ -21,10 +21,10 @@ public class Swagger {
     //member
     @Bean
     public GroupedOpenApi memberOpenApi() {
-        String[] paths = {"/member/**"};
+        String[] paths = {"/members/**"};
 
         return GroupedOpenApi.builder()
-                .group("member")
+                .group("members")
                 .pathsToMatch(paths)
                 .build();
     }
@@ -35,6 +35,45 @@ public class Swagger {
 
         return GroupedOpenApi.builder()
                 .group("tasks")
+                .pathsToMatch(paths)
+                .build();
+    }
+    @Bean
+    public GroupedOpenApi commentOpenApi(){
+        String[] paths = {"/comment/**"};
+
+        return GroupedOpenApi.builder()
+                .group("comment")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi projectOpenApi(){
+        String[] paths = {"/project/**"};
+
+        return GroupedOpenApi.builder()
+                .group("project")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi changedIssueOpenApi(){
+        String[] paths = {"/changedIssues/**"};
+
+        return GroupedOpenApi.builder()
+                .group("changedIssues")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi productOpenApi(){
+        String[] paths = {"/products/**"};
+
+        return GroupedOpenApi.builder()
+                .group("products")
                 .pathsToMatch(paths)
                 .build();
     }
