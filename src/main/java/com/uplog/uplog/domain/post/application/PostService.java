@@ -12,7 +12,7 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
-import com.uplog.uplog.domain.task.exception.handler.NotFoundTaskByIdException;
+import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
