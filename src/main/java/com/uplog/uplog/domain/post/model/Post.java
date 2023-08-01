@@ -63,20 +63,20 @@ public class Post extends BaseTime {
                 .build();
     }
 
-    public PostInfoDTO1 toPostInfoDTO1(){
-        return PostInfoDTO1.builder()
-                .id(this.getId())
-                .title(this.getTitle())
-                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
-                //.menuId(this.getMenu().getId())
-                //.menuName(this.getMenu().getMenuName())
-                //.productName(this.getProductName())
-                //.projectName(this.getVersion())
-                .postType(this.getPostType())
-                .content(this.getContent())
-                .createTime(this.getCreateTime())
-                .build();
-    }
+//    public PostInfoDTO1 toPostInfoDTO1(){
+//        return PostInfoDTO1.builder()
+//                .id(this.getId())
+//                .title(this.getTitle())
+//                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
+//                //.menuId(this.getMenu().getId())
+//                //.menuName(this.getMenu().getMenuName())
+//                //.productName(this.getProductName())
+//                //.projectName(this.getVersion())
+//                .postType(this.getPostType())
+//                .content(this.getContent())
+//                .createTime(this.getCreateTime())
+//                .build();
+//    }
 
     public void updatePostTitle(String updateTitle){this.title=updateTitle;}
     public void updatePostContent(String updatecontent){this.content=updatecontent;}

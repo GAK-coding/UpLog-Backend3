@@ -20,10 +20,10 @@ public class PostController {
     create
      */
     @PostMapping(value="/posts/{member_id}")
-    public ResponseEntity<PostInfoDTO1> createPost(@PathVariable(name = "member_id") Long id, @RequestBody CreatePostRequest createPostRequest) {
+    public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member_id") Long id, @RequestBody CreatePostRequest createPostRequest) {
         Post createdPost = postService.createPost(id,createPostRequest);
-        PostInfoDTO1 postInfoDTO1 = createdPost.toPostInfoDTO1();
-        return ResponseEntity.ok(postInfoDTO1);
+        PostInfoDTO postInfoDTO = createdPost.toPostInfoDTO();
+        return ResponseEntity.ok(postInfoDTO);
     }
 
 
