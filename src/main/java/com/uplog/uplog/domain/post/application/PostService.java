@@ -116,8 +116,19 @@ public class PostService {
     @Transactional
     public Post updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        PostType updatepostType = null;
+        String requestType = updatePostTypeRequest.getUpdatePostType();
         if(post.getAuthor().getId().equals(currentUserId)){
-            post.updatePostContent(updatePostTypeRequest.getUpdatePostType());
+            if(requestType == null) {
+                updatepostType = PostType.DEFAULT;
+            } else if (requestType.equals(PostType.REQUEST_READ.name())) {
+                updatepostType = PostType.REQUEST_READ;
+            } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
+                updatepostType = PostType.REQUEST_REQUIREMENT;
+            } else {
+                throw new IllegalArgumentException("Invalid PostType: " + requestType);
+            }
+            post.updatePostType(updatepostType);
             return post;
         }
         else{
