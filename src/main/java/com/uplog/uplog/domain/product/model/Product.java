@@ -1,5 +1,7 @@
 package com.uplog.uplog.domain.product.model;
 
+import com.uplog.uplog.domain.product.dto.ProductDTO;
+import com.uplog.uplog.domain.product.dto.ProductDTO.ProductInfoDTO;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
@@ -22,7 +24,8 @@ public class Product extends BaseTime {
     @Column(name = "product_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "product")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
     private Team team;
 
     @OneToMany(mappedBy = "product")
@@ -32,6 +35,15 @@ public class Product extends BaseTime {
 
     private String name;
 
+    public void updateTeam(Team team){this.team = team;}
+
+    public void updateCompany(String company){this.company = company;}
+
+    public void updateName(String name){this.name = name;}
+
+    public void addTeamToProduct(Team team){this.team = team;}
+
+
     @Builder
     public Product(Long id, Team team, String company, String name){
         this.id = id;
@@ -39,5 +51,17 @@ public class Product extends BaseTime {
         this.company = company;
         this.name = name;
     }
+
+    public ProductInfoDTO toProductInfoDTO(List<Long> projectListId){
+        return ProductInfoDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .company(this.company)
+                .teamId(this.team.getId())
+                .projectListId(projectListId)
+                .build();
+    }
+
+
 
 }

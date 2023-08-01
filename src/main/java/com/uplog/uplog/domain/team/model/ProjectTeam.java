@@ -30,4 +30,6 @@ public class ProjectTeam extends Team {
     @OneToMany(mappedBy = "parentTeam")
     private List<ProjectTeam> childTeam = new ArrayList<ProjectTeam>();
 
+    private String name;
+
 }

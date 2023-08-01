@@ -22,16 +22,17 @@ public class TeamDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SaveTeamRequest {
+    public static class CreateTeamRequest {
         //TODO 이부분은 좀 더 고려해봐야할듯.
         private String memberEmail;
-        private Long productId;
+        //private Long productId;
         private String teamName;
         //팀의 이름은 제품의 이름으로 들어가게 됨!
+        private String link;
 
-        public Team toEntity(Product product){
+        public Team toEntity(){
             return Team.builder()
-                    .product(product)
+                    //.product(product)
                     .name(this.teamName)
                     .build();
 
@@ -44,7 +45,7 @@ public class TeamDTO {
     @NoArgsConstructor
     public static class TeamInfoDTO{
         private Long id;
-        private Long productId;
+        //private Long productId;
         private String productName;
         private List<MemberTeam> memberTeamList;
         private LocalDateTime createdTime;

@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 public class MemberDTO {
 
@@ -16,7 +18,7 @@ public class MemberDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SaveMemberRequest{
+    public static class CreateMemberRequest{
         private String email;
         private String name;
         private String nickname;
@@ -45,14 +47,6 @@ public class MemberDTO {
         private String password;
     }
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class EmailRequest{
-        private String email;
-        private int type;
-    }
 
     @Getter
     @Builder
@@ -93,7 +87,7 @@ public class MemberDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ChangePasswordRequest{
+    public static class UpdatePasswordRequest{
        // private Long id;
         private String password;
         private String newPassword;
@@ -103,7 +97,7 @@ public class MemberDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ChangeNameRequest{
+    public static class UpdateNameRequest{
         //private Long id;
         private String newName;
     }
@@ -112,7 +106,7 @@ public class MemberDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ChangeNicknameRequest{
+    public static class UpdateNicknameRequest{
         //private long id;
         private String newNickname;
     }
@@ -122,7 +116,7 @@ public class MemberDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ChangePositionRequest{
+    public static class UpdatePositionRequest{
        // private long id;
         private Position newPosition;
     }
@@ -133,6 +127,15 @@ public class MemberDTO {
     @NoArgsConstructor
     public static class DeleteMemberRequest{
         private String password;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FindMembersDTO{
+        int memberCount;
+        List<MemberInfoDTO> memberInfoDTOList;
     }
 
 

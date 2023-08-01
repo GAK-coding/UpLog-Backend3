@@ -26,9 +26,9 @@ public class MemberBase {
     @Enumerated(EnumType.STRING)
     private Position position;
 
-    public void changeName(String newName){ this.name = newName;}
-    public void changeNickname(String newNickname){this.nickname = newNickname;}
-    public void changePassword(String newPassword){this.password = newPassword;}
-    public void changePosition(Position newPosition){this.position = newPosition;}
+    public void updateName(String newName){ this.name = newName;}
+    public void updateNickname(String newNickname){this.nickname = newNickname;}
+    public void updatePassword(String newPassword){this.password = newPassword;}
+    public void updatePosition(Position newPosition){this.position = newPosition;}
 
 }
