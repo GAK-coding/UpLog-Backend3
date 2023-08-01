@@ -1,8 +1,9 @@
 package com.uplog.uplog.domain.project.model;
 
-import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
@@ -48,5 +49,46 @@ public class Project extends BaseTime {
         this.version=version;
         this.projectStatus=projectStatus;
 
+    }
+
+    public ProjectDTO.CreateInitInfo toCreateInitChangedIssueInfo(){
+        return ProjectDTO.CreateInitInfo.builder()
+                .id(this.id)
+                .version(this.version)
+                .build();
+    }
+
+    public ProjectDTO.UpdateProjectInfo toUpdateProjectInfo(){
+        return ProjectDTO.UpdateProjectInfo.builder()
+                .id(this.id)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .build();
+    }
+
+    public ProjectDTO.requestProjectAllInfo toRequestProjectAllInfo(PowerType powerType, String productName, String company){
+        return ProjectDTO.requestProjectAllInfo.builder()
+                .projectId(this.id)
+                .projectTeamList(this.projectTeamList)
+                .menuList(this.menuList)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .powerType(powerType)
+                .productName(productName)
+                .company(company)
+                .build();
+    }
+    public ProjectDTO.requestProjectInfo toRequestProjectInfo(PowerType powerType,String productName, String company){
+        return ProjectDTO.requestProjectInfo.builder()
+                .productName(productName)
+                .company(company)
+                .version(this.version)
+                .powerType(powerType)
+                .build();
+    }
+
+    public void updateProjectStatus(ProjectDTO.UpdateProjectStatus updateProjectStatus){
+        this.version=(updateProjectStatus.getVersion()!=null)?updateProjectStatus.getVersion():this.version;
+        this.projectStatus=ProjectStatus.PROGRESS_COMPLETE;
     }
 }

@@ -3,28 +3,25 @@ package com.uplog.uplog.domain.changedIssue.application;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
 import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
-import com.uplog.uplog.domain.changedIssue.exception.ExistProcessProjectExeption;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.changedIssue.model.ChangedIssue;
 import com.uplog.uplog.domain.changedIssue.model.QChangedIssue;
 import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
-import com.uplog.uplog.domain.comment.model.QComment;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
-import com.uplog.uplog.domain.product.model.QProduct;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
+import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
 import com.uplog.uplog.domain.project.exception.NotFoundProjectException;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.project.model.QProject;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
-import com.uplog.uplog.domain.team.dto.TeamDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
@@ -36,8 +33,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 

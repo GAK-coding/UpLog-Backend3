@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.changedIssue.exception;
+package com.uplog.uplog.domain.project.exception;
 
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 

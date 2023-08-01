@@ -1,10 +1,8 @@
 package com.uplog.uplog.domain.changedIssue.exception.handler;
 
-import com.uplog.uplog.domain.changedIssue.exception.ExistProcessProjectExeption;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueByProjectException;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
-import com.uplog.uplog.domain.comment.exception.NotFoundCommentByPostException;
 import com.uplog.uplog.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,12 +38,5 @@ public class ChangedIssueExceptionHandler {
                 .build();
         return ResponseEntity.ok(errorResponse);
     }
-    @ExceptionHandler(ExistProcessProjectExeption.class)
-    protected final ResponseEntity<ErrorResponse> ExistProcessProjectExeptionHandler(ExistProcessProjectExeption e, WebRequest webRequest){
-        final ErrorResponse errorResponse = ErrorResponse.builder()
-                .httpStatus(HttpStatus.FORBIDDEN)
-                .message(e.getMessage())
-                .build();
-        return ResponseEntity.ok(errorResponse);
-    }
+
 }
