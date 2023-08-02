@@ -25,15 +25,15 @@ public class ProductController {
     private final ProductRepository productRepository;
 
     @PostMapping(value="/products/{member-id}")
-    public ResponseEntity<ProductInfoDTO> saveProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated SaveProductRequest saveProductRequest) throws Exception {
-        Long pId = productService.saveProduct(companyId,saveProductRequest);
-        ProductInfoDTO productInfoDTO = productService.readProductById(pId);
+    public ResponseEntity<ProductInfoDTO> createProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated CreateProductRequest createProductRequest) throws Exception {
+        Long pId = productService.createProduct(companyId,createProductRequest);
+        ProductInfoDTO productInfoDTO = productService.findProductById(pId);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.CREATED);
     }
     //====================read=======================
     @GetMapping(value = "/products/{product-id}")
-    public ResponseEntity<ProductInfoDTO> readProductById(@PathVariable(name = "product-id")Long id){
-        ProductInfoDTO productInfoDTO = productService.readProductById(id);
+    public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id")Long id){
+        ProductInfoDTO productInfoDTO = productService.findProductById(id);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
     }
 

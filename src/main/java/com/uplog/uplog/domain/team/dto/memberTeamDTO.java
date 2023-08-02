@@ -16,7 +16,7 @@ public class memberTeamDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SaveMemberTeamRequest{
+    public static class CreateMemberTeamRequest{
         private String memberEmail;
         private Long teamId;
         private PowerType powerType;

@@ -109,7 +109,7 @@ public class MailService {
         //비밀번호 변경이라면, 비번 재설정해줘야함.
         if(emailRequest.getType()==1){
             Member member = memberRepository.findMemberByEmail(emailRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
-            member.changePassword(authNum);
+            member.updatePassword(authNum);
         }
         return ErrorResponse.builder()
                 .httpStatus(HttpStatus.OK)

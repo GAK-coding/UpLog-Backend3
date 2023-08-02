@@ -21,8 +21,8 @@ public class MemberController {
 
     //=============================create=======================================
     @PostMapping(value = "/members")
-    public ResponseEntity<MemberInfoDTO> createMember(@RequestBody @Validated SaveMemberRequest saveMemberRequest){
-        MemberInfoDTO memberInfoDTO = memberService.saveMember(saveMemberRequest);
+    public ResponseEntity<MemberInfoDTO> createMember(@RequestBody @Validated CreateMemberRequest createMemberRequest){
+        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
 
@@ -36,47 +36,47 @@ public class MemberController {
 
     //=============================read======================================
     @GetMapping(value = "/members/{member-id}")
-    public ResponseEntity<MemberInfoDTO> readMemberById(@PathVariable(name = "member-id") Long id){
+    public ResponseEntity<MemberInfoDTO> findMemberById(@PathVariable(name = "member-id") Long id){
         MemberInfoDTO memberInfoDTO = memberService.findMemberById(id);
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.OK);
     }
 
     //이메일은 pathVariable로 넘기지 않고 DTO로 넘김
     @GetMapping(value = "/members/email-request")
-    public ResponseEntity<MemberInfoDTO> readMemberByEmail(@RequestBody @Validated MailDTO.EmailRequest emailRequest){
+    public ResponseEntity<MemberInfoDTO> findMemberByEmail(@RequestBody @Validated MailDTO.EmailRequest emailRequest){
         MemberInfoDTO memberInfoDTO = memberService.findMemberByEmail(emailRequest.getEmail());
         return ResponseEntity.ok(memberInfoDTO);
     }
 
     //member 전체 조회
     @GetMapping(value = "/members")
-    public ResponseEntity<ReadMembersDTO> readTotalMember(){
-        ReadMembersDTO readMembersDTO = memberService.findAllMembers();
-        return new ResponseEntity<>(readMembersDTO, HttpStatus.OK);
+    public ResponseEntity<FindMembersDTO> findTotalMember(){
+        FindMembersDTO findMembersDTO = memberService.findAllMembers();
+        return new ResponseEntity<>(findMembersDTO, HttpStatus.OK);
     }
 
     //============================update===================================
     @PatchMapping(value = "/members/{member-id}/name")
-    public ResponseEntity<SimpleMemberInfoDTO> changeMemberName(@PathVariable(name="member-id") Long id, @RequestBody @Validated ChangeNameRequest changeNameRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.changeMemberName(id, changeNameRequest);
+    public ResponseEntity<SimpleMemberInfoDTO> updateMemberName(@PathVariable(name="member-id") Long id, @RequestBody @Validated UpdateNameRequest updateNameRequest){
+        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberName(id, updateNameRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
         }
 
     @PatchMapping(value = "members/{member-id}/nickname")
-    public ResponseEntity<SimpleMemberInfoDTO> changeMemberNickname(@PathVariable(name = "member-id") Long id, @RequestBody @Validated ChangeNicknameRequest changeNicknameRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.changeMemberNickname(id, changeNicknameRequest);
+    public ResponseEntity<SimpleMemberInfoDTO> updateMemberNickname(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdateNicknameRequest updateNicknameRequest){
+        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberNickname(id, updateNicknameRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
     }
 
     @PatchMapping(value = "members/{member-id}/password")
-    public ResponseEntity<SimpleMemberInfoDTO> changeMemberPassword(@PathVariable(name = "member-id") Long id, @RequestBody @Validated ChangePasswordRequest changePasswordRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.changeMemberPassword(id, changePasswordRequest);
+    public ResponseEntity<SimpleMemberInfoDTO> udpateMemberPassword(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdatePasswordRequest updatePasswordRequest){
+        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberPassword(id, updatePasswordRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
     }
 
     @PatchMapping(value = "members/{member-id}/position")
-    public ResponseEntity<SimpleMemberInfoDTO> changeMemberPosition(@PathVariable(name = "member-id") Long id, @RequestBody @Validated ChangePositionRequest changePositionRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.changeMemberPostion(id, changePositionRequest);
+    public ResponseEntity<SimpleMemberInfoDTO> updateMemberPosition(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdatePositionRequest updatePositionRequest){
+        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberPostion(id, updatePositionRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
     }
 
