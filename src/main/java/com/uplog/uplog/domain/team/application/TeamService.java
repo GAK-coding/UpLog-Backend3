@@ -63,9 +63,8 @@ public class TeamService {
     }
 
 
-    //TODO DELETE는 마스터만 가능하게? 기업도 가능하게 해야해? 우선 둘다 가능하게 함.
-    //근데 이게 프로덕트가 삭제되면 자동으로 삭제되는건가?
-    //삭제관련한 연과관계 잘살펴보기 테스트 해보자.
+    //TODO DELETE는 마스터만 가능하게? 기업도 가능하게 해야해? 우선 둘다 가능하게 함. -> 이건 나중에 고려
+    //근데 이게 프로덕트가 삭제되면 자동으로 삭제되는건가? -> 삭제 없음
     @Transactional
     public String deleteTeam(Long id){
         Team team = teamRepository.findById(id).orElseThrow(NotFoundIdException::new);
