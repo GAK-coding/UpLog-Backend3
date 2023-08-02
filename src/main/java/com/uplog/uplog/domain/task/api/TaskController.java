@@ -42,9 +42,16 @@ public class TaskController {
     }
 
     //전체조회
-    @GetMapping("/tasks/all")
-    public ResponseEntity<Map<TaskStatus, List<TaskInfoDTO>>> findAllTasksByStatus() {
-        Map<TaskStatus, List<TaskInfoDTO>> taskInfoDTOMap = taskService.findAllTasksByStatus();
+    @GetMapping("/tasks/all/{project-id}")
+    public ResponseEntity<List<TaskInfoDTO>> findAllTaskByProjectId(@PathVariable(name="project-id")Long projectId) {
+        List<TaskInfoDTO> taskInfoDTOs = taskService.findAllTask(projectId);
+        return new ResponseEntity<>(taskInfoDTOs, HttpStatus.OK);
+    }
+
+    //전체조회
+    @GetMapping("/tasks/allByStatus/{project-id}")
+    public ResponseEntity<Map<TaskStatus, List<TaskInfoDTO>>> findAllTasksByStatus(@PathVariable(name="project-id")Long projectId) {
+        Map<TaskStatus, List<TaskInfoDTO>> taskInfoDTOMap = taskService.findAllTasksByStatus(projectId);
         return ResponseEntity.ok(taskInfoDTOMap);
     }
 
@@ -52,8 +59,8 @@ public class TaskController {
 
     //status별로 조회
     @GetMapping("/tasks/{taskStatus}/status")
-    public ResponseEntity<List<TaskInfoDTO>> findTaskByStatus(@PathVariable(name="taskStatus")TaskStatus taskStatus) {
-        List<TaskInfoDTO> taskInfoDTOs = taskService.findTaskByStatus(taskStatus);
+    public ResponseEntity<List<TaskInfoDTO>> findTaskByStatus(@PathVariable(name="taskStatus")TaskStatus taskStatus,Long projectId) {
+        List<TaskInfoDTO> taskInfoDTOs = taskService.findTaskByStatus(projectId,taskStatus);
         return new ResponseEntity<>(taskInfoDTOs, HttpStatus.OK);
     }
 
