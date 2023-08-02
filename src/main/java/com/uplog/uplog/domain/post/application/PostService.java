@@ -51,7 +51,7 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
 
-       // Post post = createPostRequest.toEntity(author, menu, product, project);
+        // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정
 
         String requestType = createPostRequest.getPostType();
@@ -91,12 +91,12 @@ public class PostService {
     @Transactional
     public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-          if(post.getAuthor().getId().equals(currentUserId)){
-              post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-              return post;
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
+            return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -109,7 +109,7 @@ public class PostService {
             return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -136,7 +136,7 @@ public class PostService {
             return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -151,7 +151,7 @@ public class PostService {
             return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -161,28 +161,18 @@ public class PostService {
     @Transactional
     public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        if(post.getAuthor().getId().equals(currentUserId)){
-            post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
-            return post;
-        }
-        else{
-            throw new AuthorityException();
-        }
+        post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
+        return post;
+
 
     }
 
     //TODO 이건 나중에 프로젝트 수정할때 같이 불러야하는 서비스임
-
     @Transactional
     public Post updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        if(post.getAuthor().getId().equals(currentUserId)){
-            post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
-            return post;
-        }
-        else{
-            throw new AuthorityException();
-        }
+        post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
+        return post;
 
     }
 
