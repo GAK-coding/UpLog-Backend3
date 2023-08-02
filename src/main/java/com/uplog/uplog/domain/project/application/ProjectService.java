@@ -45,6 +45,9 @@ public class ProjectService {
         Product product=productRepository.findById(productId)
                 .orElseThrow(()->new NotFoundProjectException(productId));
 
+        //진행 중 프로젝트 있을 시 제한
+        checkProcessProject(productId);
+
         //새로 생성 되는 프로젝트는 진행 중 고정 값.
         Project project=createInitInfo.toEntity(ProjectStatus.PROGRESS_IN,product);
 
