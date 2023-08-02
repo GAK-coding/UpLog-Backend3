@@ -45,6 +45,9 @@ public class Swagger {
 
         return GroupedOpenApi.builder()
                 .group("posts")
+                .pathsToMatch(paths)
+                .build();
+    }
 
     @Bean
     public GroupedOpenApi commentOpenApi(){
