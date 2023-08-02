@@ -48,7 +48,7 @@ public class PostService {
         Project project = projectRepository.findById(createPostRequest.getProjectId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        Product product = productRepository.findById(createPostRequest.getPorductId())
+        Product product = productRepository.findById(createPostRequest.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
 
