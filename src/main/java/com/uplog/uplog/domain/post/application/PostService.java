@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.post.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dao.PostRepository;
@@ -65,13 +66,15 @@ public class PostService {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
+        if (author.getPosition() == Position.INDIVIDUAL) {
+            Post post = createPostRequest.toEntity(author, menu, product, project, postType);
+            postRepository.save(post);
 
-
-        Post post=createPostRequest.toEntity(author,menu, product, project,postType);
-        postRepository.save(post);
-
-        return post;
-
+            return post;
+        } else {
+            //기업인경우
+            throw new AuthorityException("포스트 생성 권한이 없습니다.");
+        }
     }
 
 
