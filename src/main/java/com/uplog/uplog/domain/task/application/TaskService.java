@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final MemberRepository memberRepository;
-    private final ProjectTeamRepository teamRepository;
+    private final ProjectTeamRepository projectTeamRepository;
     private final MenuRepository menuRepository;
 
 
@@ -46,8 +46,10 @@ public class TaskService {
         Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
                 .orElseThrow(() -> new RuntimeException("Menu not found"));
 
-        ProjectTeam projectTeam = teamRepository.findById(createTaskRequest.getProjectTeamId())
+        ProjectTeam projectTeam = projectTeamRepository.findById(createTaskRequest.getProjectTeamId())
                 .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
+
+
 
 
         if(targetMember.getPosition()== Position.INDIVIDUAL){
@@ -215,7 +217,7 @@ public class TaskService {
 
     @Transactional
     public Task updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest) {
-        ProjectTeam projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
+        ProjectTeam projectTeam = projectTeamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
                 .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
