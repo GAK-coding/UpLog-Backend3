@@ -48,6 +48,15 @@ public class Swagger {
                 .pathsToMatch(paths)
                 .build();
     }
+    @Bean
+    public GroupedOpenApi MenuOpenApi() {
+        String[] paths = {"/menus/**"};
+
+        return GroupedOpenApi.builder()
+                .group("menus")
+                .pathsToMatch(paths)
+                .build();
+    }
 
     @Bean
     public GroupedOpenApi commentOpenApi(){
