@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.task.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.task.dao.TaskRepository;
@@ -11,6 +12,7 @@ import com.uplog.uplog.domain.task.exception.*;
 import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.team.dao.ProjectTeamRepository;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.global.exception.AuthorityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,14 +49,23 @@ public class TaskService {
         ProjectTeam projectTeam = teamRepository.findById(createTaskRequest.getProjectTeamId())
                 .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
 
-        Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
-//        Task task = createTaskRequest.toEntity(targetMember);
+
+        if(targetMember.getPosition()== Position.INDIVIDUAL){
+            Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
+            taskRepository.save(task);
+            return task;
+        }
+        else{
+            //기업인경우
+            throw new AuthorityException("테스크 생성 권한이 없습니다.");
+        }
+
+        //Task task = createTaskRequest.toEntity(targetMember);
 
 
         //Task task = taskSaveRequest.toEntity();
 
-        taskRepository.save(task);
-        return task;
+
     }
 
     //========================================read========================================
