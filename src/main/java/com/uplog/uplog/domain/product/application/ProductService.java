@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO ProjectList null로 넣어놓은거 수정하기 -> 프로젝트가 완료 되면!!
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -50,6 +51,7 @@ public class ProductService {
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
 
+//========================================Create=============================================
     //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
     //기업 내에서 제품 이름은 하나만 있어야함.
@@ -94,6 +96,53 @@ public class ProductService {
     }
 
 
+//=====================================Read================================================
+    //프로덕트 내에 멤버 리스트 출력
+    @Transactional(readOnly = true)
+    public MemberPowerListDTO findMemberPowerList(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        Team team = teamRepository.findById(product.getTeam().getId()).orElseThrow(NotFoundIdException::new);
+        List<String> leaderList = new ArrayList<>();
+        List<String> clientList = new ArrayList<>();
+        List<String> workerList = new ArrayList<>();
+        String master = "";
+
+        List<MemberTeam> masterL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.MASTER);
+        List<MemberTeam> leaderL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.LEADER);
+        List<MemberTeam> clientL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.CLIENT);
+        List<MemberTeam> workerL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.DEFAULT);
+
+        //마스터
+        for (MemberTeam m : masterL) {
+            master = m.getMember().getEmail();
+        }
+        //리더 리스트
+        for (MemberTeam l : leaderL) {
+            leaderList.add(l.getMember().getEmail());
+        }
+        //작업자 리스트
+        for (MemberTeam w : workerL) {
+            workerList.add(w.getMember().getEmail());
+        }
+        //의뢰인 리스트
+        for (MemberTeam c : clientL) {
+            clientList.add(c.getMember().getEmail());
+        }
+        return MemberPowerListDTO.builder()
+                .poductId(productId)
+                .productName(product.getName())
+                .master(master)
+                .leaderCnt(leaderList.size())
+                .leaderList(leaderList)
+                .workerCnt(workerList.size())
+                .workerList(workerList)
+                .clientCnt(clientList.size())
+                .clientList(clientList)
+                .build();
+    }
+
+
+
     //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
     @Transactional(readOnly = true)
     public ProductInfoDTO findProductById(Long id) {
@@ -102,6 +151,17 @@ public class ProductService {
         return product.toProductInfoDTO(null);
     }
 
+    //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
+    @Transactional(readOnly = true)
+    public List<ProductInfoDTO> findProductsByCompany(String company){
+        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
+        List<Product> productList = productRepository.findProductsByCompany(company);
+        for(Product p : productList){
+            productInfoDTOList.add(p.toProductInfoDTO(null));
+        }
+        return productInfoDTOList;
+    }
+    //============================Update==================================
     //제품 수정
     @Transactional
     public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
@@ -148,50 +208,6 @@ public class ProductService {
                 .duplicatedMemberList(duplicatedMemberList)
                 .build();
 
-    }
-
-    //프로덕트 내에 멤버 리스트 출력
-    @Transactional(readOnly = true)
-    public MemberPowerListDTO findMemberPowerList(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
-        Team team = teamRepository.findById(product.getTeam().getId()).orElseThrow(NotFoundIdException::new);
-        List<String> leaderList = new ArrayList<>();
-        List<String> clientList = new ArrayList<>();
-        List<String> workerList = new ArrayList<>();
-        String master = "";
-
-        List<MemberTeam> masterL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.MASTER);
-        List<MemberTeam> leaderL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.LEADER);
-        List<MemberTeam> clientL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.CLIENT);
-        List<MemberTeam> workerL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.DEFAULT);
-
-        //마스터
-        for (MemberTeam m : masterL) {
-            master = m.getMember().getEmail();
-        }
-        //리더 리스트
-        for (MemberTeam l : leaderL) {
-            leaderList.add(l.getMember().getEmail());
-        }
-        //작업자 리스트
-        for (MemberTeam w : workerL) {
-            workerList.add(w.getMember().getEmail());
-        }
-        //의뢰인 리스트
-        for (MemberTeam c : clientL) {
-            clientList.add(c.getMember().getEmail());
-        }
-        return MemberPowerListDTO.builder()
-                .poductId(productId)
-                .productName(product.getName())
-                .master(master)
-                .leaderCnt(leaderList.size())
-                .leaderList(leaderList)
-                .workerCnt(workerList.size())
-                .workerList(workerList)
-                .clientCnt(clientList.size())
-                .clientList(clientList)
-                .build();
     }
 
     //마스터, 리더들이 제품에 멤버 추가할때
