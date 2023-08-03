@@ -135,7 +135,7 @@ public class MenuService {
     READ
      */
 
-    //메뉴만 가져오는거
+    //프로젝트의 메뉴만 가져오는거
     @Transactional(readOnly = true)
     public List<MenuInfoDTO> findByProjectId(Long projectId){
         List<Menu> menuList=menuRepository.findByProjectId(projectId);
@@ -145,6 +145,14 @@ public class MenuService {
             menuInfoDTOS.add(menuInfoDTO);
         }
         return menuInfoDTOS;
+    }
+
+    //해당 아이디의 메뉴 가져오는거
+    @Transactional(readOnly = true)
+    public MenuInfoDTO findMenuById(Long id){
+        Menu menu=menuRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        return menu.toMenuInfoDTO();
+
     }
 
     //해당 메뉴의 테스크 가져오는거
@@ -159,12 +167,25 @@ public class MenuService {
 
 
     //해당 메뉴의 포스트 가져오는거(공지글 포함)
-    @Transactional(readOnly = true)
-    public List<PostDTO.PostInfoDTO> findPostsByMenuId(Long menuId) {
-        List<Post> postList = postService.findPostsByMenuId(menuId);
-        return postList.stream()
+//    @Transactional(readOnly = true)
+//    public List<PostDTO.PostInfoDTO> findPostsByMenuId(Long menuId) {
+//        List<Post> postList = postService.findPostsByMenuId(menuId);
+//        return postList.stream()
+//                .map(Post::toPostInfoDTO)
+//                .collect(Collectors.toList());
+//    }
+    public MenuPostsDTO findMenuInfoById(Long menuId) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+        Post noticePost = menu.getNoticePost();
+        List<Post> posts = postService.findPostsByMenuId(menuId);
+
+        MenuInfoDTO menuInfoDTO = menu.toMenuInfoDTO();
+        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? noticePost.toPostInfoDTO() : null;
+        List<PostDTO.PostInfoDTO> postDTOList = posts.stream()
                 .map(Post::toPostInfoDTO)
                 .collect(Collectors.toList());
+
+        return new MenuPostsDTO(menuInfoDTO, noticePostDTO, postDTOList);
     }
 
 

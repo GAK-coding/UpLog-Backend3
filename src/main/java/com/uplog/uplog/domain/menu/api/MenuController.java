@@ -79,17 +79,30 @@ public class MenuController {
 
     //메뉴별 테스크 가져오기->근데 이걸 메뉴에서 처리하는게 맞을까(==포스트도 )
     @GetMapping("/menus/{menu-id}/tasks")
-    public ResponseEntity<List<TaskDTO.TaskInfoDTO>> findTasksByMenuId(@PathVariable("menu-id") Long menuId) {
+    public ResponseEntity<MenuTasksDTO> findTasksAndMenuInfoByMenuId(@PathVariable("menu-id") Long menuId) {
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = menuService.findTasksByMenuId(menuId);
-        return ResponseEntity.ok(taskInfoDTOList);
+        MenuInfoDTO menuInfoDTO = menuService.findMenuById(menuId);
+
+        MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
+        return ResponseEntity.ok(menuTasksDTO);
     }
+//    @GetMapping("/menus/{menu-id}/tasks")
+//    public ResponseEntity<List<TaskDTO.TaskInfoDTO>> findTasksByMenuId(@PathVariable("menu-id") Long menuId) {
+//        List<TaskDTO.TaskInfoDTO> taskInfoDTOList = menuService.findTasksByMenuId(menuId);
+//        return ResponseEntity.ok(taskInfoDTOList);
+//    }
 
     //메뉴별 포스트 가져오기
     @GetMapping("/menus/{menu-id}/posts")
-    public ResponseEntity<List<PostDTO.PostInfoDTO>> findPostsByMenuId(@PathVariable("menu-id") Long menuId) {
-        List<PostDTO.PostInfoDTO> postInfoDTOList = menuService.findPostsByMenuId(menuId);
-        return ResponseEntity.ok(postInfoDTOList);
+    public ResponseEntity<MenuPostsDTO> findMenuPosts(@PathVariable("menu-id") Long menuId) {
+        MenuPostsDTO menuPostsDTO = menuService.findMenuInfoById(menuId);
+        return ResponseEntity.ok(menuPostsDTO);
     }
+//    @GetMapping("/menus/{menu-id}/posts")
+//    public ResponseEntity<List<PostDTO.PostInfoDTO>> findPostsByMenuId(@PathVariable("menu-id") Long menuId) {
+//        List<PostDTO.PostInfoDTO> postInfoDTOList = menuService.findPostsByMenuId(menuId);
+//        return ResponseEntity.ok(postInfoDTOList);
+//    }
 
 
 
