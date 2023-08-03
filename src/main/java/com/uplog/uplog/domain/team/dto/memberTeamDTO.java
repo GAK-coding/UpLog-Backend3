@@ -21,6 +21,7 @@ public class memberTeamDTO {
         private Long teamId;
         private PowerType powerType;
         private String link;
+        private int type;//0이면 프로덕트 생성 1이면 프로젝트 그룹 생성 -> 아이디, 이메일로 멤버 찾는거 구분때문에 만듬.
 
         public MemberTeam toMemberTeam(Team team, Member member, PowerType powerType){
             return MemberTeam.builder()
