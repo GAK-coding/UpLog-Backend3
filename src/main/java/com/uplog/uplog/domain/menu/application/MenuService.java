@@ -4,7 +4,9 @@ import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import com.uplog.uplog.domain.menu.exception.*;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.post.application.PostService;
 import com.uplog.uplog.domain.post.dao.PostRepository;
+import com.uplog.uplog.domain.post.dto.PostDTO;
 import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
@@ -31,6 +33,7 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final ProjectRepository projectRepository;
     private final PostRepository postRepository;
+    private final PostService postService;
     private final TaskService taskService;
     /*
     CREATE
@@ -131,14 +134,8 @@ public class MenuService {
     /*
     READ
      */
-    @Transactional(readOnly = true)
-    public List<TaskInfoDTO> findTasksByMenuId(Long menuId) {
-        List<Task> taskList = taskService.findByMenuId(menuId);
-        return taskList.stream()
-                .map(Task::toTaskInfoDTO)
-                .collect(Collectors.toList());
-    }
 
+    //메뉴만 가져오는거
     @Transactional(readOnly = true)
     public List<MenuInfoDTO> findByProjectId(Long projectId){
         List<Menu> menuList=menuRepository.findByProjectId(projectId);
@@ -149,6 +146,27 @@ public class MenuService {
         }
         return menuInfoDTOS;
     }
+
+    //해당 메뉴의 테스크 가져오는거
+    @Transactional(readOnly = true)
+    public List<TaskInfoDTO> findTasksByMenuId(Long menuId) {
+        List<Task> taskList = taskService.findByMenuId(menuId);
+        return taskList.stream()
+                .map(Task::toTaskInfoDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
+    //해당 메뉴의 포스트 가져오는거(공지글 포함)
+    @Transactional(readOnly = true)
+    public List<PostDTO.PostInfoDTO> findPostsByMenuId(Long menuId) {
+        List<Post> postList = postService.findPostsByMenuId(menuId);
+        return postList.stream()
+                .map(Post::toPostInfoDTO)
+                .collect(Collectors.toList());
+    }
+
 
 }
 

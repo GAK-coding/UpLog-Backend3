@@ -77,12 +77,20 @@ public class MenuController {
         return new ResponseEntity<>(menuInfoDTOs, HttpStatus.OK);
     }
 
-    //메뉴별 테스크 가져오기->근데 이걸 메뉴에서 처리하는게 맞을까(==포스트도 물기)
+    //메뉴별 테스크 가져오기->근데 이걸 메뉴에서 처리하는게 맞을까(==포스트도 )
     @GetMapping("/menus/{menu-id}/tasks")
     public ResponseEntity<List<TaskDTO.TaskInfoDTO>> findTasksByMenuId(@PathVariable("menu-id") Long menuId) {
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = menuService.findTasksByMenuId(menuId);
         return ResponseEntity.ok(taskInfoDTOList);
     }
+
+    //메뉴별 포스트 가져오기
+    @GetMapping("/menus/{menu-id}/posts")
+    public ResponseEntity<List<PostDTO.PostInfoDTO>> findPostsByMenuId(@PathVariable("menu-id") Long menuId) {
+        List<PostDTO.PostInfoDTO> postInfoDTOList = menuService.findPostsByMenuId(menuId);
+        return ResponseEntity.ok(postInfoDTOList);
+    }
+
 
 
 
