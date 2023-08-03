@@ -14,6 +14,7 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
+import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
@@ -183,7 +184,7 @@ public class PostService {
     Get
      */
     @Transactional(readOnly = true)
-    public List<PostInfoDTO> findPostByMenuId(Long menuId){
+    public List<PostInfoDTO> findPostInfoByMenuId(Long menuId){
         List<Post> postList=postRepository.findByMenuId(menuId);
         List<PostInfoDTO> postInfoDTOs=new ArrayList<>();
         for(Post post:postList){
@@ -192,6 +193,10 @@ public class PostService {
         }
         return postInfoDTOs;
 
+    }
+    public List<Post> findPostsByMenuId(Long menuId) {
+        List<Post> postList = postRepository.findByMenuId(menuId);
+        return postList;
     }
 
 
