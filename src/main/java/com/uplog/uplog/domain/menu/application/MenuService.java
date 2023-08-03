@@ -68,6 +68,12 @@ public class MenuService {
             throw new DuplicatedMenuNameInProjectException();
         }
 
+        //메뉴 최대 15개
+        if (menuRepository.countByProjectId(projectId) >= 15) {
+            throw new ExceededMaxMenuCountException();
+        }
+
+
         Menu menu = createMenuRequest.toEntity(project);
         menuRepository.save(menu);
         return menu;

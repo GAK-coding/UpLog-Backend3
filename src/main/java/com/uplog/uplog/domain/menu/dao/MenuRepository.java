@@ -12,5 +12,6 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     Optional<Menu> findById(Long id);
     List<Menu> findByProjectIdAndMenuName(Long projectId, String menuName);
     List<Menu> findByProjectId(Long projectId);
+    long countByProjectId(Long projectId);
 
 }
