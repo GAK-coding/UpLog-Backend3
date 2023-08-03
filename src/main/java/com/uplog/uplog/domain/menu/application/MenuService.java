@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -21,6 +25,26 @@ public class MenuService {
     /*
     CREATE
      */
+
+
+    @Transactional
+    public List<Menu> createDefaultMenu(Long projectId){
+        List<String> menuNames = Arrays.asList("결과물", "요구사항", "개발", "배포");
+        List<Menu> createdMenus = new ArrayList<>();
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        for (String menuName : menuNames) {
+            Menu menu = Menu.builder()
+                    .menuName(menuName)
+                    .project(project)
+                    .build();
+            createdMenus.add(menu);
+        }
+
+        menuRepository.saveAll(createdMenus);
+        return createdMenus;
+    }
     @Transactional
     public Menu createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest){
         Project project=projectRepository.findById(projectId)
