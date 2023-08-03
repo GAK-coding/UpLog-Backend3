@@ -71,7 +71,7 @@ public class PostController {
      */
     @GetMapping("/posts/menus/{menu-id}")
     public ResponseEntity<List<PostInfoDTO>> getPostByMenu(@PathVariable Long menuId){
-        List<PostInfoDTO> postInfoDTOs=postService.getPostByMenu(menuId);
+        List<PostInfoDTO> postInfoDTOs=postService.findPostByMenuId(menuId);
         return new ResponseEntity<>(postInfoDTOs, HttpStatus.OK);
     }
 
