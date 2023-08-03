@@ -3,8 +3,12 @@ package com.uplog.uplog.domain.menu.application;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.post.dao.PostRepository;
+import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ import java.util.List;
 public class MenuService {
     private final MenuRepository menuRepository;
     private final ProjectRepository projectRepository;
+    private final PostRepository postRepository;
 
     /*
     CREATE
@@ -52,6 +57,33 @@ public class MenuService {
 
         Menu menu=createMenuRequest.toEntity(project);
         menuRepository.save(menu);
+        return menu;
+    }
+
+    /*
+    DELETE
+     */
+    @Transactional
+    public void deleteMenu(Long menuId){
+        Menu menu=menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+        menuRepository.delete(menu);
+    }
+
+    /*
+    UPDATE
+     */
+    @Transactional
+    public Menu updateMenuName(Long id,UpdateMenuNameRequest updateMenuNameRequest){
+        Menu menu=menuRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        menu.updateMenuName(updateMenuNameRequest.getUpdatemenuName());
+        return menu;
+    }
+
+    @Transactional
+    public Menu updateNoticePost(Long menuId,UpdateNoticePostRequest updateNoticePostRequest){
+        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+        Post post=postRepository.findById(updateNoticePostRequest.getUpdateNoticePostId()).orElseThrow(NotFoundTaskByIdException::new);
+        menu.updateNoticePost(post);
         return menu;
     }
 }

@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,8 +37,38 @@ public class MenuController {
         return ResponseEntity.ok(menuInfoDTO);
     }
 
+
+    /*
+    DELETE
+     */
+    @DeleteMapping("/menus/{menuId}")
+    public ResponseEntity<Void> deleteMenu(@PathVariable Long id){
+        menuService.deleteMenu(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /*
+    PATCH
+     */
+    @PatchMapping("/menus/{menu-id}/menuname")
+    public ResponseEntity<MenuInfoDTO> updateMenuName(@PathVariable Long id, @RequestBody UpdateMenuNameRequest updateMenuNameRequest){
+        Menu updatedMenuName=menuService.updateMenuName(id,updateMenuNameRequest);
+        MenuInfoDTO menuInfoDTO=updatedMenuName.toMenuInfoDTO();
+        return ResponseEntity.ok(menuInfoDTO);
+    }
+
+    @PatchMapping("/menus/{menu-id}/notice-post")
+    public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
+        Menu updatedNoticePost=menuService.updateNoticePost(menuId,updateNoticePostRequest);
+        MenuInfoDTO menuInfoDTO=updatedNoticePost.toMenuInfoDTO();
+        return ResponseEntity.ok(menuInfoDTO);
+    }
+
+
     /*
     READ
      */
+
+
 
 }
