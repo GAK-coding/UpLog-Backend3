@@ -3,9 +3,11 @@ package com.uplog.uplog.domain.menu.api;
 import com.uplog.uplog.domain.menu.application.MenuService;
 import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.post.dto.PostDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,6 +70,12 @@ public class MenuController {
     /*
     READ
      */
+    @GetMapping("/menus/{project-id}")
+    public ResponseEntity<List<MenuInfoDTO>> findMenuByPost(@PathVariable Long proijectId){
+        List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(proijectId);
+        return new ResponseEntity<>(menuInfoDTOs, HttpStatus.OK);
+    }
+
 
 
 
