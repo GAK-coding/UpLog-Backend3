@@ -3,6 +3,7 @@ package com.uplog.uplog.domain.team.model;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.model.Task;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,8 +29,16 @@ public class ProjectTeam extends Team {
     private ProjectTeam parentTeam;
 
     @OneToMany(mappedBy = "parentTeam")
-    private List<ProjectTeam> childTeam = new ArrayList<ProjectTeam>();
+    private List<ProjectTeam> childTeamList = new ArrayList<ProjectTeam>();
 
-    private String name;
+    @Builder
+    public ProjectTeam(Long id, List<MemberTeam> memberTeamList, String name, Project project, ProjectTeam parentTeam){
+        super(id, memberTeamList, name);
+        this.project = project;
+        this.parentTeam = parentTeam;
+    }
+
+
+
 
 }
