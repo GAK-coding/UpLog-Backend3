@@ -182,7 +182,7 @@ public class PostService {
     /*
     Get
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PostInfoDTO> getPostByMenu(Long menuId){
         List<Post> postList=postRepository.findByMenuId(menuId);
         List<PostInfoDTO> postInfoDTOs=new ArrayList<>();
