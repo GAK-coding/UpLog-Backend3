@@ -1,11 +1,13 @@
 package com.uplog.uplog.domain.member.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -25,6 +27,10 @@ public class MemberBase {
 
     @Enumerated(EnumType.STRING)
     private Position position;
+
+
+
+
 
     public void updateName(String newName){ this.name = newName;}
     public void updateNickname(String newNickname){this.nickname = newNickname;}

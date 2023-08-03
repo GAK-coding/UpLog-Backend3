@@ -59,6 +59,12 @@ public class MemberDTO {
         private String nickname;
         private String password;
         private Position position;
+        private String token;
+
+        public void addTokenToMemberInfoDTO(String jwt){
+            this.token=jwt;
+
+        }
     }
 
     @Getter

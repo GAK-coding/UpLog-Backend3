@@ -3,11 +3,18 @@ package com.uplog.uplog.domain.member.api;
 import com.uplog.uplog.domain.member.application.MemberService;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.global.jwt.JwtFilter;
+import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.mail.MailDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class MemberController {
     private final MemberService memberService;
+    private final TokenProvider tokenProvider;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     //=============================create=======================================
     @PostMapping(value = "/members")
@@ -29,8 +38,25 @@ public class MemberController {
     //로그인
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
+        UsernamePasswordAuthenticationToken authenticationToken=
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
+
+        System.out.println("1");
+        Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        System.out.println("2");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        System.out.println("3");
+        String jwt=tokenProvider.createToken(authentication);
+        System.out.println("4");
+        HttpHeaders httpHeaders=new HttpHeaders();
+        System.out.println("5");
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER,"Bearer "+jwt);
+        System.out.println("6");
         MemberInfoDTO memberInfoDTO = memberService.login(loginRequest);
-        return ResponseEntity.ok(memberInfoDTO);
+        System.out.println("7");
+        memberInfoDTO.addTokenToMemberInfoDTO(jwt);
+        System.out.println("8");
+        return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
     }
 
 

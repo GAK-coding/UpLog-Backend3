@@ -30,7 +30,7 @@ public class CommentController {
     private final CommentApplication commentApplication;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
-    @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
+    @Operation(summary = "Comments", description = "comments", tags = { "Comment Controller" })
     // response 코드 별로 응답 시 내용(설명) 작성
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK",
