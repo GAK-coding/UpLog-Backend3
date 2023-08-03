@@ -4,6 +4,7 @@ import com.uplog.uplog.domain.menu.application.MenuService;
 import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dto.PostDTO;
+import com.uplog.uplog.domain.task.dto.TaskDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
@@ -74,6 +75,13 @@ public class MenuController {
     public ResponseEntity<List<MenuInfoDTO>> findMenuByPost(@PathVariable Long proijectId){
         List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(proijectId);
         return new ResponseEntity<>(menuInfoDTOs, HttpStatus.OK);
+    }
+
+    //메뉴별 테스크 가져오기->근데 이걸 메뉴에서 처리하는게 맞을까(==포스트도 물기)
+    @GetMapping("/menus/{menu-id}/tasks")
+    public ResponseEntity<List<TaskDTO.TaskInfoDTO>> findTasksByMenuId(@PathVariable("menu-id") Long menuId) {
+        List<TaskDTO.TaskInfoDTO> taskInfoDTOList = menuService.findTasksByMenuId(menuId);
+        return ResponseEntity.ok(taskInfoDTOList);
     }
 
 

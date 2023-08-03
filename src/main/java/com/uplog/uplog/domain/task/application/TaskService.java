@@ -123,15 +123,19 @@ public class TaskService {
 
 
     //메뉴별로 읽기
-    @Transactional(readOnly = true)
-    public List<TaskInfoDTO> findByMenuId(Long menuId){
-        List<Task> taskList=taskRepository.findByMenuId(menuId);
-        List<TaskInfoDTO> taskInfoDTOS=new ArrayList<>();
-        for(Task task:taskList){
-            TaskInfoDTO taskInfoDTO=task.toTaskInfoDTO();
-            taskInfoDTOS.add(taskInfoDTO);
-        }
-        return taskInfoDTOS;
+//    @Transactional(readOnly = true)
+//    public List<TaskInfoDTO> findByMenuId(Long menuId){
+//        List<Task> taskList=taskRepository.findByMenuId(menuId);
+//        List<TaskInfoDTO> taskInfoDTOS=new ArrayList<>();
+//        for(Task task:taskList){
+//            TaskInfoDTO taskInfoDTO=task.toTaskInfoDTO();
+//            taskInfoDTOS.add(taskInfoDTO);
+//        }
+//        return taskInfoDTOS;
+//    }
+    public List<Task> findByMenuId(Long menuId) {
+        List<Task> taskList = taskRepository.findByMenuId(menuId);
+        return taskList;
     }
 
 

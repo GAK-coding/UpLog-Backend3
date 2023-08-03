@@ -127,13 +127,17 @@ public class MenuService {
         menu.updateNoticePost(post);
         return menu;
     }
-//    @Transactional(readOnly = true)
-//    public List<TaskInfoDTO> findTasksByMenuId(Long menuId) {
-//        List<TaskInfoDTO> taskList = taskService.findByMenuId(menuId);
-//        return taskList.stream()
-//                .map(TaskInfoDTO::toTask) // 이 부분 수정
-//                .collect(Collectors.toList());
-//    }
+
+    /*
+    READ
+     */
+    @Transactional(readOnly = true)
+    public List<TaskInfoDTO> findTasksByMenuId(Long menuId) {
+        List<Task> taskList = taskService.findByMenuId(menuId);
+        return taskList.stream()
+                .map(Task::toTaskInfoDTO)
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public List<MenuInfoDTO> findByProjectId(Long projectId){
