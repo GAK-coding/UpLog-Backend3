@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.post.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dao.PostRepository;
@@ -13,6 +14,7 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
+import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +49,11 @@ public class PostService {
         Project project = projectRepository.findById(createPostRequest.getProjectId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        Product product = productRepository.findById(createPostRequest.getPorductId())
+        Product product = productRepository.findById(createPostRequest.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
 
-       // Post post = createPostRequest.toEntity(author, menu, product, project);
+        // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정
 
         String requestType = createPostRequest.getPostType();
@@ -65,13 +67,15 @@ public class PostService {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
+        if (author.getPosition() == Position.INDIVIDUAL) {
+            Post post = createPostRequest.toEntity(author, menu, product, project, postType);
+            postRepository.save(post);
 
-
-        Post post=createPostRequest.toEntity(author,menu, product, project,postType);
-        postRepository.save(post);
-
-        return post;
-
+            return post;
+        } else {
+            //기업인경우
+            throw new AuthorityException("포스트 생성 권한이 없습니다.");
+        }
     }
 
 
@@ -91,12 +95,12 @@ public class PostService {
     @Transactional
     public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-          if(post.getAuthor().getId().equals(currentUserId)){
-              post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-              return post;
+        if(post.getAuthor().getId().equals(currentUserId)){
+            post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
+            return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -109,7 +113,7 @@ public class PostService {
             return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -136,7 +140,7 @@ public class PostService {
             return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -151,7 +155,7 @@ public class PostService {
             return post;
         }
         else{
-            throw new AuthorityException();
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
 
     }
@@ -161,36 +165,26 @@ public class PostService {
     @Transactional
     public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        if(post.getAuthor().getId().equals(currentUserId)){
-            post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
-            return post;
-        }
-        else{
-            throw new AuthorityException();
-        }
+        post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
+        return post;
+
 
     }
 
     //TODO 이건 나중에 프로젝트 수정할때 같이 불러야하는 서비스임
-
     @Transactional
     public Post updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        if(post.getAuthor().getId().equals(currentUserId)){
-            post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
-            return post;
-        }
-        else{
-            throw new AuthorityException();
-        }
+        post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
+        return post;
 
     }
 
     /*
     Get
      */
-    @Transactional
-    public List<PostInfoDTO> getPostByMenu(Long menuId){
+    @Transactional(readOnly = true)
+    public List<PostInfoDTO> findPostInfoByMenuId(Long menuId){
         List<Post> postList=postRepository.findByMenuId(menuId);
         List<PostInfoDTO> postInfoDTOs=new ArrayList<>();
         for(Post post:postList){
@@ -199,6 +193,10 @@ public class PostService {
         }
         return postInfoDTOs;
 
+    }
+    public List<Post> findPostsByMenuId(Long menuId) {
+        List<Post> postList = postRepository.findByMenuId(menuId);
+        return postList;
     }
 
 
