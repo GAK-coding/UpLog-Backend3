@@ -10,7 +10,9 @@ import java.util.Optional;
 @Repository
 public interface ProjectTeamRepository extends JpaRepository<ProjectTeam, Long> {
     Optional<ProjectTeam> findById(Long projectId);
+    Optional<ProjectTeam> findByProjectIdAndName(Long id, String projectName);
     boolean existsById(Long id);
     List<ProjectTeam> findProjectTeamsByProjectId(Long projectId);
+    //int countProjectTeamsByProjectId()
     List<ProjectTeam> findProjectTeamsByProjectIdAndParentTeamId(Long projectId, Long parentTeamId);
 }
