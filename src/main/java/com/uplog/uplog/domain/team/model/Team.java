@@ -45,6 +45,8 @@ public class Team extends BaseTime {
                 .build();
     }
 
+    public void updateName(String newName){ this.name = newName; }
+
 
 
 }
