@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
 import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.exception.DuplicateVersionNameException;
 import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
@@ -40,10 +41,15 @@ public class ProjectService {
 
     //TODO 여기서 member(group) 처리해야 하나?
     @Transactional
-    public CreateInitInfo createInit(CreateInitInfo createInitInfo, Long prodId){
+    public CreateInitInfo createInit(CreateInitInfo createInitInfo,Long productId){
+        Product product=productRepository.findById(productId)
+                .orElseThrow(()->new NotFoundProjectException(productId));
+
+        //진행 중 프로젝트 있을 시 제한
+        checkProcessProject(productId);
 
         //새로 생성 되는 프로젝트는 진행 중 고정 값.
-        Project project=createInitInfo.toEntity(ProjectStatus.PROGRESS_IN);
+        Project project=createInitInfo.toEntity(ProjectStatus.PROGRESS_IN,product);
 
         projectRepository.save(project);
 

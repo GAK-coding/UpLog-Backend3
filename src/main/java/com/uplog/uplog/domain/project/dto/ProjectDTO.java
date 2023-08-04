@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.project.dto;
 
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.team.model.PowerType;
@@ -25,9 +26,10 @@ public class ProjectDTO {
         private Long id;
         private String version;
 
-        public Project toEntity(ProjectStatus projectStatus){
+        public Project toEntity(ProjectStatus projectStatus, Product product){
             return Project.builder()
                     .version(version)
+                    .product(product)
                     .projectStatus(projectStatus)
                     .build();
         }
