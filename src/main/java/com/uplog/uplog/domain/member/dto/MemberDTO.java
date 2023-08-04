@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.member.dto;
 
+import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.LoginType;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
@@ -8,7 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -26,12 +29,13 @@ public class MemberDTO {
         private Position position;
         private LoginType loginType;
 
-        public Member toMemberEntity(){
+        public Member toMemberEntity(Authority authority, PasswordEncoder passwordEncoder){
             return Member.builder()
                     .email(email)
                     .name(name)
                     .nickname(nickname)
-                    .password(password)
+                    .password(passwordEncoder.encode(password))
+                    .authorities(Collections.singleton(authority))
                     .position(position)
                     .loginType(loginType)
                     .build();

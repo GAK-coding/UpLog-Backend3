@@ -4,17 +4,22 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
+import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /*
 닉네임, 이름 중복 가능. 고유값은 email 하나뿐.
@@ -27,6 +32,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    private final PasswordEncoder passwordEncoder;
     //================================Member Create=====================================
     /*
     멤버 생성시 고려해야할 부분.
@@ -39,8 +45,19 @@ public class MemberService {
     public MemberInfoDTO createMember(CreateMemberRequest createMemberRequest){
         //이메일이 존재하는 멤버인지 확인. 존재하면 이미 존재한다고 예외처리
         if(!memberRepository.existsByEmail(createMemberRequest.getEmail())){
-            Member member = createMemberRequest.toMemberEntity();
+            if (memberRepository.findOneWithAuthoritiesByEmail(createMemberRequest.getEmail()).orElse(null) != null) {
+                throw new DuplicatedMemberException("이미 존재하는 회원입니다.");
+            }
+            Authority authority=Authority.builder()
+                    .authorityName("ROLE_USER")
+                    .build();
+            System.out.println("mem1");
+            Member member = createMemberRequest.toMemberEntity(authority,passwordEncoder);
+            System.out.println("mem2");
             memberRepository.save(member);
+            System.out.println("mem3");
+
+            System.out.println("mem5" + member.getPassword());
             return member.toMemberInfoDTO();
         }
         else{//이미 존재하는 회원
@@ -52,6 +69,16 @@ public class MemberService {
     public MemberInfoDTO login(LoginRequest loginRequest){
         Member member = memberRepository.findMemberByEmail(loginRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         return member.toMemberInfoDTO();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> getUserWithAuthorities(String email){
+        return memberRepository.findOneWithAuthoritiesByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> getMyUserWithAuthorities(){
+        return SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail);
     }
 
     //인증 이메일 전송

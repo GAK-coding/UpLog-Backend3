@@ -11,12 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 //TODO API 다시 경로 다시 설정!!!! 지금은 급해서 이렇게 올림
 @RestController
@@ -32,6 +34,7 @@ public class MemberController {
     @PostMapping(value = "/members")
     public ResponseEntity<MemberInfoDTO> createMember(@RequestBody @Validated CreateMemberRequest createMemberRequest){
         MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
+        System.out.println("mem6");
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
 
@@ -57,6 +60,17 @@ public class MemberController {
         memberInfoDTO.addTokenToMemberInfoDTO(jwt);
         System.out.println("8");
         return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
+    }
+
+    @GetMapping("/members/user")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<Member> getMyUserInfo(){
+        return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
+    }
+    @GetMapping("/members/{useremail}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Member> getMyUserInfo(@PathVariable("useremail") String email){
+        return ResponseEntity.ok(memberService.getUserWithAuthorities(email).get());
     }
 
 

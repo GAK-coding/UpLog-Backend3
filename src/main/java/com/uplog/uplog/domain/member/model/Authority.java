@@ -1,26 +1,22 @@
 package com.uplog.uplog.domain.member.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 
 @Entity
+@Table(name = "authority")
 @Getter
+@Setter
 @Builder
-@Table(name="authority")
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Authority {
 
-    @JsonIgnore
+
     @Id
-    @Column(name="authority_name",length=50)
+    @Column(name = "authority_name", length = 50)
     private String authorityName;
 }

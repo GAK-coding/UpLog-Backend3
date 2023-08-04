@@ -26,17 +26,22 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String name){
+        System.out.println("32");
         return memberRepository.findOneWithAuthoritiesByEmail(name)
-                .map(user->createUser(name,user))
+                .map(member->createUser(name,member))
                 .orElseThrow(()-> new UsernameNotFoundException(name + " -> 데이터베이스에서 찾을 수 없습니다."));
+
     }
     private org.springframework.security.core.userdetails.User createUser(String name, Member member){
-        if(member.getActivated()==false){
-            throw new RuntimeException(name + " -> 활성화되어 있지 않습니다.");
-        }
+        System.out.println("38");
+        //if(member.getActivated()==false){
+        //    throw new RuntimeException(name + " -> 활성화되어 있지 않습니다.");
+        //}
+        System.out.println("33");
         List<GrantedAuthority>grantedAuthorities=member.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
+        System.out.println("34");
         return new org.springframework.security.core.userdetails.User(member.getEmail(),
             member.getPassword(),
             grantedAuthorities);

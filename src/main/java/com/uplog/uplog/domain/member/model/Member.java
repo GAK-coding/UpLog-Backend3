@@ -38,21 +38,16 @@ public class Member extends MemberBase{
     @JoinColumn(name = "scrap_id")
     private Scrap scrap;
 
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name="user_authority",
-            joinColumns={@JoinColumn(name="member_id",referencedColumnName = "member_id")},
-            inverseJoinColumns={@JoinColumn(name="authority_name",referencedColumnName="authority_name")})
-    private Set<Authority> authorities;
+
 
 
     @Column(name="activated")
     private Boolean activated;
     @Builder
-    public Member(Long id, String email, String name, String nickname, String password, Position position, LoginType loginType){
-        super(id, email, name, nickname, password, position);
+    public Member(Long id, String email, String name, String nickname, String password, Position position, LoginType loginType,Set<Authority> authorities){
+        super(id, email, name, nickname, password, position,authorities);
         this.loginType = loginType;
+
 
     }
 
