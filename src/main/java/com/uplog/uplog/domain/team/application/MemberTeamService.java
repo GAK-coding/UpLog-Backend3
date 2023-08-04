@@ -12,6 +12,7 @@ import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberTeamInfoDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.UpdateMemberPowerTypeRequest;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.NotFoundIdException;
@@ -67,5 +68,12 @@ public class MemberTeamService {
 //
 //        if()
 //    }
+
+    @Transactional
+    public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest){
+        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        memberTeam.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
+        return memberTeam.getId();
+    }
 
 }
