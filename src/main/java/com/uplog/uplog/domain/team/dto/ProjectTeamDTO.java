@@ -19,11 +19,11 @@ public class ProjectTeamDTO {
     public static class CreateProjectTeamRequest{
         private List<Long> memberIdList;
         private String name;
-        private Long projectTeamId;
+        private Long projectId;
         private Long parentProjectTeamId;
 
         public ProjectTeam toEntity(List<MemberTeam> memberTeamList, Project project, ProjectTeam parentProjectTeam){
-            return ProjectTeam.builder()
+            return ProjectTeam.projectTeamBuilder()
                     .name(this.name)
                     .memberTeamList(memberTeamList)
                     .project(project)
