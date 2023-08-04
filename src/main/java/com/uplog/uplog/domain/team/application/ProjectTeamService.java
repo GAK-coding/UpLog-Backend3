@@ -1,5 +1,7 @@
 package com.uplog.uplog.domain.team.application;
 
+import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
@@ -9,6 +11,7 @@ import com.uplog.uplog.domain.team.dto.ProjectTeamDTO.CreateProjectTeamRequest;
 import com.uplog.uplog.domain.team.dto.ProjectTeamDTO.SimpleProjectTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.UpdateMemberPowerTypeRequest;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.exception.NotFoundIdException;
@@ -29,6 +32,7 @@ public class ProjectTeamService {
     private final ProjectTeamRepository projectTeamRepository;
     private final ProjectRepository projectRepository;
     private final MemberTeamRepository memberTeamRepository;
+    private final MemberRepository memberRepository;
 
     private final MemberTeamService memberTeamService;
 
@@ -77,4 +81,10 @@ public class ProjectTeamService {
             }
         }
     }
+
+//    @Transactional
+//    public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest){
+//        Member member = memberRepository.findMemberById(updateMemberPowerTypeRequest.getMemberId()).orElseThrow(NotFoundIdException::new);
+//        ProjectTeam projectTeam = projectTeamRepository.findProjectTeamBy
+//    }
 }
