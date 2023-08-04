@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CommentDTO {
 
@@ -28,7 +27,7 @@ public class CommentDTO {
         private List<Comment> childlist = new ArrayList<>();
         private String content;
 
-        public Comment of() {
+        public Comment toEntity() {
             return Comment.builder()
                     .id(this.id)
                     .post(this.post)
@@ -50,7 +49,7 @@ public class CommentDTO {
         private List<Long> childId;
         private String content;
 
-        public Comment of(Member member,Comment comment, List<Comment> childList) {
+        public Comment toEntity(Member member, Comment comment, List<Comment> childList) {
             return Comment.builder()
                     .content(content)
                     .parent(comment)
