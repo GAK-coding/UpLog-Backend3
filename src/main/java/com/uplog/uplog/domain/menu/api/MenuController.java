@@ -25,12 +25,9 @@ public class MenuController {
     CREATE
      */
     @PostMapping("/menus/{project-id}/default")
-    public ResponseEntity<List<MenuInfoDTO>> createDefaultMenus(@PathVariable(name="project-id") Long projectId) {
-        List<Menu> createdMenus = menuService.createDefaultMenu(projectId);
-        List<MenuInfoDTO> menuInfoDTOList = createdMenus.stream()
-                .map(Menu::toMenuInfoDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(menuInfoDTOList);
+    public ResponseEntity<List<SimpleMenuInfoDTO>> createDefaultMenus(@PathVariable(name="project-id") Long projectId) {
+        List<SimpleMenuInfoDTO> createdMenus = menuService.createDefaultMenu(projectId);
+        return ResponseEntity.ok(createdMenus);
     }
 
     @PostMapping(value="/menus/{project-id}")
@@ -73,7 +70,7 @@ public class MenuController {
      */
     @GetMapping("/menus/{project-id}")
     public ResponseEntity<List<MenuInfoDTO>> findMenuByPost(@PathVariable Long projectId){
-        List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(proijectId);
+        List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(projectId);
         return new ResponseEntity<>(menuInfoDTOs, HttpStatus.OK);
     }
 

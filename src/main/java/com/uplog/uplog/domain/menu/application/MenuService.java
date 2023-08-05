@@ -41,7 +41,7 @@ public class MenuService {
 
 
     @Transactional
-    public List<Menu> createDefaultMenu(Long projectId){
+    public List<SimpleMenuInfoDTO> createDefaultMenu(Long projectId){
         List<String> menuNames = Arrays.asList("결과물", "요구사항", "개발", "배포");
         List<Menu> createdMenus = new ArrayList<>();
         Project project=projectRepository.findById(projectId)
@@ -56,7 +56,13 @@ public class MenuService {
         }
 
         menuRepository.saveAll(createdMenus);
-        return createdMenus;
+        project.getMenuList().addAll(createdMenus);
+
+        List<SimpleMenuInfoDTO> menuInfoDTOList = createdMenus.stream()
+                .map(Menu::toSimpleMenuInfoDTO)
+                .collect(Collectors.toList());
+
+        return menuInfoDTOList;
     }
     @Transactional
     public Menu createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {

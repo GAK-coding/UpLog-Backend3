@@ -52,7 +52,7 @@ public class Menu extends BaseTime {
                 .build();
     }
 
-    public SimpleMenuInfoDTO simpleMenuInfoDTO(){
+    public SimpleMenuInfoDTO toSimpleMenuInfoDTO(){
         return SimpleMenuInfoDTO.builder()
                 .id(this.id)
                 .menuName(this.menuName)
