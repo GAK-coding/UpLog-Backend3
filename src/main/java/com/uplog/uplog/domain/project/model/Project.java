@@ -80,7 +80,6 @@ public class Project extends BaseTime {
 
     public ProjectDTO.CreateProjectRequest toCreateInitChangedIssueInfo(){
         return ProjectDTO.CreateProjectRequest.builder()
-                .id(this.id)
                 .version(this.version)
                 .build();
     }

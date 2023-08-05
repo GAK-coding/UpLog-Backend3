@@ -110,7 +110,7 @@ public class ProjectService {
         List<Long> projectTeamIdList = new ArrayList<>();
         projectTeamIdList.add(projectTeam.getId());
 
-        project.getProjectTeamList().add(projectTeam);
+//        project.getProjectTeamList().add(projectTeam);
 
 
         return project.toProjectInfoDTO(simpleMenuInfoDTOList, projectTeamIdList);

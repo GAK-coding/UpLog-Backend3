@@ -24,7 +24,7 @@ public class ProjectDTO {
     @AllArgsConstructor
     public static class CreateProjectRequest{
 
-        private Long id;
+        //private Long id;
         private String version;
         private String link;
 
