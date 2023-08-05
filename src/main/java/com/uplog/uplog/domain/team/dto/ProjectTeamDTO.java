@@ -44,6 +44,18 @@ public class ProjectTeamDTO {
 
     }
 
+//    @Builder
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @Getter
+//    public static class VerySimpleProjectTeamInfoDTO{
+//        private String name;
+//        private Long projectId;
+//        private List<Long> memberIdList;
+//        private List<Long> taskIdList;
+//
+//    }
+
     //TODO 리스트로 받는거는 DTO나 이름으로도 고민해보기
     @Builder
     @AllArgsConstructor
