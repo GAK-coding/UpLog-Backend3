@@ -39,7 +39,7 @@ public class MemberTeamService {
 
     @Transactional
     public Long createMemberTeam(CreateMemberTeamRequest createMemberTeamRequest) throws Exception {
-        Member member = memberRepository.findMemberByEmail(createMemberTeamRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+        Member member = memberRepository.findMemberByIdOrEmail(createMemberTeamRequest.getMemberId(), createMemberTeamRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Team team= teamRepository.findById(createMemberTeamRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
@@ -48,7 +48,7 @@ public class MemberTeamService {
 
         //MemberTeamInfoDTO memberTeamInfoDTO = memberTeam.toMemberTeamInfoDTO();
         EmailRequest emailRequest = EmailRequest.builder()
-                .email(createMemberTeamRequest.getMemberEmail())
+                .email(member.getEmail())
                 .type(createMemberTeamRequest.getMailType())
                 .link(createMemberTeamRequest.getLink())
                 .powerType(createMemberTeamRequest.getPowerType())
