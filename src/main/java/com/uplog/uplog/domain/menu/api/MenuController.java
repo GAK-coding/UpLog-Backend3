@@ -73,7 +73,7 @@ public class MenuController {
      */
     @GetMapping("/menus/{project-id}")
     public ResponseEntity<List<MenuInfoDTO>> findMenuByPost(@PathVariable Long projectId){
-        List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(proijectId);
+        List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(projectId);
         return new ResponseEntity<>(menuInfoDTOs, HttpStatus.OK);
     }
 
