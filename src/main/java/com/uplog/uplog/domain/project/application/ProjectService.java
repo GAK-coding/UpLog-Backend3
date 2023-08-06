@@ -92,6 +92,7 @@ public class ProjectService {
                     .memberId(mt.getMember().getId())
                     .teamId(project.getId())
                     .powerType(mt.getPowerType() == PowerType.MASTER || mt.getPowerType() == PowerType.LEADER ? PowerType.LEADER : mt.getPowerType())
+                    .mailType(2)
                     .link("")
                     .build();
 
@@ -110,7 +111,8 @@ public class ProjectService {
         List<Long> projectTeamIdList = new ArrayList<>();
         projectTeamIdList.add(projectTeam.getId());
 
-//        project.getProjectTeamList().add(projectTeam);
+        log.info(project.getProjectTeamList()+"list");
+       // project.getProjectTeamList().add();
 
 
         return project.toProjectInfoDTO(simpleMenuInfoDTOList, projectTeamIdList);

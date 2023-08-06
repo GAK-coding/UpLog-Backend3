@@ -56,7 +56,7 @@ public class MenuService {
         }
 
         menuRepository.saveAll(createdMenus);
-        //project.getMenuList().addAll(createdMenus);
+       // project.getMenuList().addAll(createdMenus);
 
         List<SimpleMenuInfoDTO> menuInfoDTOList = createdMenus.stream()
                 .map(Menu::toSimpleMenuInfoDTO)

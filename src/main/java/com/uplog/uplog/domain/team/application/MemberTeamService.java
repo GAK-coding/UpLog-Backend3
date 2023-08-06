@@ -44,7 +44,11 @@ public class MemberTeamService {
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
         memberTeamRepository.save(memberTeam);
-        team.getMemberTeamList().add(memberTeam);
+        //TODO Null point 확인
+//        log.info(team.getName());
+//        log.info(team.getMemberTeamList()+"null?");
+//        log.info(memberTeam+"what null");
+//        team.getMemberTeamList().add(memberTeam);
 
         //MemberTeamInfoDTO memberTeamInfoDTO = memberTeam.toMemberTeamInfoDTO();
         EmailRequest emailRequest = EmailRequest.builder()
