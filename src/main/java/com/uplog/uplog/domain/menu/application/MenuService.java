@@ -45,7 +45,7 @@ public class MenuService {
         List<String> menuNames = Arrays.asList("결과물", "요구사항", "개발", "배포");
         List<Menu> createdMenus = new ArrayList<>();
         Project project=projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 프로젝트는 존재하지 않습니다."));
 
         for (String menuName : menuNames) {
             Menu menu = Menu.builder()

@@ -256,7 +256,7 @@ public class TaskService {
     @Transactional
     public Task updateTaskMenu(Long id,UpdateTaskMenuRequest updateTaskMenuRequest){
         Menu menu = menuRepository.findById(updateTaskMenuRequest.getUpdateMenuId())
-                .orElseThrow(() -> new RuntimeException("Menu not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskMenu(menu);
@@ -267,7 +267,7 @@ public class TaskService {
     @Transactional
     public Task updateTaskMember(Long id,UpdateTaskMemberRequest updateTaskMemberRequest){
         Member member = memberRepository.findById(updateTaskMemberRequest.getUpdateTargetMemberId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskmember(member);
@@ -278,7 +278,7 @@ public class TaskService {
     @Transactional
     public Task updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest) {
         ProjectTeam projectTeam = projectTeamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
-                .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskTeam(projectTeam);

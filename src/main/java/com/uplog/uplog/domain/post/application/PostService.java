@@ -148,7 +148,7 @@ public class PostService {
     public PostInfoDTO updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         Menu menu = menuRepository.findById(updatePostMenuRequest.getUpdateMenuId())
-                .orElseThrow(() -> new RuntimeException("Menu not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostMenu(menu);
             return post.toPostInfoDTO();
