@@ -29,7 +29,7 @@ public class TaskController {
     @PostMapping(value="/tasks/{member-id}")
     public ResponseEntity<TaskInfoDTO> createTask(@PathVariable(name = "member-id") Long id,@RequestBody CreateTaskRequest createTaskRequest) {
         Task createdTask = taskService.createTask(id,createTaskRequest);
-        TaskInfoDTO taskInfoDTO = createdTask.toTaskInfoDTO1();
+        TaskInfoDTO taskInfoDTO = createdTask.toTaskInfoDTO();
         return new ResponseEntity<>(taskInfoDTO, HttpStatus.CREATED);
     }
 

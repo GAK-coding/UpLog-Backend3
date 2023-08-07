@@ -81,8 +81,8 @@ public class TaskDTO {
         private Long id;
         private String taskName;
         private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
-        private Long targetMemberId;
-        private String targetmemberName;
+        //private Long targetMemberId;
+        //private String targetmemberName;
         private Long menuId;
         private String menuName;
         private Long projectTeamId;
