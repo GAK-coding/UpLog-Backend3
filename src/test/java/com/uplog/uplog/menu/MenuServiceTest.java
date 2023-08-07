@@ -147,7 +147,7 @@ public class MenuServiceTest {
     }
 
     @Test
-    @DisplayName("중복된 메뉴 생성 시도")
+    @DisplayName("중복된 메뉴 생성 시도-실패테스트")
     public void testCreateDuplicateMenu() {
         // Given
         //멤버생성(회사,개인)
@@ -190,7 +190,7 @@ public class MenuServiceTest {
     }
 
     @Test
-    @DisplayName("메뉴 생성 제한 수 초과 시도")
+    @DisplayName("메뉴 생성 제한 수 초과 시도-실패테스트")
     public void testCreateExceededMaxMenuCount() {
         // Given
         //멤버생성(회사,개인)
@@ -240,7 +240,7 @@ public class MenuServiceTest {
     }
 
     @Test
-    @DisplayName("프로젝트에 속하지 않은 메뉴 정보 조회 시도")
+    @DisplayName("프로젝트에 속하지 않은 메뉴 정보 조회 시도-실패테스트")
     public void testFindMenuByIdNotBelongsToProject() {
         // Given
         //멤버생성(회사,개인)
@@ -323,7 +323,7 @@ public class MenuServiceTest {
     }
 
     @Test
-    @DisplayName("결과물 메뉴 이름 변경 시도")
+    @DisplayName("결과물 메뉴 이름 변경 시도-실패테스트")
     public void testUpdateMenuNameNotAllowedForResultsMenu() {
         // Given
         //멤버생성(회사,개인)
