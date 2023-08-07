@@ -51,10 +51,10 @@ public class Swagger {
 
     @Bean
     public GroupedOpenApi commentOpenApi(){
-        String[] paths = {"/comment/**"};
+        String[] paths = {"/comments/**"};
 
         return GroupedOpenApi.builder()
-                .group("comment")
+                .group("comments")
                 .pathsToMatch(paths)
                 .build();
     }
