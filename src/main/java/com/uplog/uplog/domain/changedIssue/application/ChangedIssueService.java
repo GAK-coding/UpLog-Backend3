@@ -2,9 +2,8 @@ package com.uplog.uplog.domain.changedIssue.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
-import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.changedIssue.model.ChangedIssue;
 import com.uplog.uplog.domain.changedIssue.model.QChangedIssue;
@@ -51,36 +50,20 @@ public class ChangedIssueService {
     private final TeamRepository teamRepository;
 
 
-    //todo 완료 눌러서 상태 업데이트는 project 단에서 진행.
-    //권한(마스터, 리더)가 아닌 사용자 제외
     @Transactional
-    public String checkMemberPower(Long memberId){
-        PowerType powerType=powerValidate(memberId);
-
-        return AccessProperty.ACCESS_OK.toString();
-    }
-    @Transactional
-    public createInitChangedIssueInfo createInitIssue(createInitChangedIssueInfo createInitChangedIssueInfo,
-                                                      Long projId, Long memberId,Long productId){
+    public IssueInfoDTO createIssue(CreateChangedIssueRequest CreateChangedIssueRequest,
+                                                 Long projectId, Long memberId){
 
 
-        //진행 중 project가 아니면 접근 제한
-        checkProjectProgress(memberId,projId);
-
-        Project project=projectRepository.findById(projId)
-                .orElseThrow(()->new NotFoundProjectException(projId));
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundProjectException(projectId));
         Member member=memberRepository.findMemberById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
-        //수정, 삭제 권한 -> memberId로 memberTeam 쿼리
 
-
-        //PowerType powerType=powerValidate(memberId);
-        //System.out.println("memberPower : "+powerType.toString());
-
-        ChangedIssue changedIssue=createInitChangedIssueInfo.toEntity(member,project);
+        ChangedIssue changedIssue= CreateChangedIssueRequest.toEntity(member,project);
         changedIssueRepository.save(changedIssue);
 
-        createInitChangedIssueInfo IssueData=changedIssue.toCreateInitChangedIssueInfo();
+        IssueInfoDTO IssueData=changedIssue.toIssueInfoDTO();
 
         return IssueData;
 
@@ -88,7 +71,7 @@ public class ChangedIssueService {
     }
 
     @Transactional(readOnly = true)
-    public ChangedIssueDTO.issueInfo readIssueInfo(Long issueId){
+    public IssueInfoDTO findByIssueId(Long issueId){
 
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QChangedIssue changedIssue=QChangedIssue.changedIssue;
@@ -99,26 +82,26 @@ public class ChangedIssueService {
                 .fetchOne();
 
         if(changedIssue1==null){
-            throw new notFoundIssueException(issueId);
+            throw new NotFoundIssueException(issueId);
         }
 
-        ChangedIssueDTO.issueInfo issueInfo=changedIssue1.toIssueInfo();
+        IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
 
-        return issueInfo;
+        return IssueInfoDTO;
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.
     @Transactional
-    public ChangedIssueDTO.updateChangedIssue updateChangedIssue(updateChangedIssue updateChangedIssue,Long issueId){
+    public SimpleIssueInfoDTO updateChangedIssue(UpdateChangedIssueRequest UpdateChangedIssueRequest, Long issueId){
 
 
         ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundProjectException(issueId));
 
 
-        changedIssue.updateChangedIssue(updateChangedIssue);
+        changedIssue.updateChangedIssue(UpdateChangedIssueRequest);
 
-        return changedIssue.toUpdateChangedIssueInfo();
+        return changedIssue.toSimpleIssueInfoDTO();
     }
 
     @Transactional
@@ -138,9 +121,7 @@ public class ChangedIssueService {
     //권한 확인
     public PowerType powerValidate(Long memberId ){
 
-        JPAQueryFactory query=new JPAQueryFactory(entityManager);
-        QMemberTeam memberTeam=QMemberTeam.memberTeam;
-////////////테스트//////////
+////////////테스트////////// -> 추후 지울 것.
         Product product=productRepository.findById(1L)
                 .orElseThrow(NotFoundMemberByEmailException::new);
         Team team= Team.builder()
@@ -157,15 +138,12 @@ public class ChangedIssueService {
                 .powerType(PowerType.MASTER)
                 .build();
         memberTeamRepository.save(memberTeam1);
-////////////테스트//////////
-        PowerType powerType =query
-                .select(memberTeam.powerType)
-                .from(memberTeam)
-                .where(memberTeam.member.id.eq(memberId))
-                .fetchOne();
+////////////테스트////////// -> 추후 지울 것.
+
+        PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
 
         if(powerType==null){
-            throw new notFoundPowerByMemberException(memberId);
+            throw new NotFoundPowerByMemberException(memberId);
         }
 
         if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){
@@ -177,18 +155,10 @@ public class ChangedIssueService {
 
     }
 
-    //진행 완료 된 프로젝트에 변경사항 추가 누를 시 접근 제한
+    //프로젝트에 변경사항 추가 누를 시 접근 제한
     public String checkProjectProgress(Long memberId,Long projectId){
 
-        JPAQueryFactory query=new JPAQueryFactory(entityManager);
-        QProject project=QProject.project;
-
-
-        ProjectStatus projectStatus=query
-                .select(project.projectStatus)
-                .from(project)
-                .where(project.id.eq(projectId))
-                .fetchOne();
+        ProjectStatus projectStatus=changedIssueRepository.findProjectStatusByProjectId(projectId);
 
         if(projectStatus==ProjectStatus.PROGRESS_COMPLETE){
             throw new ExistProcessProjectExeption(projectId,projectStatus);
