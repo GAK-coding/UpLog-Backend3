@@ -1,6 +1,6 @@
 package com.uplog.uplog.domain.comment.api;
 
-import com.uplog.uplog.domain.comment.application.CommentApplication;
+import com.uplog.uplog.domain.comment.application.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +24,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Slf4j
 public class CommentController {
 
-    private final CommentApplication commentApplication;
+    private final CommentService commentService;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
@@ -43,7 +43,7 @@ public class CommentController {
     @PostMapping(value = "/comments/{post-id}/{member-id}")
     public ResponseEntity<SimpleCommentInfo> createComment(@RequestBody @Validated CreateCommentRequest commentData,
                                                         @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
-        SimpleCommentInfo simpleData = commentApplication.createComment(commentData,postId,memberId);
+        SimpleCommentInfo simpleData = commentService.createComment(commentData,postId,memberId);
         return new ResponseEntity<>(simpleData, HttpStatus.CREATED);
     }
 
@@ -53,14 +53,14 @@ public class CommentController {
     @GetMapping(value="/comments/{post-id}/post")
     public ResponseEntity<List<SimpleCommentInfo>> findCommentsByPostId(@PathVariable("post-id")Long postId){
 
-        List<SimpleCommentInfo> readList=commentApplication.findCommentByPostId(postId);
+        List<SimpleCommentInfo> readList= commentService.findCommentByPostId(postId);
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
     @GetMapping(value="/comments/{comment-id}/comment")
     public ResponseEntity<List<SimpleCommentInfo>> findCommentById(@PathVariable("comment-id")Long commentId){
 
-        List<SimpleCommentInfo> readSingleList=commentApplication.findCommentById(commentId);
+        List<SimpleCommentInfo> readSingleList= commentService.findCommentById(commentId);
         return new ResponseEntity<>(readSingleList,HttpStatus.OK);
     }
 
@@ -72,7 +72,7 @@ public class CommentController {
     public ResponseEntity<SimpleCommentInfo> updateCommentContent(@RequestBody @Validated UpdateCommentContent updateCommentContent,
                                                                   @PathVariable("comment-id")Long commentId,
                                                                   @PathVariable("member-id")Long memberId){
-        SimpleCommentInfo simpleCommentInfo =commentApplication.updateCommentContent(updateCommentContent,commentId,memberId);
+        SimpleCommentInfo simpleCommentInfo = commentService.updateCommentContent(updateCommentContent,commentId,memberId);
         return new ResponseEntity<>(simpleCommentInfo,HttpStatus.OK);
     }
 
@@ -83,7 +83,7 @@ public class CommentController {
     @DeleteMapping(value="/comments/{comment-id}/{member-id}")
     public ResponseEntity<String> deleteComment(@PathVariable("comment-id")Long commentId,
                                                 @PathVariable("member-id")Long memberId){
-        String message= commentApplication.deleteComment(commentId,memberId);
+        String message= commentService.deleteComment(commentId,memberId);
         return ResponseEntity.ok(message);
     }
 }

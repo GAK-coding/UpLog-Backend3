@@ -28,7 +28,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CommentApplication {
+public class CommentService {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -40,42 +40,42 @@ public class CommentApplication {
      /*
         CREATE
      */
-    @Transactional
-    public SimpleCommentInfo createComment(CreateCommentRequest commentData, Long postId, Long memberId){
+     @Transactional
+     public SimpleCommentInfo createComment(CreateCommentRequest commentData, Long postId, Long memberId){
 
-        Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(NotFoundMemberByEmailException::new);
+         Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
+         Member member = memberRepository.findById(memberId)
+                 .orElseThrow(NotFoundMemberByEmailException::new);
 
-        SimpleCommentInfo simpleCommentInfo;
-        //parentId가 null일 때 기본 정보만 저장.
-        if(commentData.getParentId()==null && commentData.getChildId()==null){
-
-
-            Comment comment=commentData.toEntity(member,null,null,post);
+         SimpleCommentInfo simpleCommentInfo;
+         //parentId가 null일 때 기본 정보만 저장.
+         if(commentData.getParentId()==null ){
 
 
-            commentRepository.save(comment);
-            simpleCommentInfo=comment.toSimpleCommentInfo();
-        }
-
-        //ParentId가 존재할 때 부모 객체를 mapping && 기본 정보 저장.
-        else {
-                //parent만 존재
-                Comment ParentComment=commentRepository.findById(commentData.getParentId())
-                        .orElseThrow(()->new NotFoundCommentException(commentData.getParentId()));
-                Comment comment=commentData.toEntity(member,ParentComment,null,post);
-
-                commentRepository.save(comment);
-
-                simpleCommentInfo=comment.toSimpleCommentInfo();
-
-            }
-
-        return simpleCommentInfo;
+             Comment comment=commentData.toCommentEntity(member,post);
 
 
-    }
+             commentRepository.save(comment);
+             simpleCommentInfo=comment.toSimpleCommentInfo();
+         }
+
+         //ParentId가 존재할 때 부모 객체를 mapping && 기본 정보 저장.
+         else {
+             //parent만 존재
+             Comment ParentComment=commentRepository.findById(commentData.getParentId())
+                     .orElseThrow(()->new NotFoundCommentException(commentData.getParentId()));
+             Comment comment=commentData.toEntity(member,ParentComment,post);
+
+             commentRepository.save(comment);
+
+             simpleCommentInfo=comment.toSimpleCommentInfo();
+
+         }
+
+         return simpleCommentInfo;
+
+
+     }
 
 
      /*
