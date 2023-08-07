@@ -49,7 +49,8 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
         return (web) -> web.ignoring()
-                .antMatchers("/favicon.ico");
+                .antMatchers("/favicon.ico","/swagger-ui.html","/swagger-ui/**",
+                "/swagger-resources/**","/api-docs/**");
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,6 +64,9 @@ public class SecurityConfig {
         http
                 .authorizeRequests()
                 .antMatchers("/members/**").permitAll() // 해당 Request는 허용한다.
+                .antMatchers("/api/v2/**","/health","/swagger-ui.html","/swagger/**",
+                        "/swagger-resources/**","/webjars/**","/api-docs/**",
+                        "/swagger-ui/**","/api/login").permitAll()
                 .anyRequest().authenticated();
 
         http
