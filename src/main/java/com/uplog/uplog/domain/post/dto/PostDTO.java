@@ -27,7 +27,7 @@ public class PostDTO {
 //        private List<PostTag> postTagList;
         private String title;
         private String content;
-        private Long porductId;
+        private Long productId;
         private Long projectId;
 
 
