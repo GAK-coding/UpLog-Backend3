@@ -18,6 +18,7 @@ import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.team.dao.ProjectTeamRepository;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,13 +53,13 @@ public class TaskService {
     @Transactional
     public Task createTask(Long id,CreateTaskRequest createTaskRequest) {
         Member targetMember = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
         Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
-                .orElseThrow(() -> new RuntimeException("Menu not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
         ProjectTeam projectTeam = projectTeamRepository.findById(createTaskRequest.getProjectTeamId())
-                .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
 
         if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
             throw new AuthorityException("해당 프로젝트 팀은 현재 프로젝트에 존재하지 않는 프로젝트팀 입니다.");
