@@ -49,10 +49,10 @@ public class CommentApplication {
 
         SimpleCommentInfo simpleCommentInfo;
         //parentId가 null일 때 기본 정보만 저장.
-        if(commentData.getParentId()==null && commentData.getChildId()==null){
+        if(commentData.getParentId()==null ){
 
 
-            Comment comment=commentData.toEntity(member,null,null,post);
+            Comment comment=commentData.toCommentEntity(member,post);
 
 
             commentRepository.save(comment);
@@ -64,7 +64,7 @@ public class CommentApplication {
                 //parent만 존재
                 Comment ParentComment=commentRepository.findById(commentData.getParentId())
                         .orElseThrow(()->new NotFoundCommentException(commentData.getParentId()));
-                Comment comment=commentData.toEntity(member,ParentComment,null,post);
+                Comment comment=commentData.toEntity(member,ParentComment,post);
 
                 commentRepository.save(comment);
 

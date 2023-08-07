@@ -21,15 +21,20 @@ public class CommentDTO {
     public static class CreateCommentRequest {
 
         private Long parentId;
-        private List<Long> childId;
         private String content;
 
-        public Comment toEntity(Member member, Comment comment, List<Comment> childList,Post post) {
+        public Comment toEntity(Member member, Comment comment,Post post) {
             return Comment.builder()
                     .content(content)
                     .parent(comment)
                     .post(post)
-                    .childList(childList)
+                    .member(member)
+                    .build();
+        }
+        public Comment toCommentEntity(Member member,Post post) {
+            return Comment.builder()
+                    .content(content)
+                    .post(post)
                     .member(member)
                     .build();
         }
