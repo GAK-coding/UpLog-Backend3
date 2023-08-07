@@ -32,8 +32,7 @@ public class MenuController {
 
     @PostMapping(value="/menus/{project-id}")
     public ResponseEntity<MenuInfoDTO> createMenu(@PathVariable(name="project-id") Long projectId, @RequestBody CreateMenuRequest createMenuRequest){
-        Menu createMenu=menuService.createMenu(projectId,createMenuRequest);
-        MenuInfoDTO menuInfoDTO=createMenu.toMenuInfoDTO();
+        MenuInfoDTO menuInfoDTO=menuService.createMenu(projectId,createMenuRequest);
         return ResponseEntity.ok(menuInfoDTO);
     }
 
@@ -52,15 +51,14 @@ public class MenuController {
      */
     @PatchMapping("/menus/{menu-id}/menuname")
     public ResponseEntity<MenuInfoDTO> updateMenuName(@PathVariable Long id, @RequestBody UpdateMenuNameRequest updateMenuNameRequest){
-        Menu updatedMenuName=menuService.updateMenuName(id,updateMenuNameRequest);
-        MenuInfoDTO menuInfoDTO=updatedMenuName.toMenuInfoDTO();
+        MenuInfoDTO menuInfoDTO=menuService.updateMenuName(id,updateMenuNameRequest);
+
         return ResponseEntity.ok(menuInfoDTO);
     }
 
     @PatchMapping("/menus/{menu-id}/notice-post")
     public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable("menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
-        Menu updatedNoticePost=menuService.updateNoticePost(menuId,updateNoticePostRequest);
-        MenuInfoDTO menuInfoDTO=updatedNoticePost.toMenuInfoDTO();
+        MenuInfoDTO menuInfoDTO=menuService.updateNoticePost(menuId,updateNoticePostRequest);
         return ResponseEntity.ok(menuInfoDTO);
     }
 

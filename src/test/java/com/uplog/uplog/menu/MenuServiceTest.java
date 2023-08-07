@@ -145,7 +145,7 @@ public class MenuServiceTest {
         CreateMenuRequest createMenuRequest = createMenuRequest();
 
         // When
-        MenuInfoDTO menuInfoDTO = menuService.createMenu(project.getId(), createMenuRequest).toMenuInfoDTO();
+        MenuInfoDTO menuInfoDTO = menuService.createMenu(project.getId(), createMenuRequest);
 
         // Then
         Assertions.assertThat(menuRepository.existsById(menuInfoDTO.getId())).isEqualTo(true);

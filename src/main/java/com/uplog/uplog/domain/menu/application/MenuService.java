@@ -65,7 +65,7 @@ public class MenuService {
         return menuInfoDTOList;
     }
     @Transactional
-    public Menu createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {
+    public MenuInfoDTO createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(NotFoundIdException::new);
 
@@ -85,7 +85,7 @@ public class MenuService {
 
         Menu menu = createMenuRequest.toEntity(project);
         menuRepository.save(menu);
-        return menu;
+        return menu.toMenuInfoDTO();
     }
 
     /*
@@ -104,7 +104,7 @@ public class MenuService {
     UPDATE
      */
     @Transactional
-    public Menu updateMenuName(Long id,UpdateMenuNameRequest updateMenuNameRequest){
+    public MenuInfoDTO updateMenuName(Long id, UpdateMenuNameRequest updateMenuNameRequest){
         Menu menu=menuRepository.findById(id).orElseThrow(NotFoundIdException::new);
 
         String updateName=updateMenuNameRequest.getUpdatemenuName();
@@ -126,15 +126,15 @@ public class MenuService {
             throw new DuplicatedMenuNameInProjectException();
         }
         menu.updateMenuName(updateMenuNameRequest.getUpdatemenuName());
-        return menu;
+        return menu.toMenuInfoDTO();
     }
 
     @Transactional
-    public Menu updateNoticePost(Long menuId,UpdateNoticePostRequest updateNoticePostRequest){
+    public MenuInfoDTO updateNoticePost(Long menuId, UpdateNoticePostRequest updateNoticePostRequest){
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         Post post=postRepository.findById(updateNoticePostRequest.getUpdateNoticePostId()).orElseThrow(NotFoundTaskByIdException::new);
         menu.updateNoticePost(post);
-        return menu;
+        return menu.toMenuInfoDTO();
     }
 
     /*
