@@ -15,6 +15,7 @@ import com.uplog.uplog.global.mail.MailDTO;
 import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,23 +48,30 @@ public class TeamService {
                 .memberEmail(createTeamRequest.getMemberEmail())
                 .powerType(PowerType.MASTER)
                 .link(createTeamRequest.getLink())
+                .mailType(2)
                 .build();
         memberTeamService.createMemberTeam(createMemberTeamRequest);
-        EmailRequest emailRequest = builder()
-                .email(createMemberTeamRequest.getMemberEmail())
-                .type(2)
-                .powerType(PowerType.MASTER)
-                .link(createTeamRequest.getLink())
-                .build();
-        mailService.sendSimpleMessage(emailRequest);
-        //마스터 멤버 호출
+//        EmailRequest emailRequest = builder()
+//                .email(createMemberTeamRequest.getMemberEmail())
+//                .type(2)
+//                .powerType(PowerType.MASTER)
+//                .link(createTeamRequest.getLink())
+//                .build();
+//        mailService.sendSimpleMessage(emailRequest);
+//        //마스터 멤버 호출
 
         //TeamInfoDTO teamInfoDTO = team.toTeamInfoDTO();
         return team.getId();
     }
 
+
+    //TODO DELETE는 마스터만 가능하게? 기업도 가능하게 해야해? 우선 둘다 가능하게 함.
+    //근데 이게 프로덕트가 삭제되면 자동으로 삭제되는건가?
+    //삭제관련한 연과관계 잘살펴보기 테스트 해보자.
     @Transactional
-    public String deleteTeam(){
+    public String deleteTeam(Long id){
+        Team team = teamRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        teamRepository.delete(team);
         return "DELETE";
     }
 

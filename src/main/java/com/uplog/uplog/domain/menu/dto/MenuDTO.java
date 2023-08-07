@@ -44,6 +44,15 @@ public class MenuDTO {
         //private PostDTO.PostInfoDTO noticePost;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimpleMenuInfoDTO{
+        private Long id;
+        private String menuName;
+    }
+
     @Getter
     @Builder
     @NoArgsConstructor

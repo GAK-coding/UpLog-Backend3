@@ -143,9 +143,9 @@ public class ChangedIssueService {
 ////////////테스트//////////
         Product product=productRepository.findById(1L)
                 .orElseThrow(NotFoundMemberByEmailException::new);
-        Team team= Team.builder()
+        Team team= Team.teamBuilder()
                 .name("dd")
-                .product(product)
+                //.product(product)
                 .build();
 
         teamRepository.save(team);

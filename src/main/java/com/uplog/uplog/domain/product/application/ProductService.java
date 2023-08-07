@@ -72,6 +72,7 @@ public class ProductService {
                     .teamName(createProductRequest.getName())
                     .memberEmail(createProductRequest.getMasterEmail())
                     .link(createProductRequest.getLink())
+                    .mailType(2)
                     .build();
             Long teamId = teamService.saveTeam(saveTeamRequest);
 
@@ -122,15 +123,16 @@ public class ProductService {
                                 .teamId(product.getTeam().getId())
                                 .memberEmail(s)
                                 .powerType(updateProductRequest.getPowerType())
+                                .mailType(2)
                                 .build();
                         memberTeamService.createMemberTeam(saveMemberTeamRequest);
-                        EmailRequest emailRequest = EmailRequest.builder()
-                                .email(s)
-                                .type(2)
-                                .link(updateProductRequest.getLink())
-                                .powerType(updateProductRequest.getPowerType())
-                                .build();
-                        mailService.sendSimpleMessage(emailRequest);
+//                        EmailRequest emailRequest = EmailRequest.builder()
+//                                .email(s)
+//                                .type(2)
+//                                .link(updateProductRequest.getLink())
+//                                .powerType(updateProductRequest.getPowerType())
+//                                .build();
+//                        mailService.sendSimpleMessage(emailRequest);
                     }
                     else{
                         duplicatedMemberList.add(s);

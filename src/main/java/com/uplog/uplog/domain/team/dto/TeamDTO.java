@@ -29,9 +29,10 @@ public class TeamDTO {
         private String teamName;
         //팀의 이름은 제품의 이름으로 들어가게 됨!
         private String link;
+        private int mailType;
 
         public Team toEntity(){
-            return Team.builder()
+            return Team.teamBuilder()
                     //.product(product)
                     .name(this.teamName)
                     .build();
