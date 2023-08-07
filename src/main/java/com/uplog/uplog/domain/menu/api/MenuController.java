@@ -58,7 +58,7 @@ public class MenuController {
     }
 
     @PatchMapping("/menus/{menu-id}/notice-post")
-    public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
+    public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable("menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
         Menu updatedNoticePost=menuService.updateNoticePost(menuId,updateNoticePostRequest);
         MenuInfoDTO menuInfoDTO=updatedNoticePost.toMenuInfoDTO();
         return ResponseEntity.ok(menuInfoDTO);

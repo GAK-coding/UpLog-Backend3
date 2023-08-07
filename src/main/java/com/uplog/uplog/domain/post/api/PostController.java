@@ -70,7 +70,7 @@ public class PostController {
     GET
      */
     @GetMapping("/posts/menus/{menu-id}")
-    public ResponseEntity<List<PostInfoDTO>> getPostByMenu(@PathVariable Long menuId){
+    public ResponseEntity<List<PostInfoDTO>> getPostByMenu(@PathVariable("menu-id") Long menuId){
         List<PostInfoDTO> postInfoDTOs=postService.findPostInfoByMenuId(menuId);
         return new ResponseEntity<>(postInfoDTOs, HttpStatus.OK);
     }
