@@ -2,7 +2,19 @@ package com.uplog.uplog.domain.changedIssue.api;
 
 import com.uplog.uplog.domain.changedIssue.application.ChangedIssueService;
 import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
+import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.comment.api.CommentController;
+import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
+import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
+import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +35,7 @@ import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 public class ChangedIssueController {
 
     private final ChangedIssueService changedIssueService;
+    private final AuthorizedMethod authorizedMethod;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "ChangedIssue", description = "ChangedIssue", tags = { "ChangedIssue Controller" })
@@ -59,11 +72,14 @@ public class ChangedIssueController {
 
 
     //변경이력 추가, 생성, 수정, 클릭 시 진행 중 or 접근 권한 확인.
+    //global method
     @GetMapping(value="/changedIssues/{member-id}/{project-id}/validate")
     public String checkAuthorized(@PathVariable("member-id")Long memberId,
                                   @PathVariable("project-id")Long projectId){
+        authorizedMethod.checkProjectProgress(projectId);
+        authorizedMethod.powerValidateByMemberId(memberId);
 
-        return changedIssueService.checkProjectProgress(memberId,projectId);
+        return AccessProperty.ACCESS_OK.toString();
     }
 
     @PatchMapping(value="/changedIssues/{issue-id}/issue")
@@ -83,7 +99,7 @@ public class ChangedIssueController {
                                      @PathVariable("member-id")Long memberId){
 
 
-        changedIssueService.powerValidate(memberId);
+        authorizedMethod.powerValidateByMemberId(memberId);
 
         return changedIssueService.deleteChangedIssue(issueId);
 

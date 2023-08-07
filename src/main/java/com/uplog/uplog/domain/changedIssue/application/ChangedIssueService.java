@@ -25,6 +25,7 @@ import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class ChangedIssueService {
     private final MemberTeamRepository memberTeamRepository;
     private final ProductRepository productRepository;
     private final TeamRepository teamRepository;
+    private final AuthorizedMethod authorizedMethod;
 
 
     @Transactional
@@ -118,59 +120,24 @@ public class ChangedIssueService {
 
 
 
-    //권한 확인
-    public PowerType powerValidate(Long memberId ){
-
-////////////테스트////////// -> 추후 지울 것.
-        Product product=productRepository.findById(1L)
-                .orElseThrow(NotFoundMemberByEmailException::new);
-        Team team= Team.builder()
-                .name("dd")
-                .product(product)
-                .build();
-
-        teamRepository.save(team);
-        Member member=memberRepository.findMemberById(memberId)
-                .orElseThrow(NotFoundMemberByEmailException::new);
-        MemberTeam memberTeam1=MemberTeam.builder()
-                .member(member)
-                .team(team)
-                .powerType(PowerType.MASTER)
-                .build();
-        memberTeamRepository.save(memberTeam1);
-////////////테스트////////// -> 추후 지울 것.
-
-        PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
-
-        if(powerType==null){
-            throw new NotFoundPowerByMemberException(memberId);
-        }
-
-        if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){
-
-            throw new MemberAuthorizedException(memberId);
-        }
-
-        return powerType;
-
-    }
-
-    //프로젝트에 변경사항 추가 누를 시 접근 제한
-    public String checkProjectProgress(Long memberId,Long projectId){
-
-        ProjectStatus projectStatus=changedIssueRepository.findProjectStatusByProjectId(projectId);
-
-        if(projectStatus==ProjectStatus.PROGRESS_COMPLETE){
-            throw new ExistProcessProjectExeption(projectId,projectStatus);
-        }
-
-        //접근 권한 있는 사용자인지 확인
-        powerValidate(memberId);
-
-
-
-        return AccessProperty.ACCESS_OK.toString();
-    }
+//    ////////////테스트////////// -> 추후 지울 것.
+//    Product product=productRepository.findById(1L)
+//            .orElseThrow(NotFoundMemberByEmailException::new);
+//    Team team= Team.builder()
+//            .name("dd")
+//            .product(product)
+//            .build();
+//
+//        teamRepository.save(team);
+//    Member member=memberRepository.findMemberById(memberId)
+//            .orElseThrow(NotFoundMemberByEmailException::new);
+//    MemberTeam memberTeam1=MemberTeam.builder()
+//            .member(member)
+//            .team(team)
+//            .powerType(PowerType.MASTER)
+//            .build();
+//        memberTeamRepository.save(memberTeam1);
+//////////////테스트////////// -> 추후 지울 것.
 
 
 
