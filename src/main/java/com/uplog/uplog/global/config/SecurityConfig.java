@@ -19,47 +19,25 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @EnableWebSecurity //기본적인 웹 보안을 활성화 하겠다는 어노테이션.
 @EnableMethodSecurity
 @Configuration
-public class SecurityConfig  {
+public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     public SecurityConfig(
-        TokenProvider tokenProvider,
-        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-        JwtAccessDeniedHandler jwtAccessDeniedHandler
+            TokenProvider tokenProvider,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            JwtAccessDeniedHandler jwtAccessDeniedHandler
     ){
         this.tokenProvider=tokenProvider;
         this.jwtAuthenticationEntryPoint=jwtAuthenticationEntryPoint;
         this.jwtAccessDeniedHandler=jwtAccessDeniedHandler;
-    }
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception{
-//
-//        http
-//                .authorizeRequests()
-//                .antMatchers("/**").permitAll()
-//                .and()
-//                .cors();
-//    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
-        CorsConfiguration configuration=new CorsConfiguration();
-
-        configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**",configuration);
-        return source;
-
     }
 
     @Bean
@@ -67,11 +45,20 @@ public class SecurityConfig  {
         return new BCryptPasswordEncoder();
     }
 
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3070"));
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
         return (web) -> web.ignoring()
-                .antMatchers("/favicon.ico","/swagger-ui.html","/swagger-ui/**",
-                        "/swagger-resources/**","/api-docs/**");
+                .antMatchers("/favicon.ico");
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -79,14 +66,12 @@ public class SecurityConfig  {
         //token 사용하는 방식이기 때문에 csrf을 disable
         http
                 .csrf().disable()
-                        .cors(cors->cors.disable());
+                .cors(cors -> cors.disable());
+        ;
 
         http
                 .authorizeRequests()
                 .antMatchers("/members/**").permitAll() // 해당 Request는 허용한다.
-                .antMatchers("/api/v2/**","/health","/swagger-ui.html","/swagger/**",
-                        "/swagger-resources/**","/webjars/**","/api-docs/**",
-                        "/swagger-ui/**","/api/login").permitAll()
                 .anyRequest().authenticated();
 
         http
