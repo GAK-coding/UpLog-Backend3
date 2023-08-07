@@ -40,8 +40,8 @@ public class MenuController {
     /*
     DELETE
      */
-    @DeleteMapping("/menus/{menuId}")
-    public ResponseEntity<Void> deleteMenu(@PathVariable Long id){
+    @DeleteMapping("/menus/{menu-id}")
+    public ResponseEntity<Void> deleteMenu(@PathVariable(name="menu-id") Long id){
         menuService.deleteMenu(id);
         return ResponseEntity.noContent().build();
     }
@@ -50,14 +50,14 @@ public class MenuController {
     PATCH
      */
     @PatchMapping("/menus/{menu-id}/menuname")
-    public ResponseEntity<MenuInfoDTO> updateMenuName(@PathVariable Long id, @RequestBody UpdateMenuNameRequest updateMenuNameRequest){
+    public ResponseEntity<MenuInfoDTO> updateMenuName(@PathVariable(name="menu-id") Long id, @RequestBody UpdateMenuNameRequest updateMenuNameRequest){
         MenuInfoDTO menuInfoDTO=menuService.updateMenuName(id,updateMenuNameRequest);
 
         return ResponseEntity.ok(menuInfoDTO);
     }
 
     @PatchMapping("/menus/{menu-id}/notice-post")
-    public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable("menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
+    public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable(name="menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
         MenuInfoDTO menuInfoDTO=menuService.updateNoticePost(menuId,updateNoticePostRequest);
         return ResponseEntity.ok(menuInfoDTO);
     }
@@ -67,14 +67,14 @@ public class MenuController {
     READ
      */
     @GetMapping("/menus/{project-id}")
-    public ResponseEntity<List<MenuInfoDTO>> findMenuByPost(@PathVariable("project-id") Long projectId){
+    public ResponseEntity<List<MenuInfoDTO>> findMenuByPost(@PathVariable(name="project-id") Long projectId){
         List<MenuInfoDTO> menuInfoDTOs=menuService.findByProjectId(projectId);
         return new ResponseEntity<>(menuInfoDTOs, HttpStatus.OK);
     }
 
     //메뉴별 테스크 가져오기->근데 이걸 메뉴에서 처리하는게 맞을까(==포스트도 )
     @GetMapping("/menus/{menu-id}/tasks")
-    public ResponseEntity<MenuTasksDTO> findTasksAndMenuInfoByMenuId(@PathVariable("menu-id") Long menuId) {
+    public ResponseEntity<MenuTasksDTO> findTasksAndMenuInfoByMenuId(@PathVariable(name="menu-id") Long menuId) {
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = menuService.findTasksByMenuId(menuId);
         MenuInfoDTO menuInfoDTO = menuService.findMenuById(menuId);
 
@@ -89,7 +89,7 @@ public class MenuController {
 
     //메뉴별 포스트 가져오기
     @GetMapping("/menus/{menu-id}/posts")
-    public ResponseEntity<MenuPostsDTO> findMenuPosts(@PathVariable("menu-id") Long menuId) {
+    public ResponseEntity<MenuPostsDTO> findMenuPosts(@PathVariable(name="menu-id") Long menuId) {
         MenuPostsDTO menuPostsDTO = menuService.findMenuInfoById(menuId);
         return ResponseEntity.ok(menuPostsDTO);
     }

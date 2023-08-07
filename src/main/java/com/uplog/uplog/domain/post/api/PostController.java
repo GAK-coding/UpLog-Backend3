@@ -19,7 +19,7 @@ public class PostController {
     /*
     create
      */
-    @PostMapping(value="/posts/{member_id}")
+    @PostMapping(value="/posts/{member-id}")
     public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member_id") Long id, @RequestBody CreatePostRequest createPostRequest) {
         PostInfoDTO postInfoDTO = postService.createPost(id,createPostRequest);
         return ResponseEntity.ok(postInfoDTO);
@@ -29,8 +29,8 @@ public class PostController {
     /*
     delete
      */
-    @DeleteMapping("posts/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id){
+    @DeleteMapping("posts/{post-id}")
+    public ResponseEntity<Void> deletePost(@PathVariable(name="post-id") Long id){
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
@@ -38,25 +38,25 @@ public class PostController {
     /*
     update
      */
-    @PatchMapping("/posts/{post_id}/title")
-    public ResponseEntity<PostInfoDTO> updatePostTitle(@PathVariable Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId){
+    @PatchMapping("/posts/{post-id}/title")
+    public ResponseEntity<PostInfoDTO> updatePostTitle(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId){
         PostInfoDTO postInfoDTO=postService.updatePostTitle(id,updatePostTitleRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
-    @PatchMapping("/posts/{post_id}/content")
-    public ResponseEntity<PostInfoDTO> updatePostContent(@PathVariable Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest,Long currentUserId){
+    @PatchMapping("/posts/{post-id}/content")
+    public ResponseEntity<PostInfoDTO> updatePostContent(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest,Long currentUserId){
         PostInfoDTO postInfoDTO=postService.updatePostContent(id,updatePostContentRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
-    @PatchMapping("/posts/{post_id}/type")
-    public ResponseEntity<PostInfoDTO> updatePostType(@PathVariable Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId){
+    @PatchMapping("/posts/{post-id}/type")
+    public ResponseEntity<PostInfoDTO> updatePostType(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId){
         PostInfoDTO postInfoDTO=postService.updatePostType(id,updatePostTypeRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
-    @PatchMapping("/posts/{post_id}/menu")
-    public ResponseEntity<PostInfoDTO> updatePostMenu(@PathVariable Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest,Long currentUserId){
+    @PatchMapping("/posts/{post-id}/menu")
+    public ResponseEntity<PostInfoDTO> updatePostMenu(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest,Long currentUserId){
         PostInfoDTO postInfoDTO=postService.updatePostMenu(id,updatePostMenuRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
