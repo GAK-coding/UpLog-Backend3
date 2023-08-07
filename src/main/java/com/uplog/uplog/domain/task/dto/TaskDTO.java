@@ -89,6 +89,7 @@ public class TaskDTO {
         private String menuName;
         private Long projectTeamId;
         private String projectTeamName;
+        private Long projectTeamParentId;
         private TaskStatus taskStatus;
         private String taskDetail;
         private LocalDate startTime;
