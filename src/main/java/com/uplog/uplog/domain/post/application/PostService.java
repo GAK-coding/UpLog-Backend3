@@ -40,16 +40,16 @@ public class PostService {
     @Transactional
     public PostInfoDTO createPost(Long id, CreatePostRequest createPostRequest) {
         Member author = memberRepository.findMemberById(id)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
         Menu menu = menuRepository.findById(createPostRequest.getMenuId())
-                .orElseThrow(() -> new RuntimeException("Menu not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
         Project project = projectRepository.findById(createPostRequest.getProjectId())
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 프로젝트는 존재하지 않습니다."));
 
         Product product = productRepository.findById(createPostRequest.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new NotFoundIdException("해당 제품은 존재하지 않습니다."));
 
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
