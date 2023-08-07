@@ -4,6 +4,7 @@ import com.uplog.uplog.domain.comment.application.CommentApplication;
 import com.uplog.uplog.domain.comment.dto.CommentDTO;
 import com.uplog.uplog.domain.member.api.TestController;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
+import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 
@@ -47,6 +50,8 @@ public class CommentController {
     public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
                                                      @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
         CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
+        Optional<String> user=SecurityUtil.getCurrentUsername();
+        System.out.println("d"+user.get().toString());
         return new ResponseEntity<>(commentInfo, HttpStatus.CREATED);
     }
 

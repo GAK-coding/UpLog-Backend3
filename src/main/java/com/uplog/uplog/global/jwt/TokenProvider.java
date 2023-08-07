@@ -1,5 +1,11 @@
 package com.uplog.uplog.global.jwt;
 
+//import com.uplog.uplog.domain.member.dao.RedisDao;
+import com.uplog.uplog.domain.member.dao.RedisDao;
+import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dto.TokenDTO;
+import com.uplog.uplog.domain.member.model.RefreshToken;
+import com.uplog.uplog.global.exception.ExpireJwtTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -7,33 +13,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
 public class TokenProvider implements InitializingBean {
 
+
+    private final RefreshTokenRepository refreshTokenRepository;
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
+    private static final String BEARER_TYPE = "bearer";
     private final String secret;
-    private final long tokenValidityInMilliseconds;
+    private final long AccessTokenValidityInMilliseconds;
+    private final long RefreshTokenValidityInMilliseconds;
+    private final RedisDao redisDao;
+    //private final RedisDao redisDao;
     private Key key;
+    private long seconds=10000;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            RefreshTokenRepository refreshTokenRepository,
+            RedisDao redisDao) {
         this.secret = secret;
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.AccessTokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.RefreshTokenValidityInMilliseconds=tokenValidityInSeconds*1000;
+        this.refreshTokenRepository=refreshTokenRepository;
+        this.redisDao=redisDao;
     }
 
     @Override
@@ -42,20 +65,44 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication authentication) {
+    public TokenDTO createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+        Date validity = new Date(now + this.AccessTokenValidityInMilliseconds);
 
-        return Jwts.builder()
+        String accessToken=Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
+
+       String refreshToken=Jwts.builder()
+               .setExpiration(new Date(now + RefreshTokenValidityInMilliseconds))
+               .signWith(key, SignatureAlgorithm.HS512)
+               .compact();
+
+//        RefreshToken refreshToken1=RefreshToken.builder()
+//                .authId(authentication.getName())
+//                        .token(refreshToken)
+//                                .ttl( RefreshTokenValidityInMilliseconds)
+//                                        .build();
+//
+//        refreshTokenRepository.save(refreshToken1);
+        System.out.println("this.7"+Duration.ofMillis(RefreshTokenValidityInMilliseconds)+"  "+RefreshTokenValidityInMilliseconds);
+       redisDao.setValues(authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
+
+
+
+       return TokenDTO.builder()
+               .grantType(BEARER_TYPE)
+               .accessToken(accessToken)
+               .accessTokenExpiresIn(validity.getTime())
+               .refreshToken(refreshToken)
+               .build();
     }
 
     public Authentication getAuthentication(String token) {

@@ -1,25 +1,37 @@
 package com.uplog.uplog.domain.member.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
+//import com.uplog.uplog.domain.member.dao.RedisDao;
+//import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dao.RedisDao;
+import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dto.TokenDTO;
+import com.uplog.uplog.domain.member.dto.TokenRequestDTO;
 import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+//import com.uplog.uplog.domain.member.model.RefreshToken;
+import com.uplog.uplog.domain.member.model.RefreshToken;
+import com.uplog.uplog.global.exception.ExpireJwtTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.time.Duration;
+import java.util.*;
 
 /*
 닉네임, 이름 중복 가능. 고유값은 email 하나뿐.
@@ -30,9 +42,19 @@ import java.util.Optional;
 @Slf4j
 public class MemberService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisDao redisDao;
     private final MemberRepository memberRepository;
-
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    @Value("${jwt.token-validity-in-seconds}")
+    private long tokenValidityInSeconds;
+    private long seconds=10000;
+    private final long AccessTokenValidityInMilliseconds=tokenValidityInSeconds*1000;
+    private final long RefreshTokenValidityInMilliseconds=tokenValidityInSeconds*1000;
     //================================Member Create=====================================
     /*
     멤버 생성시 고려해야할 부분.
@@ -48,20 +70,79 @@ public class MemberService {
             if (memberRepository.findOneWithAuthoritiesByEmail(createMemberRequest.getEmail()).orElse(null) != null) {
                 throw new DuplicatedMemberException("이미 존재하는 회원입니다.");
             }
-            Authority authority=Authority.builder()
-                    .authorityName("ROLE_USER")
-                    .build();
-            System.out.println("mem1");
-            Member member = createMemberRequest.toMemberEntity(authority,passwordEncoder);
-            System.out.println("mem2");
-            memberRepository.save(member);
-            System.out.println("mem3");
 
-            System.out.println("mem5" + member.getPassword());
+            Authority authority=(getOrCreateAuthority("ROLE_USER"));
+            //user.setAuthorities(authorities);
+            //Authority authority=Authority.builder()
+                    //.authorityName("ROLE_USER")
+                    //.build();
+            Member member = createMemberRequest.toMemberEntity(authority,passwordEncoder);
+            memberRepository.save(member);
+
+
+
+
             return member.toMemberInfoDTO();
         }
         else{//이미 존재하는 회원
             throw new DuplicatedMemberException("이미 존재하는 회원입니다.");
+        }
+    }
+
+    /**
+     * 토큰 재발급
+     */
+    @Transactional
+    public TokenDTO refresh(TokenRequestDTO tokenRequestDto) {
+        // 1. Refresh Token 검증 (validateToken() : 토큰 검증)
+        if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
+            throw new ExpireJwtTokenException();
+        }
+
+        // 2. Access Token에서 ID 가져오기
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+
+        // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
+        //RefreshToken refreshToken = refreshTokenRepository.findByAuthId(authentication.getName())
+               // .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
+
+
+        String rtkInRedis = redisDao.getValues(authentication.getName());
+        if(rtkInRedis==null){
+            throw new RuntimeException("로그아웃 된 사용자입니다.");
+        }
+        // 4. Refresh Token 일치 여부
+        if (!rtkInRedis.equals(tokenRequestDto.getRefreshToken())) {
+            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
+        }
+
+        System.out.println("Redisbefore"+redisDao.getValues(authentication.getName()));
+        // 5. 새로운 토큰 생성
+        TokenDTO tokenDto = tokenProvider.createToken(authentication);
+
+
+        // 6. 저장소 정보 업데이트
+        redisDao.deleteValues(authentication.getName());
+
+        redisDao.setValues(authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(seconds));
+
+
+
+        //RefreshToken newRefreshToken = refreshToken.update(tokenDto.getRefreshToken(),RefreshTokenValidityInMilliseconds);
+
+
+        //refreshTokenRepository.save(newRefreshToken);
+        // 토큰 발급
+        return tokenDto;
+    }
+    private Authority getOrCreateAuthority(String authorityName) {
+        Authority existingAuthority = entityManager.find(Authority.class, authorityName);
+        if (existingAuthority != null) {
+            return existingAuthority;
+        } else {
+            Authority newAuthority = new Authority(authorityName);
+            entityManager.persist(newAuthority);
+            return newAuthority;
         }
     }
     //로그인

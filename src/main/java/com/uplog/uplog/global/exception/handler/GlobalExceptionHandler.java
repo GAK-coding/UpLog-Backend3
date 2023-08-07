@@ -1,6 +1,7 @@
 package com.uplog.uplog.global.exception.handler;
 
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.ExpireJwtTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundIdException.class)
     protected final ResponseEntity<ErrorResponse> notFoundIdExceptionHandler(NotFoundIdException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
+    @ExceptionHandler(ExpireJwtTokenException.class)
+    protected final ResponseEntity<ErrorResponse> ExpireJwtTokenExceptionHandler(ExpireJwtTokenException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())

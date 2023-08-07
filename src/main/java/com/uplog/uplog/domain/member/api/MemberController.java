@@ -1,8 +1,13 @@
 package com.uplog.uplog.domain.member.api;
 
 import com.uplog.uplog.domain.member.application.MemberService;
+//import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.domain.member.dto.TokenDTO;
+import com.uplog.uplog.domain.member.dto.TokenRequestDTO;
 import com.uplog.uplog.domain.member.model.Member;
+//import com.uplog.uplog.domain.member.model.RefreshToken;
 import com.uplog.uplog.global.jwt.JwtFilter;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.mail.MailDTO;
@@ -28,13 +33,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class MemberController {
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     //=============================create=======================================
     @PostMapping(value = "/members")
     public ResponseEntity<MemberInfoDTO> createMember(@RequestBody @Validated CreateMemberRequest createMemberRequest){
         MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
-        System.out.println("mem6");
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
 
@@ -44,22 +49,19 @@ public class MemberController {
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
 
-        System.out.println("1");
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        System.out.println("2");
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println("3");
-        String jwt=tokenProvider.createToken(authentication);
-        System.out.println("4");
+        TokenDTO tokenDTO =tokenProvider.createToken(authentication);
+
         HttpHeaders httpHeaders=new HttpHeaders();
-        System.out.println("5");
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER,"Bearer "+jwt);
-        System.out.println("6");
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER,tokenDTO.getGrantType()+tokenDTO.getAccessToken());
         MemberInfoDTO memberInfoDTO = memberService.login(loginRequest);
-        System.out.println("7");
-        memberInfoDTO.addTokenToMemberInfoDTO(jwt);
-        System.out.println("8");
+        memberInfoDTO.addTokenToMemberInfoDTO(tokenDTO.getAccessToken(),tokenDTO.getRefreshToken());
         return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
+    }
+    @PostMapping("/members/refresh")
+    public ResponseEntity<TokenDTO> refresh(@RequestBody TokenRequestDTO tokenRequestDto) {
+        return ResponseEntity.ok(memberService.refresh(tokenRequestDto));
     }
 
     @GetMapping("/members/user")
@@ -67,9 +69,9 @@ public class MemberController {
     public ResponseEntity<Member> getMyUserInfo(){
         return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
     }
-    @GetMapping("/members/{useremail}")
+    @GetMapping("/members/user/{user-email}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<Member> getMyUserInfo(@PathVariable("useremail") String email){
+    public ResponseEntity<Member> getMyUserInfo(@PathVariable String email){
         return ResponseEntity.ok(memberService.getUserWithAuthorities(email).get());
     }
 

@@ -63,10 +63,12 @@ public class MemberDTO {
         private String nickname;
         private String password;
         private Position position;
-        private String token;
+        private String accessToken;
+        private String refreshToken;
 
-        public void addTokenToMemberInfoDTO(String jwt){
-            this.token=jwt;
+        public void addTokenToMemberInfoDTO(String accessToken,String refreshToken){
+            this.accessToken=accessToken;
+            this.refreshToken=refreshToken;
 
         }
     }
