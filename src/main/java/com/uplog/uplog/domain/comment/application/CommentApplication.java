@@ -2,7 +2,7 @@ package com.uplog.uplog.domain.comment.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.comment.dao.CommentRepository;
-import com.uplog.uplog.domain.comment.dto.CommentDTO.CommentInfo;
+import com.uplog.uplog.domain.comment.dto.CommentDTO.CreateCommentRequest;
 import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
 import com.uplog.uplog.domain.comment.exception.NotFoundCommentByPostException;
 import com.uplog.uplog.domain.comment.exception.NotFoundCommentException;
@@ -41,21 +41,22 @@ public class CommentApplication {
         CREATE
      */
     @Transactional
-    public CommentInfo createComment(CommentInfo commentData, Long postId, Long memberId){
+    public SimpleCommentInfo createComment(CreateCommentRequest commentData, Long postId, Long memberId){
 
-        //Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
+        Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
 
+        SimpleCommentInfo simpleCommentInfo;
         //parentId가 null일 때 기본 정보만 저장.
         if(commentData.getParentId()==null && commentData.getChildId()==null){
 
 
-            Comment comment=commentData.toEntity(member,null,null);
+            Comment comment=commentData.toEntity(member,null,null,post);
 
 
             commentRepository.save(comment);
-
+            simpleCommentInfo=comment.toSimpleCommentInfo();
         }
 
         //ParentId가 존재할 때 부모 객체를 mapping && 기본 정보 저장.
@@ -63,13 +64,15 @@ public class CommentApplication {
                 //parent만 존재
                 Comment ParentComment=commentRepository.findById(commentData.getParentId())
                         .orElseThrow(()->new NotFoundCommentException(commentData.getParentId()));
-                Comment comment=commentData.toEntity(member,ParentComment,null);
+                Comment comment=commentData.toEntity(member,ParentComment,null,post);
 
                 commentRepository.save(comment);
 
+                simpleCommentInfo=comment.toSimpleCommentInfo();
+
             }
 
-        return commentData;
+        return simpleCommentInfo;
 
 
     }
@@ -80,7 +83,7 @@ public class CommentApplication {
      */
 
     @Transactional(readOnly = true)
-    public List<ReadCommentInfo> readPostComment(Long postId){
+    public List<SimpleCommentInfo> findCommentByPostId(Long postId){
 
         // TODO: post 만들어지면 post로 바꿔야함.
         List<Comment> commentList=commentRepository.findByAuthorId(postId);
@@ -89,10 +92,10 @@ public class CommentApplication {
             throw new NotFoundCommentByPostException(postId);
         }
 
-        List<ReadCommentInfo> commentInfos=new ArrayList<>();
+        List<SimpleCommentInfo> commentInfos=new ArrayList<>();
 
         for(Comment comment_tmp : commentList)
-            commentInfos.add(comment_tmp.toReadCommentInfo());
+            commentInfos.add(comment_tmp.toSimpleCommentInfo());
 
         return commentInfos;
 
@@ -105,9 +108,9 @@ public class CommentApplication {
      기능이 있으면 좋을 것 같다는 생각에 넣어봄
     */
     @Transactional(readOnly = true)
-    public List<ReadCommentInfo> readPostSingleComment(Long commentId){
+    public List<SimpleCommentInfo> findCommentById(Long commentId){
 
-        List<ReadCommentInfo> readCommentInfos=new ArrayList<>();
+        List<SimpleCommentInfo> simpleCommentInfos =new ArrayList<>();
         Comment comment=commentRepository.findById(commentId)
                 .orElseThrow(()->new NotFoundCommentException(commentId));
 
@@ -116,12 +119,12 @@ public class CommentApplication {
         if(comment.getParent()!=null){
             Comment comment_parent=commentRepository.findById(comment.getParent().getId())
                     .orElseThrow(()->new NotFoundCommentException(comment.getParent().getId()));
-            readCommentInfos.add(comment_parent.toReadCommentInfo());
+            simpleCommentInfos.add(comment_parent.toSimpleCommentInfo());
 
         }
-        readCommentInfos.add(comment.toReadCommentInfo());
+        simpleCommentInfos.add(comment.toSimpleCommentInfo());
 
-        return readCommentInfos;
+        return simpleCommentInfos;
 
     }
 
@@ -130,7 +133,7 @@ public class CommentApplication {
      */
 
     @Transactional
-    public ReadCommentInfo updateCommentContent(UpdateCommentContent updateCommentContent, Long commentId, Long memberId){
+    public SimpleCommentInfo updateCommentContent(UpdateCommentContent updateCommentContent, Long commentId, Long memberId){
 
         //업데이트 사항은 content 단일 항목이고 업데이트 후 해당 comment의 정보를 모두 넘겨줌
         Comment comment=commentRepository.findById(commentId)
@@ -141,8 +144,8 @@ public class CommentApplication {
         }
 
         comment.updateCommentContent(updateCommentContent.getContent());
-        ReadCommentInfo readCommentInfo=comment.toReadCommentInfo();
-        return readCommentInfo;
+        SimpleCommentInfo simpleCommentInfo =comment.toSimpleCommentInfo();
+        return simpleCommentInfo;
 
 
 

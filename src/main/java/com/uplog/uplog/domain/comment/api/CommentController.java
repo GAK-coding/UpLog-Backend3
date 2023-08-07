@@ -41,26 +41,26 @@ public class CommentController {
         CREATE
      */
     @PostMapping(value = "/comments/{post-id}/{member-id}")
-    public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
-                                                     @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
-        CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
-        return new ResponseEntity<>(commentInfo, HttpStatus.CREATED);
+    public ResponseEntity<SimpleCommentInfo> createComment(@RequestBody @Validated CreateCommentRequest commentData,
+                                                        @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
+        SimpleCommentInfo simpleData = commentApplication.createComment(commentData,postId,memberId);
+        return new ResponseEntity<>(simpleData, HttpStatus.CREATED);
     }
 
      /*
         READ
      */
-    @GetMapping(value="/comments/{post-id}/comments")
-    public ResponseEntity<List<ReadCommentInfo>> readComment(@PathVariable("post-id")Long postId){
+    @GetMapping(value="/comments/{post-id}/post")
+    public ResponseEntity<List<SimpleCommentInfo>> findCommentsByPostId(@PathVariable("post-id")Long postId){
 
-        List<ReadCommentInfo> readList=commentApplication.readPostComment(postId);
+        List<SimpleCommentInfo> readList=commentApplication.findCommentByPostId(postId);
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
-    @GetMapping(value="/comments/{comment-id}/singlecomment")
-    public ResponseEntity<List<ReadCommentInfo>> readSingleComment(@PathVariable("comment-id")Long commentId){
+    @GetMapping(value="/comments/{comment-id}/comment")
+    public ResponseEntity<List<SimpleCommentInfo>> findCommentById(@PathVariable("comment-id")Long commentId){
 
-        List<ReadCommentInfo> readSingleList=commentApplication.readPostSingleComment(commentId);
+        List<SimpleCommentInfo> readSingleList=commentApplication.findCommentById(commentId);
         return new ResponseEntity<>(readSingleList,HttpStatus.OK);
     }
 
@@ -69,11 +69,11 @@ public class CommentController {
      */
 
     @PatchMapping(value="/comments/{comment-id}/{member-id}/content")
-    public ResponseEntity<ReadCommentInfo> updateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
-                                                         @PathVariable("comment-id")Long commentId,
-                                                         @PathVariable("member-id")Long memberId){
-        ReadCommentInfo readCommentInfo=commentApplication.updateCommentContent(updateCommentContent,commentId,memberId);
-        return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
+    public ResponseEntity<SimpleCommentInfo> updateCommentContent(@RequestBody @Validated UpdateCommentContent updateCommentContent,
+                                                                  @PathVariable("comment-id")Long commentId,
+                                                                  @PathVariable("member-id")Long memberId){
+        SimpleCommentInfo simpleCommentInfo =commentApplication.updateCommentContent(updateCommentContent,commentId,memberId);
+        return new ResponseEntity<>(simpleCommentInfo,HttpStatus.OK);
     }
 
      /*
