@@ -14,7 +14,6 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
-import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,7 @@ public class PostService {
     Create
      */
     @Transactional
-    public Post createPost(Long id, CreatePostRequest createPostRequest) {
+    public PostInfoDTO createPost(Long id, CreatePostRequest createPostRequest) {
         Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
@@ -71,7 +70,7 @@ public class PostService {
             Post post = createPostRequest.toEntity(author, menu, product, project, postType);
             postRepository.save(post);
 
-            return post;
+            return post.toPostInfoDTO();
         } else {
             //기업인경우
             throw new AuthorityException("포스트 생성 권한이 없습니다.");
@@ -93,11 +92,11 @@ public class PostService {
     */
     //TODO update 권한 설정해야,==으로 바꾸기
     @Transactional
-    public Post updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId) {
+    public PostInfoDTO updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-            return post;
+            return post.toPostInfoDTO();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -106,11 +105,11 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest,Long currentUserId) {
+    public PostInfoDTO updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostContent(updatePostContentRequest.getUpdateContent());
-            return post;
+            return post.toPostInfoDTO();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -120,7 +119,7 @@ public class PostService {
 
     //TODO Enum수정
     @Transactional
-    public Post updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId) {
+    public PostInfoDTO updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         PostType updatepostType = PostType.DEFAULT; // 기본값으로 설정
 
@@ -137,7 +136,7 @@ public class PostService {
                 }
             }
             post.updatePostType(updatepostType);
-            return post;
+            return post.toPostInfoDTO();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -146,13 +145,13 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest,Long currentUserId) {
+    public PostInfoDTO updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         Menu menu = menuRepository.findById(updatePostMenuRequest.getUpdateMenuId())
                 .orElseThrow(() -> new RuntimeException("Menu not found"));
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostMenu(menu);
-            return post;
+            return post.toPostInfoDTO();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -163,20 +162,20 @@ public class PostService {
 
     //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스
     @Transactional
-    public Post updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest,Long currentUserId) {
+    public PostInfoDTO updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
-        return post;
+        return post.toPostInfoDTO();
 
 
     }
 
     //TODO 이건 나중에 프로젝트 수정할때 같이 불러야하는 서비스임
     @Transactional
-    public Post updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest,Long currentUserId) {
+    public PostInfoDTO updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
-        return post;
+        return post.toPostInfoDTO();
 
     }
 
