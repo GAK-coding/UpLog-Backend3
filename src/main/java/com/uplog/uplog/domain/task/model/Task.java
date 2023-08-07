@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 
 @Entity
 @Getter
@@ -45,8 +46,8 @@ public class Task extends BaseTime {
 
     private String taskDetail;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalDate startTime;
+    private LocalDate endTime;
 
 
 
@@ -98,7 +99,7 @@ public class Task extends BaseTime {
 //    }
 
     public void updateTaskName(String updateName){this.taskName=updateName;}
-    public void updateTaskDate(LocalDateTime updateStartTime, LocalDateTime updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
+    public void updateTaskDate(LocalDate updateStartTime, LocalDate updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
     public void updateTaskContent(String updateContent){this.taskDetail=updateContent;}
 
     public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}

@@ -17,6 +17,7 @@ import org.springframework.util.StopWatch;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class TaskDTO {
@@ -30,8 +31,8 @@ public class TaskDTO {
         private Long menuId;
         private Long projectTeamId;
         private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalDate startTime;
+        private LocalDate endTime;
 
         public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
             return Task.builder()
@@ -90,8 +91,8 @@ public class TaskDTO {
         private String projectTeamName;
         private TaskStatus taskStatus;
         private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalDate startTime;
+        private LocalDate endTime;
     }
 
 
@@ -128,8 +129,8 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class UpdateTaskDateRequest{
         //private Long id;
-        private LocalDateTime updateStartTime;
-        private LocalDateTime updateEndTime;
+        private LocalDate updateStartTime;
+        private LocalDate updateEndTime;
 
     }
 
