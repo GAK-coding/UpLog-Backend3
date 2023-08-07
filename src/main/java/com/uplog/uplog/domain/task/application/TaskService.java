@@ -1,22 +1,29 @@
 package com.uplog.uplog.domain.task.application;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.task.dao.TaskRepository;
 import com.uplog.uplog.domain.task.dto.TaskDTO.*;
+import com.uplog.uplog.domain.task.model.QTask;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.exception.*;
 import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.team.dao.ProjectTeamRepository;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.global.exception.AuthorityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +34,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class TaskService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final TaskRepository taskRepository;
     private final MemberRepository memberRepository;
-    private final ProjectTeamRepository teamRepository;
+    private final ProjectTeamRepository projectTeamRepository;
     private final MenuRepository menuRepository;
 
 
@@ -44,17 +55,28 @@ public class TaskService {
         Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
                 .orElseThrow(() -> new RuntimeException("Menu not found"));
 
-        ProjectTeam projectTeam = teamRepository.findById(createTaskRequest.getProjectTeamId())
+        ProjectTeam projectTeam = projectTeamRepository.findById(createTaskRequest.getProjectTeamId())
                 .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
 
-        Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
-//        Task task = createTaskRequest.toEntity(targetMember);
+
+
+
+        if(targetMember.getPosition()== Position.INDIVIDUAL){
+            Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
+            taskRepository.save(task);
+            return task;
+        }
+        else{
+            //기업인경우
+            throw new AuthorityException("테스크 생성 권한이 없습니다.");
+        }
+
+        //Task task = createTaskRequest.toEntity(targetMember);
 
 
         //Task task = taskSaveRequest.toEntity();
 
-        taskRepository.save(task);
-        return task;
+
     }
 
     //========================================read========================================
@@ -65,9 +87,28 @@ public class TaskService {
         return task;
     }
 
-    public Map<TaskStatus, List<TaskInfoDTO>> findAllTasksByStatus() {
-        // 모든 테스크를 조회
-        List<Task> tasks = taskRepository.findAll();
+    //해당 프로젝트의 전체 테스크 조회
+    @Transactional(readOnly = true)
+    public List<TaskInfoDTO> findAllTask(Long projectId) {
+        JPAQueryFactory query = new JPAQueryFactory(entityManager);
+        QTask task = QTask.task;
+        List<TaskInfoDTO> taskList = query
+                .select(Projections.constructor(TaskInfoDTO.class, task.id, task.taskName, task.taskStatus,task.menu,task.projectTeam,task.targetMember))
+                .from(task)
+                .where(task.menu.project.id.eq(projectId))
+                .fetch();
+
+        return taskList;
+    }
+
+    public Map<TaskStatus, List<TaskInfoDTO>> findAllTasksByStatus(Long projectId) {
+        JPAQueryFactory query = new JPAQueryFactory(entityManager);
+        QTask task = QTask.task;
+
+        List<Task> tasks = query
+                .selectFrom(task)
+                .where(task.menu.project.id.eq(projectId))
+                .fetch();
 
         // 상태별로 테스크를 그룹화하여 Map에 저장
         Map<TaskStatus, List<Task>> taskStatusMap = tasks.stream()
@@ -86,8 +127,15 @@ public class TaskService {
         return taskInfoDTOMap;
     }
 
-    public List<TaskInfoDTO> findTaskByStatus(TaskStatus taskStatus) {
-        List<Task> tasks = taskRepository.findByTaskStatus(taskStatus);
+    public List<TaskInfoDTO> findTaskByStatus(Long projectId, TaskStatus taskStatus) {
+        JPAQueryFactory query = new JPAQueryFactory(entityManager);
+        QTask task = QTask.task;
+
+        List<Task> tasks = query
+                .selectFrom(task)
+                .where(task.menu.project.id.eq(projectId).and(task.taskStatus.eq(taskStatus)))
+                .fetch();
+
         return tasks.stream()
                 .map(Task::toTaskInfoDTO)
                 .collect(Collectors.toList());
@@ -204,7 +252,7 @@ public class TaskService {
 
     @Transactional
     public Task updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest) {
-        ProjectTeam projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
+        ProjectTeam projectTeam = projectTeamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
                 .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
