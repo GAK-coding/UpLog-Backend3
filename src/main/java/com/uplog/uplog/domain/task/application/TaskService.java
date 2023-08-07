@@ -60,8 +60,9 @@ public class TaskService {
         ProjectTeam projectTeam = projectTeamRepository.findById(createTaskRequest.getProjectTeamId())
                 .orElseThrow(() -> new RuntimeException("ProjectTeam not found"));
 
-
-
+        if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
+            throw new AuthorityException("해당 프로젝트 팀은 현재 프로젝트에 존재하지 않는 프로젝트팀 입니다.");
+        }
 
         if(targetMember.getPosition()== Position.INDIVIDUAL){
             Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
@@ -72,13 +73,6 @@ public class TaskService {
             //기업인경우
             throw new AuthorityException("테스크 생성 권한이 없습니다.");
         }
-
-        //Task task = createTaskRequest.toEntity(targetMember);
-
-
-        //Task task = taskSaveRequest.toEntity();
-
-
     }
 
     //========================================read========================================
