@@ -43,7 +43,7 @@ public class TokenProvider implements InitializingBean {
     private final long AccessTokenValidityInMilliseconds;
     private final long RefreshTokenValidityInMilliseconds;
     private final RedisDao redisDao;
-    //private final RedisDao redisDao;
+
     private Key key;
     private long seconds=10000;
 
@@ -85,14 +85,6 @@ public class TokenProvider implements InitializingBean {
                .signWith(key, SignatureAlgorithm.HS512)
                .compact();
 
-//        RefreshToken refreshToken1=RefreshToken.builder()
-//                .authId(authentication.getName())
-//                        .token(refreshToken)
-//                                .ttl( RefreshTokenValidityInMilliseconds)
-//                                        .build();
-//
-//        refreshTokenRepository.save(refreshToken1);
-        System.out.println("this.7"+Duration.ofMillis(RefreshTokenValidityInMilliseconds)+"  "+RefreshTokenValidityInMilliseconds);
        redisDao.setValues(authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
 
 

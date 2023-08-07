@@ -63,6 +63,8 @@ public class MemberService {
     이메일 보내기. 인증번호는 영어, 숫자, 특수문자를 조합한 6자리 인증번호.
     */
 
+
+    //security 로직 추가
     @Transactional
     public MemberInfoDTO createMember(CreateMemberRequest createMemberRequest){
         //이메일이 존재하는 멤버인지 확인. 존재하면 이미 존재한다고 예외처리
@@ -72,10 +74,6 @@ public class MemberService {
             }
 
             Authority authority=(getOrCreateAuthority("ROLE_USER"));
-            //user.setAuthorities(authorities);
-            //Authority authority=Authority.builder()
-                    //.authorityName("ROLE_USER")
-                    //.build();
             Member member = createMemberRequest.toMemberEntity(authority,passwordEncoder);
             memberRepository.save(member);
 
@@ -102,11 +100,8 @@ public class MemberService {
         // 2. Access Token에서 ID 가져오기
         Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
 
+
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
-        //RefreshToken refreshToken = refreshTokenRepository.findByAuthId(authentication.getName())
-               // .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
-
-
         String rtkInRedis = redisDao.getValues(authentication.getName());
         if(rtkInRedis==null){
             throw new RuntimeException("로그아웃 된 사용자입니다.");
@@ -116,7 +111,6 @@ public class MemberService {
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
 
-        System.out.println("Redisbefore"+redisDao.getValues(authentication.getName()));
         // 5. 새로운 토큰 생성
         TokenDTO tokenDto = tokenProvider.createToken(authentication);
 
@@ -126,13 +120,7 @@ public class MemberService {
 
         redisDao.setValues(authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(seconds));
 
-
-
-        //RefreshToken newRefreshToken = refreshToken.update(tokenDto.getRefreshToken(),RefreshTokenValidityInMilliseconds);
-
-
-        //refreshTokenRepository.save(newRefreshToken);
-        // 토큰 발급
+        //토큰 발급
         return tokenDto;
     }
     private Authority getOrCreateAuthority(String authorityName) {

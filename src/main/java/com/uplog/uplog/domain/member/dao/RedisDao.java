@@ -23,17 +23,15 @@ public class RedisDao {
     }
 
     public void setValues(String key, String data, Duration duration) {
-        System.out.println("this.1");
+
         ValueOperations<String, String> values = redisTemplate.opsForValue();
-        System.out.println("this.2");
         values.set(key, data, duration);
 
-        System.out.println("this.3");
     }
 
     public String getValues(String key) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
-        System.out.println("this.5");
+
         return values.get(key);
     }
 

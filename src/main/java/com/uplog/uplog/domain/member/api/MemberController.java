@@ -44,6 +44,7 @@ public class MemberController {
     }
 
     //로그인
+    //security 로직 추가
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
         UsernamePasswordAuthenticationToken authenticationToken=
@@ -57,18 +58,22 @@ public class MemberController {
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER,tokenDTO.getGrantType()+tokenDTO.getAccessToken());
         MemberInfoDTO memberInfoDTO = memberService.login(loginRequest);
         memberInfoDTO.addTokenToMemberInfoDTO(tokenDTO.getAccessToken(),tokenDTO.getRefreshToken());
+
         return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
     }
+    //리프레시 토큰 만료 시
     @PostMapping("/members/refresh")
     public ResponseEntity<TokenDTO> refresh(@RequestBody TokenRequestDTO tokenRequestDto) {
         return ResponseEntity.ok(memberService.refresh(tokenRequestDto));
     }
 
+    // 토큰 Role user,admin
     @GetMapping("/members/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Member> getMyUserInfo(){
         return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
     }
+    // 토큰 Role admin
     @GetMapping("/members/user/{user-email}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Member> getMyUserInfo(@PathVariable String email){
