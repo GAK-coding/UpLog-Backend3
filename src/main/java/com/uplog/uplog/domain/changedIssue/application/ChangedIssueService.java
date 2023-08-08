@@ -78,14 +78,8 @@ public class ChangedIssueService {
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QChangedIssue changedIssue=QChangedIssue.changedIssue;
 
-        ChangedIssue changedIssue1=query
-                .selectFrom(changedIssue)
-                .where(changedIssue.id.eq(issueId))
-                .fetchOne();
-
-        if(changedIssue1==null){
-            throw new NotFoundIssueException(issueId);
-        }
+        ChangedIssue changedIssue1=changedIssueRepository.findById(issueId)
+                .orElseThrow(()->new NotFoundIssueException(issueId));
 
         IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
 
