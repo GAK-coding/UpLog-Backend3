@@ -12,7 +12,6 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.dao.PostRepository;
-import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CommentApplication {
+public class CommentService {
 
     @PersistenceContext
     private EntityManager entityManager;

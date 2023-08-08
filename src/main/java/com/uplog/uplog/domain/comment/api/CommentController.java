@@ -1,6 +1,6 @@
 package com.uplog.uplog.domain.comment.api;
 
-import com.uplog.uplog.domain.comment.application.CommentApplication;
+import com.uplog.uplog.domain.comment.application.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +24,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Slf4j
 public class CommentController {
 
-    private final CommentApplication commentApplication;
+    private final CommentService commentApplication;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
