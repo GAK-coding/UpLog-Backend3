@@ -92,10 +92,8 @@ public class MemberService {
         if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
             throw new ExpireRefreshTokenException();
         }
-
         // 2. Access Token에서 ID 가져오기
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
-
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getRefreshToken());
 
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
         String rtkInRedis = redisDao.getValues(authentication.getName());
@@ -106,10 +104,8 @@ public class MemberService {
         if (!rtkInRedis.equals(tokenRequestDto.getRefreshToken())) {
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
-
         // 5. 새로운 토큰 생성
         TokenDTO tokenDto = tokenProvider.createToken(authentication);
-
 
         // 6. 저장소 정보 업데이트
         redisDao.deleteValues(authentication.getName());

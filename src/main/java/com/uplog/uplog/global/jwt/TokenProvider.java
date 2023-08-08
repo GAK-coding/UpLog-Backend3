@@ -4,12 +4,14 @@ package com.uplog.uplog.global.jwt;
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dto.TokenDTO;
+import com.uplog.uplog.global.error.ErrorResponse;
 import com.uplog.uplog.global.exception.ExpireAccessTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.ErrorMessage;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,7 +37,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
     private final String secret;
-    private long AccessTokenValidityInMilliseconds = Duration.ofSeconds(50).toMillis();//만료시간 30분
+    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(30).toMillis();//만료시간 30분
     //Duration.ofMinutes(30).toMillis()
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
 
@@ -64,8 +66,8 @@ public class TokenProvider implements InitializingBean {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.AccessTokenValidityInMilliseconds);
+        //long now = (new Date()).getTime();
+        Date validity = new Date(System.currentTimeMillis() + this.AccessTokenValidityInMilliseconds);
 
         String accessToken=Jwts.builder()
                 .setSubject(authentication.getName())
@@ -75,7 +77,9 @@ public class TokenProvider implements InitializingBean {
                 .compact();
 
        String refreshToken=Jwts.builder()
-               .setExpiration(new Date(now + RefreshTokenValidityInMilliseconds))
+               .setSubject(authentication.getName())
+               .setExpiration(new Date(System.currentTimeMillis()+ RefreshTokenValidityInMilliseconds))
+               .claim(AUTHORITIES_KEY, authorities)
                .signWith(key, SignatureAlgorithm.HS512)
                .compact();
 
@@ -92,13 +96,13 @@ public class TokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
+
         Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
@@ -111,6 +115,7 @@ public class TokenProvider implements InitializingBean {
 
     public boolean validateToken(String token) {
         try {
+
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
