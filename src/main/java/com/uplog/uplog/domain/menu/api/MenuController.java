@@ -39,7 +39,7 @@ public class MenuController {
 
     /*
     DELETE
-     */
+     */// 삭제시 밑에꺼 다 삭제되는거
     @DeleteMapping("/menus/{menu-id}")
     public ResponseEntity<Void> deleteMenu(@PathVariable(name="menu-id") Long id){
         menuService.deleteMenu(id);
@@ -57,7 +57,7 @@ public class MenuController {
     }
 
     @PatchMapping("/menus/{menu-id}/notice-post")
-    public ResponseEntity<MenuInfoDTO> updateNotiePost(@PathVariable(name="menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
+    public ResponseEntity<MenuInfoDTO> updateNoticePost(@PathVariable(name="menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
         MenuInfoDTO menuInfoDTO=menuService.updateNoticePost(menuId,updateNoticePostRequest);
         return ResponseEntity.ok(menuInfoDTO);
     }
