@@ -40,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
 
-        return new org.springframework.security.core.userdetails.User(member.getEmail(),
+        return new org.springframework.security.core.userdetails.User(String.valueOf(member.getId()),
             member.getPassword(),
             grantedAuthorities);
         }

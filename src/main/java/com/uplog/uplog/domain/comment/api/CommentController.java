@@ -50,7 +50,7 @@ public class CommentController {
     public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
                                                      @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
         CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
-        Optional<String> user=SecurityUtil.getCurrentUsername();
+        Optional<Long> user=SecurityUtil.getCurrentUsername();
         System.out.println("d"+user.get().toString());
         return new ResponseEntity<>(commentInfo, HttpStatus.CREATED);
     }
