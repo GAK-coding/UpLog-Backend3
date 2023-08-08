@@ -34,6 +34,7 @@ public class TeamDTO {
         public Team toEntity(){
             return Team.teamBuilder()
                     //.product(product)
+                    .memberTeamList(new ArrayList<>())
                     .name(this.teamName)
                     .build();
 
