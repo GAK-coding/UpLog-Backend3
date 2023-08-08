@@ -1,5 +1,6 @@
 package com.uplog.uplog.global.jwt;
 
+import com.uplog.uplog.global.exception.ExpireAccessTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -9,6 +10,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.GenericFilterBean;
 
 
+import javax.security.auth.Subject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -30,15 +32,18 @@ public class JwtFilter extends GenericFilterBean {
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwt = resolveToken(httpServletRequest);
+        //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
         String requestURI = httpServletRequest.getRequestURI();
-        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-            Authentication authentication = tokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
-        } else {
-            logger.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
+        System.out.println("Reuqest  "+requestURI);
+        if(!requestURI.equals("/members/refresh")){
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                Authentication authentication = tokenProvider.getAuthentication(jwt);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+            } else {
+                logger.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
+            }
         }
-
         filterChain.doFilter(servletRequest, servletResponse);
     }
 

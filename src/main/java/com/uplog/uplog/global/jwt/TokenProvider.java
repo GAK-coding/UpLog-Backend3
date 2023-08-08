@@ -4,8 +4,7 @@ package com.uplog.uplog.global.jwt;
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dto.TokenDTO;
-import com.uplog.uplog.domain.member.model.RefreshToken;
-import com.uplog.uplog.global.exception.ExpireJwtTokenException;
+import com.uplog.uplog.global.exception.ExpireAccessTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -13,22 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Key;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,8 +35,10 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
     private final String secret;
-    private final long AccessTokenValidityInMilliseconds;
-    private final long RefreshTokenValidityInMilliseconds;
+    private long AccessTokenValidityInMilliseconds = Duration.ofSeconds(50).toMillis();//만료시간 30분
+    //Duration.ofMinutes(30).toMillis()
+    private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
+
     private final RedisDao redisDao;
 
     private Key key;
@@ -49,12 +46,9 @@ public class TokenProvider implements InitializingBean {
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
             RefreshTokenRepository refreshTokenRepository,
             RedisDao redisDao) {
         this.secret = secret;
-        this.AccessTokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
-        this.RefreshTokenValidityInMilliseconds=tokenValidityInSeconds*1000;
         this.refreshTokenRepository=refreshTokenRepository;
         this.redisDao=redisDao;
     }

@@ -13,15 +13,13 @@ import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
 //import com.uplog.uplog.domain.member.model.RefreshToken;
-import com.uplog.uplog.domain.member.model.RefreshToken;
-import com.uplog.uplog.global.exception.ExpireJwtTokenException;
+import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,11 +48,9 @@ public class MemberService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    @Value("${jwt.token-validity-in-seconds}")
-    private long tokenValidityInSeconds;
     private long seconds=10000;
-    private final long AccessTokenValidityInMilliseconds=tokenValidityInSeconds*1000;
-    private final long RefreshTokenValidityInMilliseconds=tokenValidityInSeconds*1000;
+    private long AccessTokenValidityInMilliseconds = Duration.ofMinutes(30).toMillis();//만료시간 30분
+    private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
     //================================Member Create=====================================
     /*
     멤버 생성시 고려해야할 부분.
@@ -94,7 +90,7 @@ public class MemberService {
     public TokenDTO refresh(TokenRequestDTO tokenRequestDto) {
         // 1. Refresh Token 검증 (validateToken() : 토큰 검증)
         if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
-            throw new ExpireJwtTokenException();
+            throw new ExpireRefreshTokenException();
         }
 
         // 2. Access Token에서 ID 가져오기
