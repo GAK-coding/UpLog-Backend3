@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -35,6 +37,12 @@ public class ProductController {
     public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id")Long id){
         ProductInfoDTO productInfoDTO = productService.findProductById(id);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/products/{product-id}")
+    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestParam(name = "company", required = false)String company){
+        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(company);
+        return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
     //====================update=====================

@@ -1,6 +1,8 @@
 package com.uplog.uplog.global.exception.handler;
 
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.ExpireAccessTokenException;
+import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundIdException.class)
     protected final ResponseEntity<ErrorResponse> notFoundIdExceptionHandler(NotFoundIdException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
+    @ExceptionHandler(ExpireRefreshTokenException.class)
+    protected final ResponseEntity<ErrorResponse> ExpireJwtTokenExceptionHandler(ExpireRefreshTokenException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
+    @ExceptionHandler(ExpireAccessTokenException.class)
+    protected final ResponseEntity<ErrorResponse> ExpireAccessTokenExceptionHandler(ExpireAccessTokenException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())
