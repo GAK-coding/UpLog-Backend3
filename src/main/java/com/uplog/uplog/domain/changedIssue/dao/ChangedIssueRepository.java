@@ -5,5 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ChangedIssueRepository extends JpaRepository<ChangedIssue, Long> {
-}
+public interface ChangedIssueRepository extends JpaRepository<ChangedIssue, Long>,ChangedIssueRepositoryCustom {
+    Optional<ChangedIssue> findById(Long id);
+    List<ChangedIssue> findByProjectId(Long projectId);
+
+    List<ChangedIssue> findByAuthorId(Long authorId);
+
