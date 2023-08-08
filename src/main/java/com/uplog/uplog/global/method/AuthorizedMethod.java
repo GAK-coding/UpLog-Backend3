@@ -22,7 +22,7 @@ public class AuthorizedMethod {
     private final ChangedIssueRepository changedIssueRepository;
 
 
-    //memberId로 권한 확인
+    //memberId로 권한 확인->리더인지 마스터인지
     public PowerType powerValidateByMemberId(Long memberId ){
 
         PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
@@ -39,6 +39,24 @@ public class AuthorizedMethod {
         return powerType;
 
     }
+    //memberId로 권한 확인->리더인지 마스터인지
+    public void cValidateByMemberId(Long memberId ){
+
+        PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
+
+        if(powerType==null){
+            throw new NotFoundPowerByMemberException(memberId);
+        }
+
+        if(powerType==PowerType.CLIENT){
+
+            throw new MemberAuthorizedException(memberId);
+        }
+
+
+
+    }
+
 
     //projectId로 진행 중 project인지 확인
     public String checkProjectProgress(Long projectId){

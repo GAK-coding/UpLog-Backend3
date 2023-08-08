@@ -1,15 +1,29 @@
 package com.uplog.uplog.domain.member.api;
 
 import com.uplog.uplog.domain.member.application.MemberService;
+//import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.domain.member.dto.TokenDTO;
+import com.uplog.uplog.domain.member.dto.TokenRequestDTO;
 import com.uplog.uplog.domain.member.model.Member;
+//import com.uplog.uplog.domain.member.model.RefreshToken;
+import com.uplog.uplog.global.jwt.JwtFilter;
+import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.mail.MailDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 //TODO API 다시 경로 다시 설정!!!! 지금은 급해서 이렇게 올림
 @RestController
@@ -18,6 +32,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class MemberController {
     private final MemberService memberService;
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     //=============================create=======================================
     @PostMapping(value = "/members")
@@ -27,10 +44,40 @@ public class MemberController {
     }
 
     //로그인
+    //security 로직 추가
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
+        UsernamePasswordAuthenticationToken authenticationToken=
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
+
+        Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        TokenDTO tokenDTO =tokenProvider.createToken(authentication);
+
+        HttpHeaders httpHeaders=new HttpHeaders();
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER,tokenDTO.getGrantType()+tokenDTO.getAccessToken());
         MemberInfoDTO memberInfoDTO = memberService.login(loginRequest);
-        return ResponseEntity.ok(memberInfoDTO);
+        memberInfoDTO.addTokenToMemberInfoDTO(tokenDTO.getAccessToken(),tokenDTO.getRefreshToken());
+
+        return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
+    }
+    //리프레시 토큰 만료 시
+    @PostMapping("/members/refresh")
+    public ResponseEntity<TokenDTO> refresh(@RequestBody TokenRequestDTO tokenRequestDto) {
+        return ResponseEntity.ok(memberService.refresh(tokenRequestDto));
+    }
+
+    // 토큰 Role user,admin
+    @GetMapping("/members/user")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<Member> getMyUserInfo(){
+        return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
+    }
+    // 토큰 Role admin
+    @GetMapping("/members/user/{user-email}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Member> getMyUserInfo(@PathVariable String email){
+        return ResponseEntity.ok(memberService.getUserWithAuthorities(email).get());
     }
 
 
