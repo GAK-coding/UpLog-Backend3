@@ -39,7 +39,7 @@ public class ProductController {
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/products/{product-id}")
+    @GetMapping(value = "/products/{product-id}/company")
     public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestParam(name = "company", required = false)String company){
         List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(company);
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
