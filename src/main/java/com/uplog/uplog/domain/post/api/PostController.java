@@ -20,7 +20,7 @@ public class PostController {
     create
      */
     @PostMapping(value="/posts/{member-id}")
-    public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member_id") Long id, @RequestBody CreatePostRequest createPostRequest) {
+    public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member-id") Long id, @RequestBody CreatePostRequest createPostRequest) {
         PostInfoDTO postInfoDTO = postService.createPost(id,createPostRequest);
         return ResponseEntity.ok(postInfoDTO);
     }
@@ -65,9 +65,15 @@ public class PostController {
     GET
      */
     @GetMapping("/posts/menus/{menu-id}")
-    public ResponseEntity<List<PostInfoDTO>> getPostByMenu(@PathVariable("menu-id") Long menuId){
+    public ResponseEntity<List<PostInfoDTO>> getPostByMenu(@PathVariable(name="menu-id") Long menuId){
         List<PostInfoDTO> postInfoDTOs=postService.findPostInfoByMenuId(menuId);
         return new ResponseEntity<>(postInfoDTOs, HttpStatus.OK);
+    }
+
+    @GetMapping("/posts/{post-id}")
+    public ResponseEntity<PostInfoDTO> getPostById(@PathVariable(name="post-id") Long postId){
+        PostInfoDTO postInfoDTO=postService.findById(postId);
+        return ResponseEntity.ok(postInfoDTO);
     }
 
 
