@@ -1,10 +1,19 @@
 package com.uplog.uplog.domain.project.model;
 
+import com.uplog.uplog.domain.menu.dto.MenuDTO;
+import com.uplog.uplog.domain.menu.dto.MenuDTO.SimpleMenuInfoDTO;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.ProjectInfoDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.SimpleProjectInfoDTO;
+import com.uplog.uplog.domain.team.dto.ProjectTeamDTO;
+import com.uplog.uplog.domain.team.dto.ProjectTeamDTO.SimpleProjectTeamInfoDTO;
+import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,5 +41,80 @@ public class Project extends BaseTime {
     @OneToMany(mappedBy = "project")
     private List<Menu> menuList = new ArrayList<>();
 
-    private String version;
+    private String version; //project이름
+
+    @Enumerated(EnumType.STRING)
+    private ProjectStatus projectStatus;
+
+    @Builder
+    public Project(List<ProjectTeam> projectTeamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
+
+        this.projectTeamList=projectTeamList;
+        this.product=product;
+        this.menuList=menuList;
+        this.version=version;
+        this.projectStatus=projectStatus;
+
+    }
+
+    public SimpleProjectInfoDTO toSimpleProjectTeamInfoDTO(List<SimpleMenuInfoDTO> menuList){
+        return SimpleProjectInfoDTO.builder()
+                .id(this.id)
+                .version(this.version)
+                .productId(this.product.getId())
+                .menuList(menuList)
+                .build();
+    }
+
+    public ProjectInfoDTO toProjectInfoDTO(List<SimpleMenuInfoDTO> simpleMenuInfoDTOList, List<Long> projectTeamIdList){
+        return ProjectInfoDTO.builder()
+                .id(this.id)
+                .version(this.version)
+                .projectTeamIdList(projectTeamIdList)
+                .projectStatus(this.projectStatus)
+                .productId(this.product.getId())
+                .menuList(simpleMenuInfoDTOList)
+                .build();
+
+    }
+
+    public ProjectDTO.CreateProjectRequest toCreateInitChangedIssueInfo(){
+        return ProjectDTO.CreateProjectRequest.builder()
+                .version(this.version)
+                .build();
+    }
+
+    public ProjectDTO.UpdateProjectInfo toUpdateProjectInfo(){
+        return ProjectDTO.UpdateProjectInfo.builder()
+                .id(this.id)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .build();
+    }
+
+    public ProjectDTO.requestProjectAllInfo toRequestProjectAllInfo(PowerType powerType, String productName, String company){
+        return ProjectDTO.requestProjectAllInfo.builder()
+                .projectId(this.id)
+                .projectTeamList(this.projectTeamList)
+                .menuList(this.menuList)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .powerType(powerType)
+                .productName(productName)
+                .company(company)
+                .build();
+    }
+    public ProjectDTO.requestProjectInfo toRequestProjectInfo(PowerType powerType,String productName, String company){
+        return ProjectDTO.requestProjectInfo.builder()
+                .productName(productName)
+                .company(company)
+                .version(this.version)
+                .powerType(powerType)
+                .build();
+    }
+
+    public void updateProjectStatus(ProjectDTO.UpdateProjectStatus updateProjectStatus){
+        this.version=(updateProjectStatus.getVersion()!=null)?updateProjectStatus.getVersion():this.version;
+        this.projectStatus=ProjectStatus.PROGRESS_COMPLETE;
+    }
 }

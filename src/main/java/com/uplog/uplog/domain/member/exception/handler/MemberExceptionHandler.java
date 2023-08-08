@@ -24,7 +24,7 @@ public class MemberExceptionHandler {
     @ExceptionHandler(DuplicatedMemberException.class)
     protected final ResponseEntity<ErrorResponse> duplicatedMemberExceptionHandler(DuplicatedMemberException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
-                .httpStatus(HttpStatus.NOT_ACCEPTABLE)
+                .httpStatus(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);
@@ -33,7 +33,7 @@ public class MemberExceptionHandler {
     @ExceptionHandler(NotMatchPasswordException.class)
     protected final ResponseEntity<ErrorResponse> notMatchPasswordExceptionHandler(NotMatchPasswordException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
-                .httpStatus(HttpStatus.NOT_ACCEPTABLE)
+                .httpStatus(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);

@@ -37,3 +37,6 @@ application.yaml
 
 ### VS Code ###
 .vscode/
+
+### Querydsl ###
+/src/main/generated
