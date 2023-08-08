@@ -24,7 +24,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Slf4j
 public class CommentController {
 
-    private final CommentService commentApplication;
+    private final CommentService commentService;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
@@ -40,27 +40,27 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/posts/{post-id}/comments/{member-id}")
-    public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
-                                                     @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
-        CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
-        return new ResponseEntity<>(commentInfo, HttpStatus.CREATED);
+    @PostMapping(value = "/comments/{post-id}/{member-id}")
+    public ResponseEntity<SimpleCommentInfo> createComment(@RequestBody @Validated CreateCommentRequest commentData,
+                                                           @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
+        SimpleCommentInfo simpleData = commentService.createComment(commentData,postId,memberId);
+        return new ResponseEntity<>(simpleData, HttpStatus.CREATED);
     }
 
-     /*
-        READ
-     */
-    @GetMapping(value="/comments/{post-id}/comments")
-    public ResponseEntity<List<ReadCommentInfo>> readComment(@PathVariable("post-id")Long postId){
+    /*
+       READ
+    */
+    @GetMapping(value="/comments/{post-id}/post")
+    public ResponseEntity<List<SimpleCommentInfo>> findCommentsByPostId(@PathVariable("post-id")Long postId){
 
-        List<ReadCommentInfo> readList=commentApplication.readPostComment(postId);
+        List<SimpleCommentInfo> readList= commentService.findCommentByPostId(postId);
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
-    @GetMapping(value="/comments/{comment-id}/single-comment")
-    public ResponseEntity<List<ReadCommentInfo>> readSingleComment(@PathVariable("comment-id")Long commentId){
+    @GetMapping(value="/comments/{comment-id}/comment")
+    public ResponseEntity<List<SimpleCommentInfo>> findCommentById(@PathVariable("comment-id")Long commentId){
 
-        List<ReadCommentInfo> readSingleList=commentApplication.readPostSingleComment(commentId);
+        List<SimpleCommentInfo> readSingleList= commentService.findCommentById(commentId);
         return new ResponseEntity<>(readSingleList,HttpStatus.OK);
     }
 
@@ -69,11 +69,11 @@ public class CommentController {
      */
 
     @PatchMapping(value="/comments/{comment-id}/{member-id}/content")
-    public ResponseEntity<ReadCommentInfo> updateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
-                                                         @PathVariable("comment-id")Long commentId,
-                                                         @PathVariable("member-id")Long memberId){
-        ReadCommentInfo readCommentInfo=commentApplication.updateCommentContent(updateCommentContent,commentId,memberId);
-        return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
+    public ResponseEntity<SimpleCommentInfo> updateCommentContent(@RequestBody @Validated UpdateCommentContent updateCommentContent,
+                                                                  @PathVariable("comment-id")Long commentId,
+                                                                  @PathVariable("member-id")Long memberId){
+        SimpleCommentInfo simpleCommentInfo = commentService.updateCommentContent(updateCommentContent,commentId,memberId);
+        return new ResponseEntity<>(simpleCommentInfo,HttpStatus.OK);
     }
 
      /*
@@ -83,7 +83,7 @@ public class CommentController {
     @DeleteMapping(value="/comments/{comment-id}/{member-id}")
     public ResponseEntity<String> deleteComment(@PathVariable("comment-id")Long commentId,
                                                 @PathVariable("member-id")Long memberId){
-        String message= commentApplication.deleteComment(commentId,memberId);
+        String message= commentService.deleteComment(commentId,memberId);
         return ResponseEntity.ok(message);
     }
 }

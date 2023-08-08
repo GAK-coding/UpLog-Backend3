@@ -50,7 +50,7 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer(){
         return (web) -> web.ignoring()
                 .antMatchers("/favicon.ico","/swagger-ui.html","/swagger-ui/**",
-                "/swagger-resources/**","/api-docs/**");
+                        "/swagger-resources/**","/api-docs/**");
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

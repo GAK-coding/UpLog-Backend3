@@ -129,9 +129,9 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberInfoDTO login(LoginRequest loginRequest){
         Member member = memberRepository.findMemberByEmail(loginRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
-        if(!loginRequest.getPassword().equals(member.getPassword())){
-            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
-        }
+//        if(!passwordEncoder.encode(loginRequest.getPassword()).equals(member.getPassword())){
+//            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
+//        }
         return member.toMemberInfoDTO();
     }
 
