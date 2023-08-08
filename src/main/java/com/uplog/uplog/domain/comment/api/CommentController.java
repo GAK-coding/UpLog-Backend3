@@ -40,7 +40,7 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/comments/{post-id}/{member-id}")
+    @PostMapping(value = "/posts/{post-id}/comments/{member-id}")
     public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
                                                      @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
         CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
@@ -57,7 +57,7 @@ public class CommentController {
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
-    @GetMapping(value="/comments/{comment-id}/singlecomment")
+    @GetMapping(value="/comments/{comment-id}/single-comment")
     public ResponseEntity<List<ReadCommentInfo>> readSingleComment(@PathVariable("comment-id")Long commentId){
 
         List<ReadCommentInfo> readSingleList=commentApplication.readPostSingleComment(commentId);
