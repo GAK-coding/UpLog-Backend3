@@ -24,7 +24,7 @@ public class ProductController {
     private final ProductService productService;
     private final ProductRepository productRepository;
 
-    @PostMapping(value="/products/{member-id}")
+    @PostMapping(value="/members/{member-id}/products")
     public ResponseEntity<ProductInfoDTO> createProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated CreateProductRequest createProductRequest) throws Exception {
         Long pId = productService.createProduct(companyId,createProductRequest);
         ProductInfoDTO productInfoDTO = productService.findProductById(pId);
