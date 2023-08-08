@@ -27,6 +27,7 @@ public class ProductDTO {
         //private Team team;
         private String masterEmail;
         private String link;
+        //private int mailType; -> 백에서 처리해도 될 것 같음.
 
         public Product toProductEntity(String company, Team team){
             return Product.builder()

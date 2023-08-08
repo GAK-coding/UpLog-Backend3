@@ -46,18 +46,27 @@ public class ChangedIssue extends BaseTime {
 
     }
 
+    public ChangedIssueDTO.createInitChangedIssueInfo toCreateInitChangedIssueInfo(){
+        return ChangedIssueDTO.createInitChangedIssueInfo.builder()
+                .id(this.id)
+                .title(this.title)
+                .content(this.content)
+                .issueStatus(this.issueStatus)
+                .createdTime(this.getCreatedTime())
+                .modifiedTime(this.getModifiedTime())
+                .build();
+    }
 
-    public ChangedIssueDTO.SimpleIssueInfoDTO toSimpleIssueInfoDTO(){
-        return ChangedIssueDTO.SimpleIssueInfoDTO.builder()
+    public ChangedIssueDTO.updateChangedIssue toUpdateChangedIssueInfo(){
+        return ChangedIssueDTO.updateChangedIssue.builder()
                 .title(this.title)
                 .content(this.content)
                 .issueStatus(this.issueStatus)
                 .build();
     }
 
-    public ChangedIssueDTO.IssueInfoDTO toIssueInfoDTO(){
-        return ChangedIssueDTO.IssueInfoDTO.builder()
-                .id(this.id)
+    public ChangedIssueDTO.issueInfo toIssueInfo(){
+        return ChangedIssueDTO.issueInfo.builder()
                 .projectId(this.project.getId())
                 .title(this.title)
                 .content(this.content)
@@ -68,11 +77,11 @@ public class ChangedIssue extends BaseTime {
 
     }
 
-    public void updateChangedIssue(ChangedIssueDTO.UpdateChangedIssueRequest UpdateChangedIssueRequest){
+    public void updateChangedIssue(ChangedIssueDTO.updateChangedIssue updateChangedIssue){
 
-        this.title=(UpdateChangedIssueRequest.getTitle()!=null)? UpdateChangedIssueRequest.getTitle():this.title;
-        this.content=(UpdateChangedIssueRequest.getContent()!=null)? UpdateChangedIssueRequest.getContent():this.content;
-        this.issueStatus=(UpdateChangedIssueRequest.getIssueStatus()!=null)? UpdateChangedIssueRequest.getIssueStatus():this.issueStatus;
+        this.title=(updateChangedIssue.getTitle()!=null)?updateChangedIssue.getTitle():this.title;
+        this.content=(updateChangedIssue.getContent()!=null)?updateChangedIssue.getContent():this.content;
+        this.issueStatus=(updateChangedIssue.getIssueStatus()!=null)?updateChangedIssue.getIssueStatus():this.issueStatus;
     }
 
 

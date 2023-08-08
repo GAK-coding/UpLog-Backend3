@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.uplog.uplog.domain.post.dto.PostDTO.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,6 +47,8 @@ public class Post extends BaseTime {
     private String content;
     private String productName;
     private String version;
+
+    @CreationTimestamp
     private LocalDateTime createTime;
 
 

@@ -12,9 +12,13 @@ import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberTeamInfoDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.UpdateMemberPowerTypeRequest;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.mail.MailDTO;
+import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
+import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,18 +35,32 @@ public class MemberTeamService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
 
+    private final MailService mailService;
+
     @Transactional
-    public MemberTeamInfoDTO createMemberTeam(CreateMemberTeamRequest createMemberTeamRequest){
-        Member member = memberRepository.findMemberByEmail(createMemberTeamRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
-        Team team= teamRepository.findById(createMemberTeamRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+    public Long createMemberTeam(CreateMemberTeamRequest createMemberTeamRequest) throws Exception {
+        Member member = memberRepository.findMemberByIdOrEmail(createMemberTeamRequest.getMemberId(), createMemberTeamRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+        Team team = teamRepository.findById(createMemberTeamRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
         memberTeamRepository.save(memberTeam);
+        //TODO Null point 확인
+//        log.info(team.getName());
+//        log.info(team.getMemberTeamList()+"null?");
+//        log.info(memberTeam+"what null");
         team.getMemberTeamList().add(memberTeam);
 
-        MemberTeamInfoDTO memberTeamInfoDTO = memberTeam.toMemberTeamInfoDTO();
+        //MemberTeamInfoDTO memberTeamInfoDTO = memberTeam.toMemberTeamInfoDTO();
+        EmailRequest emailRequest = EmailRequest.builder()
+                .email(member.getEmail())
+                .type(createMemberTeamRequest.getMailType())
+                .link(createMemberTeamRequest.getLink())
+                .powerType(createMemberTeamRequest.getPowerType())
+                .build();
+        mailService.sendSimpleMessage(emailRequest);
 
-        return memberTeamInfoDTO;
+        return memberTeam.getId();
+
 
     }
 
@@ -54,5 +72,12 @@ public class MemberTeamService {
 //
 //        if()
 //    }
+
+    @Transactional
+    public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest) {
+        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        memberTeam.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
+        return memberTeam.getId();
+    }
 
 }

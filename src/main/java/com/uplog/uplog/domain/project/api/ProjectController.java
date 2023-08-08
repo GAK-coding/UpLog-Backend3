@@ -36,16 +36,16 @@ public class ProjectController {
     })
 
     //todo 처음에 default로 일단 해당 제품의 멤버(그룹으로 치면 전체)를 TeamList로 넣어줘야 하나?
-    @PostMapping(value="/projects/{product-id}")
-    public ResponseEntity<CreateInitInfo> CreateInitProject(@RequestBody CreateInitInfo createInitInfo, @PathVariable("product-id")Long productId) {
+    @PostMapping(value="/products/{product-id}/projects")
+    public ResponseEntity<ProjectInfoDTO> CreateInitProject(@RequestBody CreateProjectRequest createProjectRequest, @PathVariable("product-id")Long productId) throws Exception {
 
         //진행 중인 프로젝트가 있을 시 접근 제한
-        projectService.checkProcessProject(productId);
+        //projectService.checkProcessProject(productId); -> 하위 서비스에서 하는데 중복으로 들어가서 지움.
 
-        projectService.createInit(createInitInfo,productId);
+        ProjectInfoDTO projectInfoDTO = projectService.createProject(createProjectRequest,productId);
 
 
-        return new ResponseEntity<>(createInitInfo, HttpStatus.CREATED);
+        return new ResponseEntity<>(projectInfoDTO, HttpStatus.CREATED);
     }
 
     //Todo read 어떤 걸 보여줄 지 더 고민 -> projectTeamList, productId, menuList, version
