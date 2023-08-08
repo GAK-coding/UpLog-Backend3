@@ -1,7 +1,7 @@
 package com.uplog.uplog.domain.project.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.comment.exception.MemberAuthorizedException;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
@@ -141,7 +141,7 @@ public class ProjectService {
                 .fetchOne();
 
         if(powerType==null){
-            throw new notFoundPowerByMemberException(memberId);
+            throw new NotFoundPowerByMemberException(memberId);
         }
 
             return powerType;
