@@ -58,8 +58,6 @@ public class ProjectService {
     private final MemberTeamService memberTeamService;
 
 
-    //TODO 여기서 member(group) 처리해야 하나?
-    //그룹처리 메뉴에 대한 추가도 필요함.
     @Transactional
     public ProjectInfoDTO createProject(CreateProjectRequest createProjectRequest, Long productId) throws Exception {
         Product product = productRepository.findById(productId)
@@ -112,7 +110,7 @@ public class ProjectService {
         projectTeamIdList.add(projectTeam.getId());
 
         log.info(project.getProjectTeamList()+"list");
-       // project.getProjectTeamList().add();
+        project.getProjectTeamList().add(projectTeam);
 
 
         return project.toProjectInfoDTO(simpleMenuInfoDTOList, projectTeamIdList);
