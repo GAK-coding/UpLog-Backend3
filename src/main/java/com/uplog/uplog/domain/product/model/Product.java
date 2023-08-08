@@ -35,6 +35,10 @@ public class Product extends BaseTime {
 
     private String name;
 
+    //drag/drop을 위해 추가된 변수. 아이디값이 담김.
+    //맨 처음 생기는 product는 parent가 null일 수 밖에 없음,
+    private Long parentIndex;
+
     public void updateTeam(Team team){this.team = team;}
 
     public void updateCompany(String company){this.company = company;}
