@@ -43,7 +43,7 @@ public class Post extends BaseTime {
     @JoinColumn(name = "postTag_id")
     private List<PostTag> postTagList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
 
