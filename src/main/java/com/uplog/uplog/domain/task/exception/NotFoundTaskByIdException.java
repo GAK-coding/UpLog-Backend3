@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.task.exception.handler;
+package com.uplog.uplog.domain.task.exception;
 
 public class NotFoundTaskByIdException extends IllegalArgumentException{
     public NotFoundTaskByIdException(String m){ super(m);}

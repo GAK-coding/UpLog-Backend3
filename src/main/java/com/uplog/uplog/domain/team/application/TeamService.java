@@ -15,6 +15,7 @@ import com.uplog.uplog.global.mail.MailDTO;
 import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,16 +48,17 @@ public class TeamService {
                 .memberEmail(createTeamRequest.getMemberEmail())
                 .powerType(PowerType.MASTER)
                 .link(createTeamRequest.getLink())
+                .mailType(2)
                 .build();
         memberTeamService.createMemberTeam(createMemberTeamRequest);
-        EmailRequest emailRequest = builder()
-                .email(createMemberTeamRequest.getMemberEmail())
-                .type(2)
-                .powerType(PowerType.MASTER)
-                .link(createTeamRequest.getLink())
-                .build();
-        mailService.sendSimpleMessage(emailRequest);
-        //마스터 멤버 호출
+//        EmailRequest emailRequest = builder()
+//                .email(createMemberTeamRequest.getMemberEmail())
+//                .type(2)
+//                .powerType(PowerType.MASTER)
+//                .link(createTeamRequest.getLink())
+//                .build();
+//        mailService.sendSimpleMessage(emailRequest);
+//        //마스터 멤버 호출
 
         //TeamInfoDTO teamInfoDTO = team.toTeamInfoDTO();
         return team.getId();

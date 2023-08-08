@@ -1,13 +1,16 @@
 package com.uplog.uplog.domain.changedIssue.model;
 
+import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -32,6 +35,45 @@ public class ChangedIssue extends BaseTime {
 
     private String title;
     private String content;
+
+    @Builder
+    public ChangedIssue(Member author, Project project, IssueStatus issueStatus, String title, String content, LocalDateTime createdTime,LocalDateTime modifiedTime){
+        this.author=author;
+        this.project=project;
+        this.issueStatus=issueStatus;
+        this.title=title;
+        this.content=content;
+
+    }
+
+
+    public ChangedIssueDTO.SimpleIssueInfoDTO toSimpleIssueInfoDTO(){
+        return ChangedIssueDTO.SimpleIssueInfoDTO.builder()
+                .title(this.title)
+                .content(this.content)
+                .issueStatus(this.issueStatus)
+                .build();
+    }
+
+    public ChangedIssueDTO.IssueInfoDTO toIssueInfoDTO(){
+        return ChangedIssueDTO.IssueInfoDTO.builder()
+                .id(this.id)
+                .projectId(this.project.getId())
+                .title(this.title)
+                .content(this.content)
+                .issueStatus(this.issueStatus)
+                .createdTime(this.getCreatedTime())
+                .modifiedTime(this.getModifiedTime())
+                .build();
+
+    }
+
+    public void updateChangedIssue(ChangedIssueDTO.UpdateChangedIssueRequest UpdateChangedIssueRequest){
+
+        this.title=(UpdateChangedIssueRequest.getTitle()!=null)? UpdateChangedIssueRequest.getTitle():this.title;
+        this.content=(UpdateChangedIssueRequest.getContent()!=null)? UpdateChangedIssueRequest.getContent():this.content;
+        this.issueStatus=(UpdateChangedIssueRequest.getIssueStatus()!=null)? UpdateChangedIssueRequest.getIssueStatus():this.issueStatus;
+    }
 
 
 }
