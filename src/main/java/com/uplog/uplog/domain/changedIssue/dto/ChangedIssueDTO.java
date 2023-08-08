@@ -18,10 +18,11 @@ public class ChangedIssueDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreateChangedIssueRequest {
+    public static class createInitChangedIssueInfo{
 
         private String title;
         private String content;
+        private Long id;
         private IssueStatus issueStatus;
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;
@@ -43,7 +44,7 @@ public class ChangedIssueDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateChangedIssueRequest {
+    public static class updateChangedIssue{
         private String title;
         private String content;
         private IssueStatus issueStatus;
@@ -54,19 +55,7 @@ public class ChangedIssueDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SimpleIssueInfoDTO {
-        private String title;
-        private String content;
-        private IssueStatus issueStatus;
-
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class IssueInfoDTO {
-        private Long id;
+    public static class issueInfo{
         private Long projectId;
         private String title;
         private String content;

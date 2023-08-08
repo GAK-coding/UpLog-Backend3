@@ -1,6 +1,6 @@
 package com.uplog.uplog.domain.comment.api;
 
-import com.uplog.uplog.domain.comment.application.CommentApplication;
+import com.uplog.uplog.domain.comment.application.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +24,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Slf4j
 public class CommentController {
 
-    private final CommentApplication commentApplication;
+    private final CommentService commentApplication;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
@@ -40,7 +40,7 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/comments/{post-id}/{member-id}")
+    @PostMapping(value = "/posts/{post-id}/comments/{member-id}")
     public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
                                                      @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
         CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
@@ -57,7 +57,7 @@ public class CommentController {
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
-    @GetMapping(value="/comments/{comment-id}/singlecomment")
+    @GetMapping(value="/comments/{comment-id}/single-comment")
     public ResponseEntity<List<ReadCommentInfo>> readSingleComment(@PathVariable("comment-id")Long commentId){
 
         List<ReadCommentInfo> readSingleList=commentApplication.readPostSingleComment(commentId);

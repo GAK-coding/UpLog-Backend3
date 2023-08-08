@@ -90,24 +90,24 @@ public class PostDTO {
 //
 //    }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PostInfoDTO1{
-        private Long id;
-        private String title;
-        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
-        //private Long menuId;
-        //private String menuName;
-        //private String productName;
-        //private String projectName;
-        //private String version;
-        private PostType postType;
-        private String content;
-        private LocalDateTime createTime;
-
-    }
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class PostInfoDTO1{
+//        private Long id;
+//        private String title;
+//        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
+//        //private Long menuId;
+//        //private String menuName;
+//        //private String productName;
+//        //private String projectName;
+//        //private String version;
+//        private PostType postType;
+//        private String content;
+//        private LocalDateTime createTime;
+//
+//    }
     @Getter
     @Builder
     @NoArgsConstructor
@@ -120,7 +120,7 @@ public class PostDTO {
         private String menuName;
         private String productName;
         private String projectName;
-        private String version;
+        //private String version;
         private PostType postType;
         private String content;
         private LocalDateTime createTime;
