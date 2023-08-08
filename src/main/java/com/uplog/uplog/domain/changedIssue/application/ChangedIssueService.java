@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
 import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.changedIssue.model.ChangedIssue;
 import com.uplog.uplog.domain.changedIssue.model.QChangedIssue;
@@ -165,7 +165,7 @@ public class ChangedIssueService {
                 .fetchOne();
 
         if(powerType==null){
-            throw new notFoundPowerByMemberException(memberId);
+            throw new NotFoundPowerByMemberException(memberId);
         }
 
         if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){

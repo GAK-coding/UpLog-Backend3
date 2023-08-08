@@ -2,7 +2,7 @@ package com.uplog.uplog.domain.changedIssue.exception.handler;
 
 import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueByProjectException;
 import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +30,8 @@ public class ChangedIssueExceptionHandler {
         return ResponseEntity.ok(errorResponse);
     }
 
-    @ExceptionHandler(notFoundPowerByMemberException.class)
-    protected final ResponseEntity<ErrorResponse> notFoundPowerByMemberExceptionHandler(notFoundPowerByMemberException e, WebRequest webRequest){
+    @ExceptionHandler(NotFoundPowerByMemberException.class)
+    protected final ResponseEntity<ErrorResponse> notFoundPowerByMemberExceptionHandler(NotFoundPowerByMemberException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())
