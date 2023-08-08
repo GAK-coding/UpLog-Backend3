@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface ChangedIssueRepository extends JpaRepository<ChangedIssue, Long>,ChangedIssueRepositoryCustom {
     Optional<ChangedIssue> findById(Long id);
     List<ChangedIssue> findByProjectId(Long projectId);
+
     List<ChangedIssue> findByAuthorId(Long authorId);
 }
