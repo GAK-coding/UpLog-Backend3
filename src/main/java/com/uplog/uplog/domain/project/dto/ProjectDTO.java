@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectDTO {
@@ -30,6 +31,8 @@ public class ProjectDTO {
 
         public Project toEntity(Product product){
             return Project.builder()
+                    .projectTeamList(new ArrayList<>())
+                    .menuList(new ArrayList<>())
                     .version(this.version)
                     .product(product)
                     .projectStatus(ProjectStatus.PROGRESS_IN)

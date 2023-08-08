@@ -182,12 +182,6 @@ public class PostService {
     /*
     Get
      */
-
-    @Transactional(readOnly = true)
-    public PostInfoDTO findById(Long Id){
-        Post post=postRepository.findById(Id).orElseThrow(NotFoundIdException::new);;
-        return post.toPostInfoDTO();
-    }
     @Transactional(readOnly = true)
     public List<PostInfoDTO> findPostInfoByMenuId(Long menuId){
         List<Post> postList=postRepository.findByMenuId(menuId);

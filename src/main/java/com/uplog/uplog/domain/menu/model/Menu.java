@@ -33,10 +33,10 @@ public class Menu extends BaseTime {
     @JoinColumn(name = "noticePost_id")
     private Post noticePost;
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menu")
     private List<Post> postList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "menu",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "menu")
     private List<Task> taskList = new ArrayList<>();
 
     private String menuName;

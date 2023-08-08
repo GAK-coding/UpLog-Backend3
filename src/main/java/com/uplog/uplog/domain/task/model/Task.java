@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
 @Entity
 @Getter
@@ -46,8 +45,8 @@ public class Task extends BaseTime {
 
     private String taskDetail;
 
-    private LocalDate startTime;
-    private LocalDate endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
 
 
@@ -68,10 +67,6 @@ public class Task extends BaseTime {
 //    }
 
     public TaskInfoDTO toTaskInfoDTO(){
-        Long parentTeamId = null;
-        if (this.getProjectTeam().getParentTeam() != null) {
-            parentTeamId = this.getProjectTeam().getParentTeam().getId();
-        }
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
@@ -81,7 +76,6 @@ public class Task extends BaseTime {
                 .menuName(this.getMenu().getMenuName())
                 .projectTeamId(this.getProjectTeam().getId())
                 .projectTeamName(this.getProjectTeam().getName())
-                .projectTeamParentId(parentTeamId)
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
@@ -104,7 +98,7 @@ public class Task extends BaseTime {
 //    }
 
     public void updateTaskName(String updateName){this.taskName=updateName;}
-    public void updateTaskDate(LocalDate updateStartTime, LocalDate updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
+    public void updateTaskDate(LocalDateTime updateStartTime, LocalDateTime updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
     public void updateTaskContent(String updateContent){this.taskDetail=updateContent;}
 
     public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}

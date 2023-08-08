@@ -52,8 +52,8 @@ public class Comment extends BaseTime {
         this.childList=childList;
         this.content=content;
     }
-    public CommentDTO.SimpleCommentInfo toSimpleCommentInfo(){
-        return CommentDTO.SimpleCommentInfo.builder()
+    public CommentDTO.ReadCommentInfo toReadCommentInfo(){
+        return CommentDTO.ReadCommentInfo.builder()
                 .content(this.content)
                 .id(this.id)
                 .parentId((this.parent==null)?null:this.parent.getId())
