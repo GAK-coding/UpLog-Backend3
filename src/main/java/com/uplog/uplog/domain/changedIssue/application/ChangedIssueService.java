@@ -25,6 +25,7 @@ import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,29 +88,54 @@ public class ChangedIssueService {
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.
+    //작성자만 가능
+    //현재 진행중인 프로젝트만 가능
     @Transactional
-    public SimpleIssueInfoDTO updateChangedIssue(UpdateChangedIssueRequest UpdateChangedIssueRequest, Long issueId){
+    public SimpleIssueInfoDTO updateChangedIssue(UpdateChangedIssueRequest UpdateChangedIssueRequest, Long issueId,Long memberId){
 
 
         ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundProjectException(issueId));
+        Long currentProjectId=changedIssue.getProject().getId();
 
+        //현재 진행중인 프로젝트가 맞는지 확인
+        authorizedMethod.checkProjectProgress(currentProjectId);
+        //마스터,리더가 맞는지 확인(밑에서 확인하지만 2중확인임)
+        authorizedMethod.powerValidateByMemberId(memberId);
 
-        changedIssue.updateChangedIssue(UpdateChangedIssueRequest);
+        //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
+        if(changedIssue.getAuthor().getId().equals(memberId)){
+            changedIssue.updateChangedIssue(UpdateChangedIssueRequest);
+            return changedIssue.toSimpleIssueInfoDTO();
+        }
+        else{
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
+        }
 
-        return changedIssue.toSimpleIssueInfoDTO();
     }
 
+    //이력 작성자만 가능
+    //헌재 진행중인 프로젝트만 삭제 가능
     @Transactional
-    public String deleteChangedIssue(Long issueId){
-
-
+    public String deleteChangedIssue(Long issueId,Long memberId){
         ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundProjectException(issueId));
+        Long currentProjectId=changedIssue.getProject().getId();
 
-        changedIssueRepository.delete(changedIssue);
+        //현재 진행중인 프로젝트가 맞는지 확인
+        authorizedMethod.checkProjectProgress(currentProjectId);
+        //마스터,리더가 맞는지 확인(밑에서 확인하지만 2중확인임)
+        authorizedMethod.powerValidateByMemberId(memberId);
 
-        return "Delete OK";
+        //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
+        if(changedIssue.getAuthor().getId().equals(memberId)){
+            changedIssueRepository.delete(changedIssue);
+            return "Delete OK";
+        }
+        else{
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
+        }
+
     }
 
 
