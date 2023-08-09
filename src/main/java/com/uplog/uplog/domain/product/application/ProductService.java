@@ -85,8 +85,9 @@ public class ProductService {
 
 
             //return product.toProductInfoDTO(null);
+            Long index = productRepository.countProductsByCompanyId(memberId);
             Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Product product = createProductRequest.toProductEntity(member.getName(), team);
+            Product product = createProductRequest.toProductEntity(member.getName(),memberId, team, index);
             productRepository.save(product);
 
             return product.getId();
