@@ -47,7 +47,7 @@ public class ProductController {
 //    }
     @GetMapping(value = "/products/{product-id}/company")
     public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@PathVariable(name = "product-id")Long productId) {
-        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(productId);
+        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompanyId(productId);
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
