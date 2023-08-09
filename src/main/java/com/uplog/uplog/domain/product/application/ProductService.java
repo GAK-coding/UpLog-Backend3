@@ -86,7 +86,8 @@ public class ProductService {
 
             //return product.toProductInfoDTO(null);
             Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Product product = createProductRequest.toProductEntity(member.getName(), team);
+            Long index = productRepository.countProductsByCompanyId(memberId);
+            Product product = createProductRequest.toProductEntity(member.getName(),memberId, team, index);
             productRepository.save(product);
 
             return product.getId();
@@ -152,7 +153,10 @@ public class ProductService {
         return product.toProductInfoDTO(null);
     }
 
-    //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
+    //기업별 멤버가 속한 그룹 순서대로 출력
+
+
+    //기업별로 제품 목록 불러오기 -> 이름으로 찾음
     @Transactional(readOnly = true)
     public List<ProductInfoDTO> findProductsByCompany(String company){
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();

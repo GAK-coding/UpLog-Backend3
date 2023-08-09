@@ -33,6 +33,9 @@ public class Product extends BaseTime {
 
     private String company;
 
+    //기업을 필드로 저장
+    private Long companyId;
+
     private String name;
 
     //drag/drop을 위해 추가된 변수.
@@ -48,11 +51,13 @@ public class Product extends BaseTime {
 
 
     @Builder
-    public Product(Long id, Team team, String company, String name){
+    public Product(Long id, Team team, String company, Long companyId, String name, Long index){
         this.id = id;
         this.team = team;
         this.company = company;
+        this.companyId = companyId;
         this.name = name;
+        this.index = index;
     }
 
     public ProductInfoDTO toProductInfoDTO(List<Long> projectListId){

@@ -29,11 +29,13 @@ public class ProductDTO {
         private String link;
         //private int mailType; -> 백에서 처리해도 될 것 같음.
 
-        public Product toProductEntity(String company, Team team){
+        public Product toProductEntity(String company, Long companyId, Team team, Long index){
             return Product.builder()
                     .name(this.name)
                     .team(team)
                     .company(company)
+                    .companyId(companyId)
+                    .index(index)
                     .build();
         }
 
