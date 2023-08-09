@@ -84,6 +84,7 @@ public class ProjectService {
          */
         //TODO Link 부분 상의
         List<MemberTeam> memberTeamList = new ArrayList<>();
+        log.info(product.getTeam().getMemberTeamList().size()+"size");
         for (MemberTeam mt : product.getTeam().getMemberTeamList()) {
 
             CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
