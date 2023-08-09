@@ -82,9 +82,16 @@ public class PostService {
     Delete
      */
     @Transactional
-    public void deletePost(Long id) {
+    public String deletePost(Long id,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundIdException::new);
-        postRepository.delete(post);
+
+        if(post.getAuthor().getId().equals(currentUserId)){
+            postRepository.delete(post);
+            return "delete 완료";
+        }
+        else{
+            throw new AuthorityException("작성자와 일치하지 않아 삭제 권한이 없습니다.");
+        }
     }
 
     /*
