@@ -16,6 +16,7 @@ import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class PostService {
     private final ProductRepository productRepository;
     private final ProjectRepository projectRepository;
     private final MenuRepository menuRepository;
+    private final AuthorizedMethod authorizedMethod;
 
     /*
     Create
@@ -42,6 +44,9 @@ public class PostService {
         Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
+        //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
+        authorizedMethod.CreatePostTaskValidateByMemberId(author);
+
         Menu menu = menuRepository.findById(createPostRequest.getMenuId())
                 .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
@@ -50,6 +55,7 @@ public class PostService {
 
         Product product = productRepository.findById(createPostRequest.getProductId())
                 .orElseThrow(() -> new NotFoundIdException("해당 제품은 존재하지 않습니다."));
+
 
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
@@ -66,15 +72,13 @@ public class PostService {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
-        if (author.getPosition() == Position.INDIVIDUAL) {
-            Post post = createPostRequest.toEntity(author, menu, product, project, postType);
-            postRepository.save(post);
 
-            return post.toPostInfoDTO();
-        } else {
-            //기업인경우
-            throw new AuthorityException("포스트 생성 권한이 없습니다.");
-        }
+        //TODO 해당 프로젝트사람들이면
+        Post post = createPostRequest.toEntity(author, menu, product, project, postType);
+        postRepository.save(post);
+
+        return post.toPostInfoDTO();
+
     }
 
 

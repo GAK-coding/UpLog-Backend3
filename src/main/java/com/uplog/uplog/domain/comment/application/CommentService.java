@@ -14,6 +14,7 @@ import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final AuthorizedMethod authorizedMethod;
 
      /*
         CREATE
@@ -46,6 +48,10 @@ public class CommentService {
         Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
+        String currentPostMenuName=post.getMenu().getMenuName();
+
+        //댓글 생성 권한 확인
+        authorizedMethod.CreateCommentValidateByMemberId(currentPostMenuName,member);
 
         SimpleCommentInfo simpleCommentInfo;
         //parentId가 null일 때 기본 정보만 저장.
@@ -146,8 +152,6 @@ public class CommentService {
         comment.updateCommentContent(updateCommentContent.getContent());
         SimpleCommentInfo simpleCommentInfo =comment.toSimpleCommentInfo();
         return simpleCommentInfo;
-
-
 
     }
 
