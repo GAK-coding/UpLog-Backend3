@@ -18,6 +18,7 @@ public class SecurityUtil {
     public static Optional<String> getCurrentUsername() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+
         if (authentication == null) {
             logger.debug("Security Context에 인증 정보가 없습니다.");
             return Optional.empty();
@@ -26,6 +27,7 @@ public class SecurityUtil {
         String username = null;
         if (authentication.getPrincipal() instanceof UserDetails) {
             UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+
             username = springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String) {
             username = (String) authentication.getPrincipal();
@@ -34,3 +36,4 @@ public class SecurityUtil {
         return Optional.ofNullable(username);
     }
 }
+

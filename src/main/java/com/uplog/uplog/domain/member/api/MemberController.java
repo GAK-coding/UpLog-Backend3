@@ -2,15 +2,18 @@ package com.uplog.uplog.domain.member.api;
 
 import com.uplog.uplog.domain.member.application.MemberService;
 //import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
 import com.uplog.uplog.domain.member.dto.TokenDTO;
 import com.uplog.uplog.domain.member.dto.TokenRequestDTO;
+import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 //import com.uplog.uplog.domain.member.model.RefreshToken;
 import com.uplog.uplog.global.jwt.JwtFilter;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.mail.MailDTO;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +28,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Optional;
+
 //TODO API 다시 경로 다시 설정!!!! 지금은 급해서 이렇게 올림
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +39,7 @@ public class MemberController {
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     //=============================create=======================================
@@ -47,6 +53,7 @@ public class MemberController {
     //security 로직 추가
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
+
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
 
@@ -71,6 +78,8 @@ public class MemberController {
     @GetMapping("/members/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Member> getMyUserInfo(){
+        Optional<String> d= SecurityUtil.getCurrentUsername();
+        System.out.println("sd"+d);
         return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
     }
     // 토큰 Role admin
