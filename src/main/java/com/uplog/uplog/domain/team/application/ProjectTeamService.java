@@ -82,6 +82,10 @@ public class ProjectTeamService {
        // }
     }
 
+//    @Transactional(readOnly = true){
+//
+//    }
+
 //    @Transactional
 //    public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest){
 //        Member member = memberRepository.findMemberById(updateMemberPowerTypeRequest.getMemberId()).orElseThrow(NotFoundIdException::new);
