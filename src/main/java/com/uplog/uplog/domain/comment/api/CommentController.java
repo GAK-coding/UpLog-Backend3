@@ -1,6 +1,8 @@
 package com.uplog.uplog.domain.comment.api;
 
 import com.uplog.uplog.domain.comment.application.CommentService;
+import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,6 +27,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 public class CommentController {
 
     private final CommentService commentService;
+    private final MemberRepository memberRepository;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
@@ -40,9 +43,10 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/comments/{post-id}/{member-id}")
+    @PostMapping(value = "/comments/{post-id}")
     public ResponseEntity<SimpleCommentInfo> createComment(@RequestBody @Validated CreateCommentRequest commentData,
-                                                           @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
+                                                           @PathVariable("post-id")Long postId){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         SimpleCommentInfo simpleData = commentService.createComment(commentData,postId,memberId);
         return new ResponseEntity<>(simpleData, HttpStatus.CREATED);
     }
@@ -68,10 +72,10 @@ public class CommentController {
         UPDATE
      */
 
-    @PatchMapping(value="/comments/{comment-id}/{member-id}/content")
+    @PatchMapping(value="/comments/{comment-id}/content")
     public ResponseEntity<SimpleCommentInfo> updateCommentContent(@RequestBody @Validated UpdateCommentContent updateCommentContent,
-                                                                  @PathVariable("comment-id")Long commentId,
-                                                                  @PathVariable("member-id")Long memberId){
+                                                                  @PathVariable("comment-id")Long commentId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         SimpleCommentInfo simpleCommentInfo = commentService.updateCommentContent(updateCommentContent,commentId,memberId);
         return new ResponseEntity<>(simpleCommentInfo,HttpStatus.OK);
     }
@@ -80,9 +84,9 @@ public class CommentController {
         DELETE
      */
 
-    @DeleteMapping(value="/comments/{comment-id}/{member-id}")
-    public ResponseEntity<String> deleteComment(@PathVariable("comment-id")Long commentId,
-                                                @PathVariable("member-id")Long memberId){
+    @DeleteMapping(value="/comments/{comment-id}")
+    public ResponseEntity<String> deleteComment(@PathVariable("comment-id")Long commentId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         String message= commentService.deleteComment(commentId,memberId);
         return ResponseEntity.ok(message);
     }
