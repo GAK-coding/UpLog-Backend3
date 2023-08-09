@@ -62,7 +62,7 @@ public class ProductService {
         Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
         if (member.getPosition() == Position.COMPANY) {
-            List<Product> productList = productRepository.findProductsByCompany(member.getName());
+            List<Product> productList = productRepository.findProductsByCompanyId(memberId);
             for (Product p : productList) {
                 //제품들의 이름이 중복되지 않는지 확인
                 if (createProductRequest.getName().equals(p.getName())) {
@@ -86,8 +86,7 @@ public class ProductService {
 
             //return product.toProductInfoDTO(null);
             Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Long index = productRepository.countProductsByCompanyId(memberId);
-            Product product = createProductRequest.toProductEntity(member.getName(),memberId, team, index);
+            Product product = createProductRequest.toProductEntity(member.getName(), team);
             productRepository.save(product);
 
             return product.getId();
@@ -157,6 +156,16 @@ public class ProductService {
 
 
     //기업별로 제품 목록 불러오기 -> 이름으로 찾음
+    //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
+//    @Transactional(readOnly = true)
+//    public List<ProductInfoDTO> findProductsByCompany(String company){
+//        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
+//        List<Product> productList = productRepository.findProductsByCompany(company);
+//        for(Product p : productList){
+//            productInfoDTOList.add(p.toProductInfoDTO(null));
+//        }
+//        return productInfoDTOList;
+//    }
     @Transactional(readOnly = true)
     public List<ProductInfoDTO> findProductsByCompany(String company){
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();

@@ -19,6 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Long countProductsByCompanyId(Long companyId);
     Long countProductsByCompany(String company);
     List<Product> findProductsByCompanyAndOrderByIndex(String company);
+    //List<Product> findProductsByCompanyAndOrderBy
 
 }
 

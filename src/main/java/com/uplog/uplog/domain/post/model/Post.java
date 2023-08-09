@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.post.model;
 
+import com.uplog.uplog.domain.comment.model.Comment;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.tag.model.PostTag;
@@ -41,6 +42,10 @@ public class Post extends BaseTime {
     @OneToMany
     @JoinColumn(name = "postTag_id")
     private List<PostTag> postTagList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
+
 
     private String title;
     //content에 image랑 codeblock이 한번에 포함된것
