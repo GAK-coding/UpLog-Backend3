@@ -24,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -41,6 +42,7 @@ public class MemberController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final PasswordEncoder passwordEncoder;
 
     //=============================create=======================================
     @PostMapping(value = "/members")
@@ -58,6 +60,9 @@ public class MemberController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
 
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        System.out.println("1");
+        //String password=(String)authentication.getCredentials();
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         TokenDTO tokenDTO =tokenProvider.createToken(authentication);
 

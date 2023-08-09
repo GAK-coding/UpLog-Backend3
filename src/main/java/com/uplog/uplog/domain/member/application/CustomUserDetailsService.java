@@ -3,6 +3,7 @@ package com.uplog.uplog.domain.member.application;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -26,20 +27,26 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String name){
-        return memberRepository.findOneWithAuthoritiesByEmail(name)
+        UserDetails userDetails=memberRepository.findOneWithAuthoritiesByEmail(name)
                 .map(member->createUser(name,member))
                 .orElseThrow(()-> new UsernameNotFoundException(name + " -> 데이터베이스에서 찾을 수 없습니다."));
+        System.out.println("2");
+        if(userDetails==null){
+            throw new BadCredentialsException("username is not found. username=" + name);
+        }
 
+        return userDetails;
     }
     private org.springframework.security.core.userdetails.User createUser(String name, Member member){
 
         //if(member.getActivated()==false){
         //    throw new RuntimeException(name + " -> 활성화되어 있지 않습니다.");
         //}
+        System.out.println("3");
         List<GrantedAuthority>grantedAuthorities=member.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
-
+        System.out.println("4");
         return new org.springframework.security.core.userdetails.User(member.getEmail(),
                 member.getPassword(),
                 grantedAuthorities);

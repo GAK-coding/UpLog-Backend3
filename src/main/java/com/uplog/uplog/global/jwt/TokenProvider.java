@@ -109,7 +109,7 @@ public class TokenProvider implements InitializingBean {
                         .collect(Collectors.toList());
 
         User principal = new User(claims.getSubject(), "", authorities);
-
+        System.out.println("12");
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
