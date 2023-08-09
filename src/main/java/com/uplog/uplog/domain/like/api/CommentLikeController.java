@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class CommentLikeController {
     private final LikeService likeService;
 
-    @PostMapping(value = "/members/{member-id}/comments/{comment-id}")
+    @PostMapping(value = "/members/{member-id}/comments/{comment-id}/likes")
     public ResponseEntity<LikeInfoDTO> createCommentLike(@PathVariable(name = "member-id")Long memberId, @PathVariable(name = "comment-id")Long commentId){
         LikeInfoDTO likeInfoDTO = likeService.createCommentLike(memberId, commentId);
         return ResponseEntity.ok(likeInfoDTO);
     }
 
-    @GetMapping(value = "/comments/{comment-id}")
+    @GetMapping(value = "/comments/{comment-id}/likes")
     public ResponseEntity<Integer> countCommentLike(@PathVariable(name = "comment-id")Long commentId){
         int cnt = likeService.countCommentLike(commentId);
         return ResponseEntity.ok(cnt);
