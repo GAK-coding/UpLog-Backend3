@@ -2,8 +2,10 @@ package com.uplog.uplog.domain.member.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.global.jwt.TokenProvider;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -21,6 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     public CustomUserDetailsService(MemberRepository memberRepository){
+
         this.memberRepository=memberRepository;
     }
 
@@ -30,11 +33,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserDetails userDetails=memberRepository.findOneWithAuthoritiesByEmail(name)
                 .map(member->createUser(name,member))
                 .orElseThrow(()-> new UsernameNotFoundException(name + " -> 데이터베이스에서 찾을 수 없습니다."));
-        System.out.println("2");
+        System.out.println("2"+userDetails.getPassword());
         if(userDetails==null){
             throw new BadCredentialsException("username is not found. username=" + name);
         }
-
+        System.out.println("user3 ");
         return userDetails;
     }
     private org.springframework.security.core.userdetails.User createUser(String name, Member member){

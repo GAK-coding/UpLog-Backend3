@@ -40,20 +40,24 @@ public class JwtFilter extends GenericFilterBean {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
 
                 Authentication authentication = tokenProvider.getAuthentication(jwt);
+                System.out.println("fileter "+(String)authentication.getCredentials());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("wewef1");
                 logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
             } else {
 
                 logger.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
             }
         }
+        System.out.println("wewef2");
     filterChain.doFilter(servletRequest, servletResponse);
 
     }
 
     private String resolveToken(HttpServletRequest request) {
+        System.out.println("wewef3");
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-
+        System.out.println("wewef4");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }

@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.member.api;
 
+import com.uplog.uplog.domain.member.application.CustomUserDetailsService;
 import com.uplog.uplog.domain.member.application.MemberService;
 //import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
@@ -20,10 +21,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +45,7 @@ public class MemberController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     //=============================create=======================================
@@ -51,19 +55,32 @@ public class MemberController {
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
 
+
     //로그인
     //security 로직 추가
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
-
+        System.out.println("1 ");
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
-
+        System.out.println("2 ");
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        System.out.println("1");
+        System.out.println("3 ");
+        UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
+        System.out.println("user: "+userDetails.getPassword());
+        System.out.println("user1: "+passwordEncoder.encode((String)authenticationToken.getCredentials()));
+
+        if (!this.passwordEncoder.matches((String)authenticationToken.getCredentials(), userDetails.getPassword())) {
+            System.out.println("errorororoorr ");
+            //throw new BadCredentialsException("password is not matched");
+        }
+        else{
+            System.out.println("okokokok ");
+        }
         //String password=(String)authentication.getCredentials();
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         TokenDTO tokenDTO =tokenProvider.createToken(authentication);
 
         HttpHeaders httpHeaders=new HttpHeaders();

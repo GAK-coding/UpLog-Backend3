@@ -54,7 +54,7 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+        System.out.println("Fist?");
         //token 사용하는 방식이기 때문에 csrf을 disable
         http
                 .csrf().disable()

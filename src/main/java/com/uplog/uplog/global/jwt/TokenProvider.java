@@ -96,7 +96,7 @@ public class TokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
-
+        System.out.println("eget ");
         Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key)
@@ -107,7 +107,7 @@ public class TokenProvider implements InitializingBean {
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
-
+        System.out.println("eget123 ");
         User principal = new User(claims.getSubject(), "", authorities);
         System.out.println("12");
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
