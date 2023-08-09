@@ -1,8 +1,10 @@
 package com.uplog.uplog.domain.post.api;
 
+import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.post.application.PostService;
 import com.uplog.uplog.domain.post.dto.PostDTO.*;
 import com.uplog.uplog.domain.post.model.Post;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,13 +17,15 @@ import java.util.List;
 @Slf4j
 public class PostController {
     private final PostService postService;
+    private final MemberRepository memberRepository;
 
     /*
     create
      */
-    @PostMapping(value="/posts/{member-id}")
-    public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member-id") Long id, @RequestBody CreatePostRequest createPostRequest) {
-        PostInfoDTO postInfoDTO = postService.createPost(id,createPostRequest);
+    @PostMapping(value="/posts")
+    public ResponseEntity<PostInfoDTO> createPost(@RequestBody CreatePostRequest createPostRequest) {
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        PostInfoDTO postInfoDTO = postService.createPost(memberId,createPostRequest);
         return ResponseEntity.ok(postInfoDTO);
     }
 
