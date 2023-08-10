@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.project.model;
+package com.uplog.uplog.domain.product.model;
 
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.product.model.Product;
