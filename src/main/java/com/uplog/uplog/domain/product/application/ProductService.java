@@ -4,13 +4,17 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.product.dao.MemberProductRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.dto.MemberProductDTO;
+import com.uplog.uplog.domain.product.dto.MemberProductDTO.CreateMemberProductRequest;
 import com.uplog.uplog.domain.product.dto.ProductDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.CreateProductRequest;
 import com.uplog.uplog.domain.product.dto.ProductDTO.ProductInfoDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateProductRequest;
 import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateResultDTO;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
+import com.uplog.uplog.domain.product.model.MemberProduct;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
 import com.uplog.uplog.domain.team.application.TeamService;
@@ -45,22 +49,22 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
-    private final MemberTeamRepository memberTeamRepository;
+    private final MemberProductRepository memberProductRepository;
 
-    private final TeamService teamService;
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
+    private final MemberProductService memberProductService;
 
     //========================================Create=============================================
-    //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
     //기업 내에서 제품 이름은 하나만 있어야함.
     //기업이 처음 제품 생성할때
     //기업만 제품을 생성할 수 있음.
     @Transactional
     public Long createProduct(Long memberId, CreateProductRequest createProductRequest) throws Exception {
-        Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+       // Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
+        //기업인 사람만 제품을 생성할 수 있음.
         if (member.getPosition() == Position.COMPANY) {
             List<Product> productList = productRepository.findProductsByCompany(member.getName());
             for (Product p : productList) {
@@ -69,25 +73,16 @@ public class ProductService {
                     throw new DuplicatedProductNameException("제품 이름이 중복됩니다.");
                 }
             }
-            //팀 생성 후 프로덕트 생성
-            CreateTeamRequest saveTeamRequest = CreateTeamRequest.builder()
-                    .teamName(createProductRequest.getName())
-                    .memberEmail(createProductRequest.getMasterEmail())
-                    .link(createProductRequest.getLink())
-                    .mailType(2)
-                    .build();
-            Long teamId = teamService.saveTeam(saveTeamRequest);
-
-            //이게 없으면 널값이 들어감.
-//            log.info(teamId.toString());
-//            Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-//            product.addTeamToProduct(team);
-
-
-            //return product.toProductInfoDTO(null);
-            Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Product product = createProductRequest.toProductEntity(member.getName(), team);
+            Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
             productRepository.save(product);
+
+            CreateMemberProductRequest createMemberProductRequest = CreateMemberProductRequest.builder()
+                    .memberEmail(createProductRequest.getMasterEmail())
+                    .productId(product.getId())
+                    .link(createProductRequest.getLink())
+                    .powerType(PowerType.MASTER)
+                    .build();
+
 
             return product.getId();
         } else {
@@ -102,31 +97,30 @@ public class ProductService {
     @Transactional(readOnly = true)
     public MemberPowerListDTO findMemberPowerList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
-        Team team = teamRepository.findById(product.getTeam().getId()).orElseThrow(NotFoundIdException::new);
         List<String> leaderList = new ArrayList<>();
         List<String> clientList = new ArrayList<>();
         List<String> workerList = new ArrayList<>();
         String master = "";
 
-        List<MemberTeam> masterL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.MASTER);
-        List<MemberTeam> leaderL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.LEADER);
-        List<MemberTeam> clientL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.CLIENT);
-        List<MemberTeam> workerL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.DEFAULT);
+        List<MemberProduct> masterL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.MASTER);
+        List<MemberProduct> leaderL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.LEADER);
+        List<MemberProduct>clientL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.CLIENT);
+        List<MemberProduct> workerL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.DEFAULT);
 
         //마스터
-        for (MemberTeam m : masterL) {
+        for (MemberProduct m : masterL) {
             master = m.getMember().getEmail();
         }
         //리더 리스트
-        for (MemberTeam l : leaderL) {
+        for (MemberProduct l : leaderL) {
             leaderList.add(l.getMember().getEmail());
         }
         //작업자 리스트
-        for (MemberTeam w : workerL) {
+        for (MemberProduct w : workerL) {
             workerList.add(w.getMember().getEmail());
         }
         //의뢰인 리스트
-        for (MemberTeam c : clientL) {
+        for (MemberProduct c : clientL) {
             clientList.add(c.getMember().getEmail());
         }
         return MemberPowerListDTO.builder()
@@ -162,6 +156,17 @@ public class ProductService {
         }
         return productInfoDTOList;
     }
+
+    //기업 아이디로 제품 찾기
+    @Transactional(readOnly = true)
+    public List<ProductInfoDTO> findProductsByCompanyId(Long companyId){
+        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
+        List<Product> productList = productRepository.findProductsByCompanyId(companyId);
+        for(Product p : productList){
+            productInfoDTOList.add(p.toProductInfoDTO(null));
+        }
+        return productInfoDTOList;
+    }
     //============================Update==================================
     //제품 수정
     @Transactional
@@ -178,21 +183,15 @@ public class ProductService {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
                 if (memberRepository.existsByEmail(s)) {
                     //팀 멤버 내에 초대된 사람인지 중복 확인
-                    if(!memberTeamRepository.existsMemberTeamByMember_EmailAndTeamId( s,product.getTeam().getId())) {
-                        CreateMemberTeamRequest saveMemberTeamRequest = CreateMemberTeamRequest.builder()
-                                .teamId(product.getTeam().getId())
+                    if(!memberProductRepository.existsMemberProductsByMemberEmailAndProductId( s,product.getId())) {
+                        CreateMemberProductRequest createMemberProductRequest = CreateMemberProductRequest.builder()
                                 .memberEmail(s)
+                                .productId(productId)
                                 .powerType(updateProductRequest.getPowerType())
-                                .mailType(2)
+                                .link(updateProductRequest.getLink())
                                 .build();
-                        memberTeamService.createMemberTeam(saveMemberTeamRequest);
-//                        EmailRequest emailRequest = EmailRequest.builder()
-//                                .email(s)
-//                                .type(2)
-//                                .link(updateProductRequest.getLink())
-//                                .powerType(updateProductRequest.getPowerType())
-//                                .build();
-//                        mailService.sendSimpleMessage(emailRequest);
+                        memberProductService.createMemberProduct(createMemberProductRequest);
+                        //제품에 초대되면 프로젝트에도 추가되어야함,
                     }
                     else{
                         duplicatedMemberList.add(s);
