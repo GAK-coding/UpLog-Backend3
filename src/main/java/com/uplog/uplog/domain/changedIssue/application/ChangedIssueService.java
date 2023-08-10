@@ -2,9 +2,8 @@ package com.uplog.uplog.domain.changedIssue.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
-import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundIssueException;
-import com.uplog.uplog.domain.changedIssue.exception.notFoundPowerByMemberException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueException;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.changedIssue.model.ChangedIssue;
 import com.uplog.uplog.domain.changedIssue.model.QChangedIssue;
@@ -26,6 +25,8 @@ import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,38 +50,23 @@ public class ChangedIssueService {
     private final MemberTeamRepository memberTeamRepository;
     private final ProductRepository productRepository;
     private final TeamRepository teamRepository;
+    private final AuthorizedMethod authorizedMethod;
 
 
-    //todo 완료 눌러서 상태 업데이트는 project 단에서 진행.
-    //권한(마스터, 리더)가 아닌 사용자 제외
     @Transactional
-    public String checkMemberPower(Long memberId){
-        PowerType powerType=powerValidate(memberId);
-
-        return AccessProperty.ACCESS_OK.toString();
-    }
-    @Transactional
-    public createInitChangedIssueInfo createInitIssue(createInitChangedIssueInfo createInitChangedIssueInfo,
-                                                      Long projId, Long memberId,Long productId){
+    public IssueInfoDTO createIssue(CreateChangedIssueRequest CreateChangedIssueRequest,
+                                    Long projectId, Long memberId){
 
 
-        //진행 중 project가 아니면 접근 제한
-        checkProjectProgress(memberId,projId);
-
-        Project project=projectRepository.findById(projId)
-                .orElseThrow(()->new NotFoundProjectException(projId));
+        Project project=projectRepository.findById(projectId)
+                .orElseThrow(()->new NotFoundProjectException(projectId));
         Member member=memberRepository.findMemberById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
-        //수정, 삭제 권한 -> memberId로 memberTeam 쿼리
 
-
-        //PowerType powerType=powerValidate(memberId);
-        //System.out.println("memberPower : "+powerType.toString());
-
-        ChangedIssue changedIssue=createInitChangedIssueInfo.toEntity(member,project);
+        ChangedIssue changedIssue= CreateChangedIssueRequest.toEntity(member,project);
         changedIssueRepository.save(changedIssue);
 
-        createInitChangedIssueInfo IssueData=changedIssue.toCreateInitChangedIssueInfo();
+        IssueInfoDTO IssueData=changedIssue.toIssueInfoDTO();
 
         return IssueData;
 
@@ -88,119 +74,90 @@ public class ChangedIssueService {
     }
 
     @Transactional(readOnly = true)
-    public ChangedIssueDTO.issueInfo readIssueInfo(Long issueId){
+    public IssueInfoDTO findByIssueId(Long issueId){
 
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QChangedIssue changedIssue=QChangedIssue.changedIssue;
 
-        ChangedIssue changedIssue1=query
-                .selectFrom(changedIssue)
-                .where(changedIssue.id.eq(issueId))
-                .fetchOne();
+        ChangedIssue changedIssue1=changedIssueRepository.findById(issueId)
+                .orElseThrow(()->new NotFoundIssueException(issueId));
 
-        if(changedIssue1==null){
-            throw new notFoundIssueException(issueId);
-        }
+        IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
 
-        ChangedIssueDTO.issueInfo issueInfo=changedIssue1.toIssueInfo();
-
-        return issueInfo;
+        return IssueInfoDTO;
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.
+    //작성자만 가능
+    //현재 진행중인 프로젝트만 가능
     @Transactional
-    public ChangedIssueDTO.updateChangedIssue updateChangedIssue(updateChangedIssue updateChangedIssue,Long issueId){
+    public SimpleIssueInfoDTO updateChangedIssue(UpdateChangedIssueRequest UpdateChangedIssueRequest, Long issueId,Long memberId){
 
 
         ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundProjectException(issueId));
+        Long currentProjectId=changedIssue.getProject().getId();
 
+        //현재 진행중인 프로젝트가 맞는지 확인
+        authorizedMethod.checkProjectProgress(currentProjectId);
+        //마스터,리더가 맞는지 확인(밑에서 확인하지만 2중확인임)
+        authorizedMethod.powerValidateByMemberId(memberId);
 
-        changedIssue.updateChangedIssue(updateChangedIssue);
+        //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
+        if(changedIssue.getAuthor().getId().equals(memberId)){
+            changedIssue.updateChangedIssue(UpdateChangedIssueRequest);
+            return changedIssue.toSimpleIssueInfoDTO();
+        }
+        else{
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
+        }
 
-        return changedIssue.toUpdateChangedIssueInfo();
     }
 
+    //이력 작성자만 가능
+    //헌재 진행중인 프로젝트만 삭제 가능
     @Transactional
-    public String deleteChangedIssue(Long issueId){
-
-
+    public String deleteChangedIssue(Long issueId,Long memberId){
         ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundProjectException(issueId));
+        Long currentProjectId=changedIssue.getProject().getId();
 
-        changedIssueRepository.delete(changedIssue);
+        //현재 진행중인 프로젝트가 맞는지 확인
+        authorizedMethod.checkProjectProgress(currentProjectId);
+        //마스터,리더가 맞는지 확인(밑에서 확인하지만 2중확인임)
+        authorizedMethod.powerValidateByMemberId(memberId);
 
-        return "Delete OK";
+        //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
+        if(changedIssue.getAuthor().getId().equals(memberId)){
+            changedIssueRepository.delete(changedIssue);
+            return "Delete OK";
+        }
+        else{
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
+        }
+
     }
 
 
 
-    //권한 확인
-    public PowerType powerValidate(Long memberId ){
-
-        JPAQueryFactory query=new JPAQueryFactory(entityManager);
-        QMemberTeam memberTeam=QMemberTeam.memberTeam;
-////////////테스트//////////
-        Product product=productRepository.findById(1L)
-                .orElseThrow(NotFoundMemberByEmailException::new);
-        Team team= Team.builder()
-                .name("dd")
-                .product(product)
-                .build();
-
-        teamRepository.save(team);
-        Member member=memberRepository.findMemberById(memberId)
-                .orElseThrow(NotFoundMemberByEmailException::new);
-        MemberTeam memberTeam1=MemberTeam.builder()
-                .member(member)
-                .team(team)
-                .powerType(PowerType.MASTER)
-                .build();
-        memberTeamRepository.save(memberTeam1);
-////////////테스트//////////
-        PowerType powerType =query
-                .select(memberTeam.powerType)
-                .from(memberTeam)
-                .where(memberTeam.member.id.eq(memberId))
-                .fetchOne();
-
-        if(powerType==null){
-            throw new notFoundPowerByMemberException(memberId);
-        }
-
-        if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){
-
-            throw new MemberAuthorizedException(memberId);
-        }
-
-        return powerType;
-
-    }
-
-    //진행 완료 된 프로젝트에 변경사항 추가 누를 시 접근 제한
-    public String checkProjectProgress(Long memberId,Long projectId){
-
-        JPAQueryFactory query=new JPAQueryFactory(entityManager);
-        QProject project=QProject.project;
-
-
-        ProjectStatus projectStatus=query
-                .select(project.projectStatus)
-                .from(project)
-                .where(project.id.eq(projectId))
-                .fetchOne();
-
-        if(projectStatus==ProjectStatus.PROGRESS_COMPLETE){
-            throw new ExistProcessProjectExeption(projectId,projectStatus);
-        }
-
-        //접근 권한 있는 사용자인지 확인
-        powerValidate(memberId);
-
-
-
-        return AccessProperty.ACCESS_OK.toString();
-    }
+//    ////////////테스트////////// -> 추후 지울 것.
+//    Product product=productRepository.findById(1L)
+//            .orElseThrow(NotFoundMemberByEmailException::new);
+//    Team team= Team.builder()
+//            .name("dd")
+//            .product(product)
+//            .build();
+//
+//        teamRepository.save(team);
+//    Member member=memberRepository.findMemberById(memberId)
+//            .orElseThrow(NotFoundMemberByEmailException::new);
+//    MemberTeam memberTeam1=MemberTeam.builder()
+//            .member(member)
+//            .team(team)
+//            .powerType(PowerType.MASTER)
+//            .build();
+//        memberTeamRepository.save(memberTeam1);
+//////////////테스트////////// -> 추후 지울 것.
 
 
 

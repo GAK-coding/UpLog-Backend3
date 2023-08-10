@@ -1,9 +1,21 @@
 package com.uplog.uplog.domain.changedIssue.api;
 
-import com.sun.mail.iap.Response;
 import com.uplog.uplog.domain.changedIssue.application.ChangedIssueService;
 import com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO;
+import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
 import com.uplog.uplog.domain.comment.api.CommentController;
+import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
+import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
+import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.method.AuthorizedMethod;
+import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +36,8 @@ import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 public class ChangedIssueController {
 
     private final ChangedIssueService changedIssueService;
+    private final AuthorizedMethod authorizedMethod;
+    private final MemberRepository memberRepository;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "ChangedIssue", description = "ChangedIssue", tags = { "ChangedIssue Controller" })
@@ -40,60 +54,52 @@ public class ChangedIssueController {
 
 
 
-    @PostMapping(value="/changedIssues/{project-id}/{member-id}/{product-id}")
-    public ResponseEntity<createInitChangedIssueInfo> createInitIssue(@RequestBody @Validated createInitChangedIssueInfo createInitChangedIssueInfo,
-                                                                     @PathVariable("project-id")Long projId,
-                                                                     @PathVariable("member-id")Long memberId,
-                                                                      @PathVariable("product-id")Long productId) {
+    @PostMapping(value="/changedIssues/{project-id}")
+    public ResponseEntity<IssueInfoDTO> createChangedIssue(@RequestBody @Validated CreateChangedIssueRequest CreateChangedIssueRequest,
+                                                    @PathVariable("project-id")Long projectId) {
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        IssueInfoDTO issueInfoDTO =changedIssueService.createIssue(CreateChangedIssueRequest,projectId,memberId);
 
-        createInitChangedIssueInfo createInitChangedIssueInfo1=changedIssueService.createInitIssue(createInitChangedIssueInfo,projId,memberId,productId);
-
-        return new ResponseEntity<>(createInitChangedIssueInfo1, HttpStatus.CREATED);
+        return new ResponseEntity<>(issueInfoDTO, HttpStatus.CREATED);
     }
 
     @GetMapping(value="/changedIssues/{issue-id}")
-    public ResponseEntity<issueInfo> readIssueInfo(@PathVariable("issue-id")Long issueId){
+    public ResponseEntity<IssueInfoDTO> findByChangedIssueId(@PathVariable("issue-id")Long issueId){
 
-        issueInfo issueInfo=changedIssueService.readIssueInfo(issueId);
+        IssueInfoDTO IssueInfoDTO =changedIssueService.findByIssueId(issueId);
 
-        return new ResponseEntity<>(issueInfo,HttpStatus.OK);
+        return new ResponseEntity<>(IssueInfoDTO,HttpStatus.OK);
     }
 
-    @GetMapping(value="/changedIssues/{member-id}/validate")
-    public String checkMemberPower(@PathVariable("member-id")Long memberId){
 
-        return changedIssueService.checkMemberPower(memberId);
+    //변경이력 추가, 생성, 수정, 클릭 시 진행 중 or 접근 권한 확인.
+    //global method
+    @GetMapping(value="/changedIssues/{project-id}/validate")
+    public String checkAuthorized(@PathVariable("project-id")Long projectId){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        //현재 진행중인 프로젝트 확인
+        authorizedMethod.checkProjectProgress(projectId);
+        //마스터,리더가 맞는지 확인
+        authorizedMethod.powerValidateByMemberId(memberId);
+
+        return AccessProperty.ACCESS_OK.toString();
     }
 
-    @GetMapping(value="/changedIssues/{member-id}/{project-id}/validate")
-    public String checkProjectProcess(@PathVariable("member-id")Long memberId,
-                                      @PathVariable("prorject-id")Long projectId){
-
-        return changedIssueService.checkProjectProgress(memberId,projectId);
-    }
-
-    @PatchMapping(value="/changedIssues/{issue-id}/{member-id}/updateissue")
-    public ResponseEntity<updateChangedIssue> updateChangedIssue(@RequestBody @Validated updateChangedIssue updateChangedIssue,
-                                                                 @PathVariable("issue-id")Long issueId,
-                                                                 @PathVariable("member-id")Long memberId){
-
-        //접근 권한 확인
-        changedIssueService.powerValidate(memberId);
-
-        updateChangedIssue updateChangedIssue1=changedIssueService.updateChangedIssue(updateChangedIssue,issueId);
-
-        return new ResponseEntity<>(updateChangedIssue1,HttpStatus.OK);
+    @PatchMapping(value="/changedIssues/{issue-id}/issue")
+    public ResponseEntity<SimpleIssueInfoDTO> updateChangedIssue(@RequestBody @Validated UpdateChangedIssueRequest UpdateChangedIssueRequest,
+                                                                 @PathVariable("issue-id")Long issueId
+    ){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        ChangedIssueDTO.SimpleIssueInfoDTO simpleIssueInfoDTO =changedIssueService.updateChangedIssue(UpdateChangedIssueRequest,issueId,memberId);
+        return new ResponseEntity<>(simpleIssueInfoDTO,HttpStatus.OK);
 
     }
 
-    @DeleteMapping(value="/changedIssues/{issue-id}/{member-id}")
-    public String deleteChangedIssue(@PathVariable("issue-id")Long issueId,
-                                     @PathVariable("member-id")Long memberId){
-
-        //접근 권한 확인
-        changedIssueService.powerValidate(memberId);
-
-        return changedIssueService.deleteChangedIssue(issueId);
+    //삭제 시에는 클릭만으로 삭제 여부가 결정되니 메서드 안에 권한 검증 서비스만 삽입.
+    @DeleteMapping(value="/changedIssues/{issue-id}")
+    public String deleteChangedIssue(@PathVariable("issue-id")Long issueId){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        return changedIssueService.deleteChangedIssue(issueId,memberId);
 
 
     }

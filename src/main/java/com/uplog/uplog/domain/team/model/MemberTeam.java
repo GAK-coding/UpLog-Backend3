@@ -50,5 +50,7 @@ public class MemberTeam {
                 .build();
     }
 
+    public void updatePowerType(PowerType newPowerType){ this.powerType = newPowerType; }
+
 
 }
