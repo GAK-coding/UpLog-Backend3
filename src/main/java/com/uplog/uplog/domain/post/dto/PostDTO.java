@@ -1,5 +1,7 @@
 package com.uplog.uplog.domain.post.dto;
 
+import com.uplog.uplog.domain.comment.dao.CommentRepository;
+import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostDTO {
+
     @Getter
     @Builder
     @NoArgsConstructor
@@ -120,11 +123,11 @@ public class PostDTO {
         private String menuName;
         private String productName;
         private String projectName;
-        //private String version;
         private PostType postType;
         private String content;
         private LocalDateTime createTime;
-
+        private int likeCount;
+        private int commentCount;
     }
 
     @Getter

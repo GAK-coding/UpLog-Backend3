@@ -186,9 +186,9 @@ public class MenuService {
         List<Post> posts = postService.findPostsByMenuId(menuId);
 
         MenuInfoDTO menuInfoDTO = menu.toMenuInfoDTO();
-        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? noticePost.toPostInfoDTO() : null;
+        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
         List<PostDTO.PostInfoDTO> postDTOList = posts.stream()
-                .map(Post::toPostInfoDTO)
+                .map(postService::toPostInfoDTO)
                 .collect(Collectors.toList());
 
         return new MenuPostsDTO(menuInfoDTO, noticePostDTO, postDTOList);
