@@ -39,12 +39,17 @@ public class ProductController {
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/products/{product-id}/company")
+    @GetMapping(value = "/products/company")
     public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestParam(name = "company", required = false)String company){
         List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(company);
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/products/companyId")
+    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(Long companyId){
+        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompanyId(companyId);
+        return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
+    }
     //====================update=====================
     //여기서 조회가 제대로 안되면 실패한것임
     @PatchMapping(value = "/products/{product-id}")
