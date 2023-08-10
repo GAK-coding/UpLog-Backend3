@@ -35,6 +35,8 @@ public class MemberProduct{
 
     private Long index; //for drag/drop
 
+    public void updatePowerType(PowerType powerType){this.powerType = powerType;}
+
     @Builder
     public MemberProduct(Long id, Product product, Member member, PowerType powerType, Long index){
         this.id = id;
