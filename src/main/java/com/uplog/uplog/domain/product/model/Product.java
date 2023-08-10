@@ -33,13 +33,11 @@ public class Product extends BaseTime {
 
     private String company;
 
-    //기업을 필드로 저장
-    private Long companyId;
-
     private String name;
 
-    //drag/drop을 위해 추가된 변수.
-    private Long index;
+    //drag/drop을 위해 추가된 변수. 아이디값이 담김.
+    //맨 처음 생기는 product는 parent가 null일 수 밖에 없음,
+    private Long parentIndex;
 
     public void updateTeam(Team team){this.team = team;}
 
@@ -51,13 +49,11 @@ public class Product extends BaseTime {
 
 
     @Builder
-    public Product(Long id, Team team, String company, Long companyId, String name, Long index){
+    public Product(Long id, Team team, String company, String name){
         this.id = id;
         this.team = team;
         this.company = company;
-        this.companyId = companyId;
         this.name = name;
-        this.index = index;
     }
 
     public ProductInfoDTO toProductInfoDTO(List<Long> projectListId){
@@ -73,4 +69,3 @@ public class Product extends BaseTime {
 
 
 }
-

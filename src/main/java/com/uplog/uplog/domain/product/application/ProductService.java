@@ -29,7 +29,6 @@ import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailDTO;
 import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
-import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 //TODO ProjectList null로 넣어놓은거 수정하기 -> 프로젝트가 완료 되면!!
 @Service
@@ -64,7 +62,7 @@ public class ProductService {
         Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
         if (member.getPosition() == Position.COMPANY) {
-            List<Product> productList = productRepository.findProductsByCompanyId(memberId);
+            List<Product> productList = productRepository.findProductsByCompany(member.getName());
             for (Product p : productList) {
                 //제품들의 이름이 중복되지 않는지 확인
                 if (createProductRequest.getName().equals(p.getName())) {
@@ -87,9 +85,8 @@ public class ProductService {
 
 
             //return product.toProductInfoDTO(null);
-            Long index = productRepository.countProductsByCompanyId(memberId);
             Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Product product = createProductRequest.toProductEntity(member.getName(),memberId, team, index);
+            Product product = createProductRequest.toProductEntity(member.getName(), team);
             productRepository.save(product);
 
             return product.getId();
@@ -155,24 +152,11 @@ public class ProductService {
         return product.toProductInfoDTO(null);
     }
 
-    //기업별 멤버가 속한 그룹 순서대로 출력
-
-
-    //기업별로 제품 목록 불러오기 -> 이름으로 찾음
     //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
-//    @Transactional(readOnly = true)
-//    public List<ProductInfoDTO> findProductsByCompany(String company){
-//        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
-//        List<Product> productList = productRepository.findProductsByCompany(company);
-//        for(Product p : productList){
-//            productInfoDTOList.add(p.toProductInfoDTO(null));
-//        }
-//        return productInfoDTOList;
-//    }
     @Transactional(readOnly = true)
-    public List<ProductInfoDTO> findProductsByCompanyId(Long companyId){
+    public List<ProductInfoDTO> findProductsByCompany(String company){
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
-        List<Product> productList = productRepository.findProductsByCompanyId(companyId);
+        List<Product> productList = productRepository.findProductsByCompany(company);
         for(Product p : productList){
             productInfoDTOList.add(p.toProductInfoDTO(null));
         }
@@ -185,8 +169,7 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
-        Optional<String> d= SecurityUtil.getCurrentUsername();
-        System.out.println("product: "+d);
+
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
         }
@@ -236,4 +219,3 @@ public class ProductService {
 
 
 }
-
