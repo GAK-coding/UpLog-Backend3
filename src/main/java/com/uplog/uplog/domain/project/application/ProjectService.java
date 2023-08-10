@@ -37,6 +37,7 @@ import javax.persistence.PersistenceContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.uplog.uplog.domain.project.dto.ProjectDTO.*;
 
@@ -83,6 +84,90 @@ public class ProjectService {
         private Long parentProjectTeamId;
          */
         //TODO Link 부분 상의
+//        List<MemberTeam> memberTeamList = new ArrayList<>();
+//        log.info(product.getTeam().getMemberTeamList().size()+"size");
+//        MemberTeam[] memberTeams = product.getTeam().getMemberTeamList().toArray(MemberTeam[]::new);
+
+//        for (int i = 0 ; i < product.getTeam().getMemberTeamList().size() ; i++ ) {
+//            MemberTeam mt = memberTeams[i];
+//            CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+//                    .memberId(mt.getMember().getId())
+//                    .teamId(project.getId())
+//                    .powerType(mt.getPowerType() == PowerType.MASTER || mt.getPowerType() == PowerType.LEADER ? PowerType.LEADER : mt.getPowerType())
+//                    .mailType(2)
+//                    .link("")
+//                    .build();
+//
+//            Long memberTeamId = memberTeamService.createMemberTeam(createMemberTeamRequest);
+//            MemberTeam memberProjectTeam = memberTeamRepository.findMemberTeamById(memberTeamId).orElseThrow(NotFoundIdException::new);
+//            memberTeamList.add(memberProjectTeam);
+//            if(i==product.getTeam().getMemberTeamList().size()-1) break;
+//        }
+//        for (MemberTeam mt : product.getTeam().getMemberTeamList()) {
+//
+//            CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+//                    .memberId(mt.getMember().getId())
+//                    .teamId(project.getId())
+//                    .powerType(mt.getPowerType() == PowerType.MASTER || mt.getPowerType() == PowerType.LEADER ? PowerType.LEADER : mt.getPowerType())
+//                    .mailType(2)
+//                    .link("")
+//                    .build();
+//
+//            Long memberTeamId = memberTeamService.createMemberTeam(createMemberTeamRequest);
+//            MemberTeam memberProjectTeam = memberTeamRepository.findMemberTeamById(memberTeamId).orElseThrow(NotFoundIdException::new);
+//            memberTeamList.add(memberProjectTeam);
+//        }
+//        List<MemberTeam> memberTeamList = product.getTeam().getMemberTeamList()
+//                .stream()
+//                .map(mt -> {
+//                    CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+//                            .memberId(mt.getMember().getId())
+//                            .teamId(project.getId())
+//                            .powerType(mt.getPowerType()==PowerType.MASTER||mt.getPowerType().equals(PowerType.LEADER)?
+//                                    PowerType.LEADER:mt.getPowerType())
+//                            .mailType(2)
+//                            .link("")
+//                            .build();
+//
+//                    Long memberTeamId = null;
+//                    try {
+//                        memberTeamId = memberTeamService.createMemberTeam(createMemberTeamRequest);
+//                    } catch (Exception e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                   // MemberTeam memberProjectTeam = memberTeamRepository.findMemberTeamById(memberTeamId).orElseThrow(NotFoundIdException::new);
+//                    return memberTeamRepository.findMemberTeamById(memberTeamId).orElseThrow(NotFoundIdException::new);
+//                })
+//                .collect(Collectors.toList());
+
+//        List<MemberTeam> memberTeamList = product.getTeam().getMemberTeamList()
+//                .stream()
+//                .map(mt -> {
+//                    CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+//                            .memberId(mt.getMember().getId())
+//                            .teamId(project.getId())
+//                            .powerType(mt.getPowerType()==PowerType.MASTER||mt.getPowerType().equals(PowerType.LEADER)?
+//                                    PowerType.LEADER:mt.getPowerType())
+//                            .mailType(2)
+//                            .link("")
+//                            .build();
+//
+//                })
+//                .collect(Collectors.toList());
+//        List<MemberTeam> memberTeamList = new ArrayList<>();
+//        for (MemberTeam mt : product.getTeam().getMemberTeamList()) {
+//            CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+//                    .memberId(mt.getMember().getId())
+//                    .teamId(project.getId())
+//                    .powerType(mt.getPowerType() == PowerType.MASTER || mt.getPowerType() == PowerType.LEADER ? PowerType.LEADER : mt.getPowerType())
+//                    .mailType(2)
+//                    .link("")
+//                    .build();
+//
+//
+//            memberTeamList.add(ㅊc);
+//        }
+
         List<MemberTeam> memberTeamList = new ArrayList<>();
         log.info(product.getTeam().getMemberTeamList().size()+"size");
         for (MemberTeam mt : product.getTeam().getMemberTeamList()) {
