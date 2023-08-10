@@ -24,16 +24,18 @@ public class ProductDTO {
     public static class CreateProductRequest{
         //제품 생성시, 제품 이름과 마스터만 지정됨. pathvariable로 들어오는건 기업인멤버
         private String name;
-        //private Team team;x
+        //private Team team;
         private String masterEmail;
         private String link;
         //private int mailType; -> 백에서 처리해도 될 것 같음.
 
-        public Product toProductEntity(String company, Team team){
+        public Product toProductEntity(String company, Long companyId, Team team, Long index){
             return Product.builder()
                     .name(this.name)
                     .team(team)
                     .company(company)
+                    .companyId(companyId)
+                    .index(index)
                     .build();
         }
 
@@ -79,7 +81,7 @@ public class ProductDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpdateProductInfoDTO{
-//        private Long id;
+        //        private Long id;
 //        private String name;
         private MemberPowerListDTO memberPowerListDTO;
         private UpdateResultDTO updateResultDTO;

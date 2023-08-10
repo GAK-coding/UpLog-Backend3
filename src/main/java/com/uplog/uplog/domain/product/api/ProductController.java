@@ -26,22 +26,28 @@ public class ProductController {
     private final ProductService productService;
     private final ProductRepository productRepository;
 
-    @PostMapping(value="/members/{member-id}/products")
+    @PostMapping(value = "/members/{member-id}/products")
     public ResponseEntity<ProductInfoDTO> createProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated CreateProductRequest createProductRequest) throws Exception {
-        Long pId = productService.createProduct(companyId,createProductRequest);
+        Long pId = productService.createProduct(companyId, createProductRequest);
         ProductInfoDTO productInfoDTO = productService.findProductById(pId);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.CREATED);
     }
+
     //====================read=======================
     @GetMapping(value = "/products/{product-id}")
-    public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id")Long id){
+    public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id") Long id) {
         ProductInfoDTO productInfoDTO = productService.findProductById(id);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
     }
 
+    //    @GetMapping(value = "/products/{product-id}/company")
+//    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestParam(name = "company", required = false)String company){
+//        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(company);
+//        return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
+//    }
     @GetMapping(value = "/products/{product-id}/company")
-    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestParam(name = "company", required = false)String company){
-        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(company);
+    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@PathVariable(name = "product-id")Long productId) {
+        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompanyId(productId);
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
@@ -60,3 +66,4 @@ public class ProductController {
     }
 
 }
+

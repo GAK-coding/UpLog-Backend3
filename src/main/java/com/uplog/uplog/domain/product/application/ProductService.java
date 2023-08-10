@@ -51,7 +51,7 @@ public class ProductService {
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
 
-//========================================Create=============================================
+    //========================================Create=============================================
     //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
     //기업 내에서 제품 이름은 하나만 있어야함.
@@ -62,7 +62,7 @@ public class ProductService {
         Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
         if (member.getPosition() == Position.COMPANY) {
-            List<Product> productList = productRepository.findProductsByCompany(member.getName());
+            List<Product> productList = productRepository.findProductsByCompanyId(memberId);
             for (Product p : productList) {
                 //제품들의 이름이 중복되지 않는지 확인
                 if (createProductRequest.getName().equals(p.getName())) {
@@ -85,8 +85,9 @@ public class ProductService {
 
 
             //return product.toProductInfoDTO(null);
+            Long index = productRepository.countProductsByCompanyId(memberId);
             Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Product product = createProductRequest.toProductEntity(member.getName(), team);
+            Product product = createProductRequest.toProductEntity(member.getName(),memberId, team, index);
             productRepository.save(product);
 
             return product.getId();
@@ -97,7 +98,7 @@ public class ProductService {
     }
 
 
-//=====================================Read================================================
+    //=====================================Read================================================
     //프로덕트 내에 멤버 리스트 출력
     @Transactional(readOnly = true)
     public MemberPowerListDTO findMemberPowerList(Long productId) {
@@ -152,11 +153,24 @@ public class ProductService {
         return product.toProductInfoDTO(null);
     }
 
+    //기업별 멤버가 속한 그룹 순서대로 출력
+
+
+    //기업별로 제품 목록 불러오기 -> 이름으로 찾음
     //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
+//    @Transactional(readOnly = true)
+//    public List<ProductInfoDTO> findProductsByCompany(String company){
+//        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
+//        List<Product> productList = productRepository.findProductsByCompany(company);
+//        for(Product p : productList){
+//            productInfoDTOList.add(p.toProductInfoDTO(null));
+//        }
+//        return productInfoDTOList;
+//    }
     @Transactional(readOnly = true)
-    public List<ProductInfoDTO> findProductsByCompany(String company){
+    public List<ProductInfoDTO> findProductsByCompanyId(Long companyId){
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
-        List<Product> productList = productRepository.findProductsByCompany(company);
+        List<Product> productList = productRepository.findProductsByCompanyId(companyId);
         for(Product p : productList){
             productInfoDTOList.add(p.toProductInfoDTO(null));
         }
@@ -219,3 +233,4 @@ public class ProductService {
 
 
 }
+
