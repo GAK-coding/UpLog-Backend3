@@ -105,7 +105,7 @@ public class LikeService {
         return commentLikeRepository.countByCommentId(commentId);
     }
 
-
+    //멤버별로 좋아요 누른 사람 조회
 
     //조회
 //    @Transactional(readOnly = true)
