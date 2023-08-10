@@ -1,4 +1,4 @@
-package com.uplog.uplog.domain.menu.api;
+package com.uplog.uplog.domain.like.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class MenuController {
+public class LikeController {
 }

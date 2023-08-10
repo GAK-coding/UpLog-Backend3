@@ -1,16 +1,20 @@
 package com.uplog.uplog.domain.comment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.uplog.uplog.domain.comment.dto.CommentDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.global.BaseTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -52,8 +56,8 @@ public class Comment extends BaseTime {
         this.childList=childList;
         this.content=content;
     }
-    public CommentDTO.SimpleCommentInfo toSimpleCommentInfo(){
-        return CommentDTO.SimpleCommentInfo.builder()
+    public CommentDTO.ReadCommentInfo of(){
+        return CommentDTO.ReadCommentInfo.builder()
                 .content(this.content)
                 .id(this.id)
                 .parentId((this.parent==null)?null:this.parent.getId())
@@ -61,9 +65,13 @@ public class Comment extends BaseTime {
                 .build();
     }
 
-    public void updateCommentContent(String content){
+    public void UpdateCommentContent(String content){
         this.content=content;
     }
+
+
+
+
 
 
 

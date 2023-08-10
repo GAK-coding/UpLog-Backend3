@@ -16,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -26,7 +24,7 @@ public class ProductController {
     private final ProductService productService;
     private final ProductRepository productRepository;
 
-    @PostMapping(value="/members/{member-id}/products")
+    @PostMapping(value="/products/{member-id}")
     public ResponseEntity<ProductInfoDTO> createProduct(@PathVariable(name = "member-id") Long companyId, @RequestBody @Validated CreateProductRequest createProductRequest) throws Exception {
         Long pId = productService.createProduct(companyId,createProductRequest);
         ProductInfoDTO productInfoDTO = productService.findProductById(pId);
@@ -37,12 +35,6 @@ public class ProductController {
     public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id")Long id){
         ProductInfoDTO productInfoDTO = productService.findProductById(id);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/products/{product-id}/company")
-    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestParam(name = "company", required = false)String company){
-        List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompany(company);
-        return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
     //====================update=====================

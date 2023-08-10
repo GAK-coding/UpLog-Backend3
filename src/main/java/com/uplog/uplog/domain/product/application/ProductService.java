@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO ProjectList null로 넣어놓은거 수정하기 -> 프로젝트가 완료 되면!!
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -51,7 +50,6 @@ public class ProductService {
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
 
-//========================================Create=============================================
     //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
     //기업 내에서 제품 이름은 하나만 있어야함.
@@ -74,7 +72,6 @@ public class ProductService {
                     .teamName(createProductRequest.getName())
                     .memberEmail(createProductRequest.getMasterEmail())
                     .link(createProductRequest.getLink())
-                    .mailType(2)
                     .build();
             Long teamId = teamService.saveTeam(saveTeamRequest);
 
@@ -97,7 +94,62 @@ public class ProductService {
     }
 
 
-//=====================================Read================================================
+    //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
+    @Transactional(readOnly = true)
+    public ProductInfoDTO findProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
+
+        return product.toProductInfoDTO(null);
+    }
+
+    //제품 수정
+    @Transactional
+    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        List<String> failMemberList = new ArrayList<>();
+        List<String> duplicatedMemberList = new ArrayList<>();
+
+        if (updateProductRequest.getNewName() != null) {
+            product.updateName(updateProductRequest.getNewName());
+        }
+        if (!updateProductRequest.getMemberEmailList().isEmpty()) {
+            for (String s : updateProductRequest.getMemberEmailList()) {
+                //존재하지 않는 멤버라면 리스트에 저장하고 출력
+                if (memberRepository.existsByEmail(s)) {
+                    //팀 멤버 내에 초대된 사람인지 중복 확인
+                    if(!memberTeamRepository.existsMemberTeamByMember_EmailAndTeamId( s,product.getTeam().getId())) {
+                        CreateMemberTeamRequest saveMemberTeamRequest = CreateMemberTeamRequest.builder()
+                                .teamId(product.getTeam().getId())
+                                .memberEmail(s)
+                                .powerType(updateProductRequest.getPowerType())
+                                .build();
+                        memberTeamService.createMemberTeam(saveMemberTeamRequest);
+                        EmailRequest emailRequest = EmailRequest.builder()
+                                .email(s)
+                                .type(2)
+                                .link(updateProductRequest.getLink())
+                                .powerType(updateProductRequest.getPowerType())
+                                .build();
+                        mailService.sendSimpleMessage(emailRequest);
+                    }
+                    else{
+                        duplicatedMemberList.add(s);
+                    }
+                } else {
+                    failMemberList.add(s);
+                }
+            }
+
+        }
+        return UpdateResultDTO.builder()
+                .failCnt(failMemberList.size())
+                .failMemberList(failMemberList)
+                .duplicatedCnt(duplicatedMemberList.size())
+                .duplicatedMemberList(duplicatedMemberList)
+                .build();
+
+    }
+
     //프로덕트 내에 멤버 리스트 출력
     @Transactional(readOnly = true)
     public MemberPowerListDTO findMemberPowerList(Long productId) {
@@ -140,76 +192,6 @@ public class ProductService {
                 .clientCnt(clientList.size())
                 .clientList(clientList)
                 .build();
-    }
-
-
-
-    //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
-    @Transactional(readOnly = true)
-    public ProductInfoDTO findProductById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
-
-        return product.toProductInfoDTO(null);
-    }
-
-    //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
-    @Transactional(readOnly = true)
-    public List<ProductInfoDTO> findProductsByCompany(String company){
-        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
-        List<Product> productList = productRepository.findProductsByCompany(company);
-        for(Product p : productList){
-            productInfoDTOList.add(p.toProductInfoDTO(null));
-        }
-        return productInfoDTOList;
-    }
-    //============================Update==================================
-    //제품 수정
-    @Transactional
-    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
-        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
-        List<String> failMemberList = new ArrayList<>();
-        List<String> duplicatedMemberList = new ArrayList<>();
-
-        if (updateProductRequest.getNewName() != null) {
-            product.updateName(updateProductRequest.getNewName());
-        }
-        if (!updateProductRequest.getMemberEmailList().isEmpty()) {
-            for (String s : updateProductRequest.getMemberEmailList()) {
-                //존재하지 않는 멤버라면 리스트에 저장하고 출력
-                if (memberRepository.existsByEmail(s)) {
-                    //팀 멤버 내에 초대된 사람인지 중복 확인
-                    if(!memberTeamRepository.existsMemberTeamByMember_EmailAndTeamId( s,product.getTeam().getId())) {
-                        CreateMemberTeamRequest saveMemberTeamRequest = CreateMemberTeamRequest.builder()
-                                .teamId(product.getTeam().getId())
-                                .memberEmail(s)
-                                .powerType(updateProductRequest.getPowerType())
-                                .mailType(2)
-                                .build();
-                        memberTeamService.createMemberTeam(saveMemberTeamRequest);
-//                        EmailRequest emailRequest = EmailRequest.builder()
-//                                .email(s)
-//                                .type(2)
-//                                .link(updateProductRequest.getLink())
-//                                .powerType(updateProductRequest.getPowerType())
-//                                .build();
-//                        mailService.sendSimpleMessage(emailRequest);
-                    }
-                    else{
-                        duplicatedMemberList.add(s);
-                    }
-                } else {
-                    failMemberList.add(s);
-                }
-            }
-
-        }
-        return UpdateResultDTO.builder()
-                .failCnt(failMemberList.size())
-                .failMemberList(failMemberList)
-                .duplicatedCnt(duplicatedMemberList.size())
-                .duplicatedMemberList(duplicatedMemberList)
-                .build();
-
     }
 
     //마스터, 리더들이 제품에 멤버 추가할때

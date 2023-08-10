@@ -1,7 +1,5 @@
 package com.uplog.uplog.domain.post.dto;
 
-import com.uplog.uplog.domain.comment.dao.CommentRepository;
-import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
@@ -19,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class PostDTO {
-
     @Getter
     @Builder
     @NoArgsConstructor
@@ -30,7 +27,7 @@ public class PostDTO {
 //        private List<PostTag> postTagList;
         private String title;
         private String content;
-        private Long productId;
+        private Long porductId;
         private Long projectId;
 
 
@@ -93,24 +90,24 @@ public class PostDTO {
 //
 //    }
 
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class PostInfoDTO1{
-//        private Long id;
-//        private String title;
-//        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
-//        //private Long menuId;
-//        //private String menuName;
-//        //private String productName;
-//        //private String projectName;
-//        //private String version;
-//        private PostType postType;
-//        private String content;
-//        private LocalDateTime createTime;
-//
-//    }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostInfoDTO1{
+        private Long id;
+        private String title;
+        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
+        //private Long menuId;
+        //private String menuName;
+        //private String productName;
+        //private String projectName;
+        //private String version;
+        private PostType postType;
+        private String content;
+        private LocalDateTime createTime;
+
+    }
     @Getter
     @Builder
     @NoArgsConstructor
@@ -123,11 +120,11 @@ public class PostDTO {
         private String menuName;
         private String productName;
         private String projectName;
+        private String version;
         private PostType postType;
         private String content;
         private LocalDateTime createTime;
-        private int likeCount;
-        private int commentCount;
+
     }
 
     @Getter

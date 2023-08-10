@@ -1,8 +1,9 @@
 package com.uplog.uplog.domain.comment.api;
 
-import com.uplog.uplog.domain.comment.application.CommentService;
-import com.uplog.uplog.domain.member.dao.MemberRepository;
-import com.uplog.uplog.global.util.SecurityUtil;
+import com.uplog.uplog.domain.comment.application.CommentApplication;
+import com.uplog.uplog.domain.comment.dto.CommentDTO;
+import com.uplog.uplog.domain.member.api.TestController;
+import com.uplog.uplog.domain.member.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,8 +27,7 @@ import static com.uplog.uplog.domain.comment.dto.CommentDTO.*;
 @Slf4j
 public class CommentController {
 
-    private final CommentService commentService;
-    private final MemberRepository memberRepository;
+    private final CommentApplication commentApplication;
 
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "Comment", description = "comments", tags = { "Comment Controller" })
@@ -43,28 +43,27 @@ public class CommentController {
      /*
         CREATE
      */
-    @PostMapping(value = "/comments/{post-id}")
-    public ResponseEntity<SimpleCommentInfo> createComment(@RequestBody @Validated CreateCommentRequest commentData,
-                                                           @PathVariable("post-id")Long postId){
-        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        SimpleCommentInfo simpleData = commentService.createComment(commentData,postId,memberId);
-        return new ResponseEntity<>(simpleData, HttpStatus.CREATED);
+    @PostMapping(value = "/comment/{post-id}/{member-id}")
+    public ResponseEntity<CommentInfo> createComment(@RequestBody @Validated CommentInfo commentData,
+                                                     @PathVariable("post-id")Long postId, @PathVariable("member-id")Long memberId){
+        CommentInfo commentInfo = commentApplication.createComment(commentData,postId,memberId);
+        return new ResponseEntity<>(commentInfo, HttpStatus.CREATED);
     }
 
-    /*
-       READ
-    */
-    @GetMapping(value="/comments/{post-id}/post")
-    public ResponseEntity<List<SimpleCommentInfo>> findCommentsByPostId(@PathVariable("post-id")Long postId){
+     /*
+        READ
+     */
+    @GetMapping(value="/comment/{post-id}/comments")
+    public ResponseEntity<List<ReadCommentInfo>> ReadComment(@PathVariable("post-id")Long postId){
 
-        List<SimpleCommentInfo> readList= commentService.findCommentByPostId(postId);
+        List<ReadCommentInfo> readList=commentApplication.ReadPostComment(postId);
         return new ResponseEntity<>(readList,HttpStatus.OK);
     }
 
-    @GetMapping(value="/comments/{comment-id}/comment")
-    public ResponseEntity<List<SimpleCommentInfo>> findCommentById(@PathVariable("comment-id")Long commentId){
+    @GetMapping(value="/comment/{comment-id}/singlecomment")
+    public ResponseEntity<List<ReadCommentInfo>> ReadSingleComment(@PathVariable("comment-id")Long commentId){
 
-        List<SimpleCommentInfo> readSingleList= commentService.findCommentById(commentId);
+        List<ReadCommentInfo> readSingleList=commentApplication.ReadPostSingleComment(commentId);
         return new ResponseEntity<>(readSingleList,HttpStatus.OK);
     }
 
@@ -72,22 +71,22 @@ public class CommentController {
         UPDATE
      */
 
-    @PatchMapping(value="/comments/{comment-id}/content")
-    public ResponseEntity<SimpleCommentInfo> updateCommentContent(@RequestBody @Validated UpdateCommentContent updateCommentContent,
-                                                                  @PathVariable("comment-id")Long commentId){
-        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        SimpleCommentInfo simpleCommentInfo = commentService.updateCommentContent(updateCommentContent,commentId,memberId);
-        return new ResponseEntity<>(simpleCommentInfo,HttpStatus.OK);
+    @PatchMapping(value="/comment/{comment-id}/{member-id}/content")
+    public ResponseEntity<ReadCommentInfo> UpdateComment(@RequestBody @Validated UpdateCommentContent updateCommentContent,
+                                                         @PathVariable("comment-id")Long commentId,
+                                                         @PathVariable("member-id")Long memberId){
+        ReadCommentInfo readCommentInfo=commentApplication.UpdateCommentContent(updateCommentContent,commentId,memberId);
+        return new ResponseEntity<>(readCommentInfo,HttpStatus.OK);
     }
 
      /*
         DELETE
      */
 
-    @DeleteMapping(value="/comments/{comment-id}")
-    public ResponseEntity<String> deleteComment(@PathVariable("comment-id")Long commentId){
-        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        String message= commentService.deleteComment(commentId,memberId);
+    @DeleteMapping(value="/comment/{comment-id}/{member-id}")
+    public ResponseEntity<String> DeleteComment(@PathVariable("comment-id")Long commentId,
+                                                @PathVariable("member-id")Long memberId){
+        String message= commentApplication.DeleteComment(commentId,memberId);
         return ResponseEntity.ok(message);
     }
 }

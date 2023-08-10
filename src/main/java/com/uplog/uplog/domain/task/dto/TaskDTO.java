@@ -2,7 +2,6 @@ package com.uplog.uplog.domain.task.dto;
 
 import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.model.TaskStatus;
@@ -82,8 +81,8 @@ public class TaskDTO {
         private Long id;
         private String taskName;
         private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
-        //private Long targetMemberId;
-        //private String targetmemberName;
+        private Long targetMemberId;
+        private String targetmemberName;
         private Long menuId;
         private String menuName;
         private Long projectTeamId;
@@ -178,17 +177,6 @@ public class TaskDTO {
         //private Long id;
         private TaskStatus taskStatus;
 
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PowerMemberInfoDTO {
-        private Long id;
-        private String name;
-        private String nickname;
-        private Position position;
     }
 
 //    @Getter

@@ -25,5 +25,4 @@ public class LikeBase extends BaseTime {
     @JoinColumn(name = "member_id")
     private Member member;
 
-
 }

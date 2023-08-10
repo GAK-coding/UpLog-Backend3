@@ -1,14 +1,8 @@
 package com.uplog.uplog.domain.project.model;
 
-import com.uplog.uplog.domain.menu.dto.MenuDTO;
-import com.uplog.uplog.domain.menu.dto.MenuDTO.SimpleMenuInfoDTO;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
-import com.uplog.uplog.domain.project.dto.ProjectDTO.ProjectInfoDTO;
-import com.uplog.uplog.domain.project.dto.ProjectDTO.SimpleProjectInfoDTO;
-import com.uplog.uplog.domain.team.dto.ProjectTeamDTO;
-import com.uplog.uplog.domain.team.dto.ProjectTeamDTO.SimpleProjectTeamInfoDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.ProjectTeam;
 import com.uplog.uplog.global.BaseTime;
@@ -41,7 +35,7 @@ public class Project extends BaseTime {
     @OneToMany(mappedBy = "project")
     private List<Menu> menuList = new ArrayList<>();
 
-    private String version; //project이름
+    private String version;
 
     @Enumerated(EnumType.STRING)
     private ProjectStatus projectStatus;
@@ -57,29 +51,9 @@ public class Project extends BaseTime {
 
     }
 
-    public SimpleProjectInfoDTO toSimpleProjectTeamInfoDTO(List<SimpleMenuInfoDTO> menuList){
-        return SimpleProjectInfoDTO.builder()
+    public ProjectDTO.CreateInitInfo toCreateInitChangedIssueInfo(){
+        return ProjectDTO.CreateInitInfo.builder()
                 .id(this.id)
-                .version(this.version)
-                .productId(this.product.getId())
-                .menuList(menuList)
-                .build();
-    }
-
-    public ProjectInfoDTO toProjectInfoDTO(List<SimpleMenuInfoDTO> simpleMenuInfoDTOList, List<Long> projectTeamIdList){
-        return ProjectInfoDTO.builder()
-                .id(this.id)
-                .version(this.version)
-                .projectTeamIdList(projectTeamIdList)
-                .projectStatus(this.projectStatus)
-                .productId(this.product.getId())
-                .menuList(simpleMenuInfoDTOList)
-                .build();
-
-    }
-
-    public ProjectDTO.CreateProjectRequest toCreateInitChangedIssueInfo(){
-        return ProjectDTO.CreateProjectRequest.builder()
                 .version(this.version)
                 .build();
     }
