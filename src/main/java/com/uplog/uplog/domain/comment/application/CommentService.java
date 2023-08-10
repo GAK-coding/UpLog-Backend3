@@ -195,5 +195,13 @@ public class CommentService {
 
     }
 
+    /*
+    댓글 수
+     */
+    public int countPostComment(Long postId){
+        return commentRepository.countByPostId(postId);
+    }
+
+
 
 }
