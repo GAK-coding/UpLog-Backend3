@@ -1,8 +1,10 @@
 package com.uplog.uplog.domain.post.api;
 
+import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.post.application.PostService;
 import com.uplog.uplog.domain.post.dto.PostDTO.*;
 import com.uplog.uplog.domain.post.model.Post;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,13 +17,15 @@ import java.util.List;
 @Slf4j
 public class PostController {
     private final PostService postService;
+    private final MemberRepository memberRepository;
 
     /*
     create
      */
-    @PostMapping(value="/posts/{member-id}")
-    public ResponseEntity<PostInfoDTO> createPost(@PathVariable(name = "member-id") Long id, @RequestBody CreatePostRequest createPostRequest) {
-        PostInfoDTO postInfoDTO = postService.createPost(id,createPostRequest);
+    @PostMapping(value="/posts")
+    public ResponseEntity<PostInfoDTO> createPost(@RequestBody CreatePostRequest createPostRequest) {
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        PostInfoDTO postInfoDTO = postService.createPost(memberId,createPostRequest);
         return ResponseEntity.ok(postInfoDTO);
     }
 
@@ -30,33 +34,38 @@ public class PostController {
     delete
      */
     @DeleteMapping("posts/{post-id}")
-    public ResponseEntity<Void> deletePost(@PathVariable(name="post-id") Long id){
-        postService.deletePost(id);
-        return ResponseEntity.noContent().build();
+    public String deletePost(@PathVariable(name="post-id") Long id){
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        postService.deletePost(id,currentUserId);
+        return postService.deletePost(id,currentUserId);
     }
 
     /*
     update
      */
     @PatchMapping("/posts/{post-id}/title")
-    public ResponseEntity<PostInfoDTO> updatePostTitle(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest,Long currentUserId){
+    public ResponseEntity<PostInfoDTO> updatePostTitle(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest){
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         PostInfoDTO postInfoDTO=postService.updatePostTitle(id,updatePostTitleRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post-id}/content")
-    public ResponseEntity<PostInfoDTO> updatePostContent(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest,Long currentUserId){
+    public ResponseEntity<PostInfoDTO> updatePostContent(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest){
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         PostInfoDTO postInfoDTO=postService.updatePostContent(id,updatePostContentRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post-id}/type")
-    public ResponseEntity<PostInfoDTO> updatePostType(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest,Long currentUserId){
+    public ResponseEntity<PostInfoDTO> updatePostType(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest){
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         PostInfoDTO postInfoDTO=postService.updatePostType(id,updatePostTypeRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
     @PatchMapping("/posts/{post-id}/menu")
-    public ResponseEntity<PostInfoDTO> updatePostMenu(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest,Long currentUserId){
+    public ResponseEntity<PostInfoDTO> updatePostMenu(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest){
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         PostInfoDTO postInfoDTO=postService.updatePostMenu(id,updatePostMenuRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }

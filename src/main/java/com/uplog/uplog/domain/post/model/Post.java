@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.post.model;
 
 import com.uplog.uplog.domain.comment.model.Comment;
+import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.tag.model.PostTag;
@@ -57,20 +58,20 @@ public class Post extends BaseTime {
     private LocalDateTime createTime;
 
 
-    public PostInfoDTO toPostInfoDTO(){
-        return PostInfoDTO.builder()
-                .id(this.getId())
-                .title(this.getTitle())
-                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
-                .menuId(this.getMenu().getId())
-                .menuName(this.getMenu().getMenuName())
-                .productName(this.getProductName())
-                .projectName(this.getVersion())
-                .postType(this.getPostType())
-                .content(this.getContent())
-                .createTime(this.getCreateTime())
-                .build();
-    }
+//    public PostInfoDTO toPostInfoDTO(){
+//        return PostInfoDTO.builder()
+//                .id(this.getId())
+//                .title(this.getTitle())
+//                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
+//                .menuId(this.getMenu().getId())
+//                .menuName(this.getMenu().getMenuName())
+//                .productName(this.getProductName())
+//                .projectName(this.getVersion())
+//                .postType(this.getPostType())
+//                .content(this.getContent())
+//                .createTime(this.getCreateTime())
+//                .build();
+//    }
 
 //    public PostInfoDTO1 toPostInfoDTO1(){
 //        return PostInfoDTO1.builder()

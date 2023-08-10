@@ -1,10 +1,12 @@
 package com.uplog.uplog.domain.task.api;
 
 import com.uplog.uplog.domain.member.api.TestController;
+import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.task.application.TaskService;
 import com.uplog.uplog.domain.task.dto.TaskDTO.*;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.model.TaskStatus;
+import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,11 +26,12 @@ import java.util.Map;
 @Slf4j
 public class TaskController {
     private final TaskService taskService;
+    private final MemberRepository memberRepository;
 
-    //나중에 토큰 구현하면 bareer로 받을 예정이라 일단 pathvariable로 뺌
-    @PostMapping(value="/tasks/{member-id}")
-    public ResponseEntity<TaskInfoDTO> createTask(@PathVariable(name = "member-id") Long id,@RequestBody CreateTaskRequest createTaskRequest) {
-        Task createdTask = taskService.createTask(id,createTaskRequest);
+    @PostMapping(value="/tasks")
+    public ResponseEntity<TaskInfoDTO> createTask(@RequestBody CreateTaskRequest createTaskRequest) {
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Task createdTask = taskService.createTask(memberId,createTaskRequest);
         TaskInfoDTO taskInfoDTO = createdTask.toTaskInfoDTO();
         return new ResponseEntity<>(taskInfoDTO, HttpStatus.CREATED);
     }
