@@ -21,6 +21,7 @@ import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +33,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /*
 닉네임, 이름 중복 가능. 고유값은 email 하나뿐.
@@ -50,6 +52,7 @@ public class MemberService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailsService customUserDetailsService;
     private long seconds=10000;
     private long AccessTokenValidityInMilliseconds = Duration.ofMinutes(30).toMillis();//만료시간 30분
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
@@ -112,7 +115,7 @@ public class MemberService {
         // 6. 저장소 정보 업데이트
         redisDao.deleteValues(authentication.getName());
 
-        redisDao.setValues(authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(seconds));
+        redisDao.setValues("RT:"+authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
 
         //토큰 발급
         return tokenDto;
@@ -135,6 +138,28 @@ public class MemberService {
 //            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
 //        }
         return member.toMemberInfoDTO();
+    }
+    @Transactional
+    public void logout(TokenRequestDTO tokenRequestDto){
+        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
+        if (!tokenProvider.validateToken(tokenRequestDto.getAccessToken())){
+            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+        }
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+
+        // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
+        if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
+            // Refresh Token을 삭제
+            redisTemplate.delete("RT:"+authentication.getName());
+        }
+
+
+        // 해당 Access Token 유효시간을 가지고 와서 BlackList에 저장하기
+        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
+        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
+
     }
 
     @Transactional(readOnly = true)
@@ -205,14 +230,22 @@ public class MemberService {
     @Transactional
     public SimpleMemberInfoDTO updateMemberPassword(Long id,UpdatePasswordRequest updatePasswordRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        //기존 비밀번호를 모르면 비밀번호 변경 불가
-        if(member.getPassword().equals(updatePasswordRequest.getPassword())) {
-            member.updatePassword(updatePasswordRequest.getNewPassword());
-            return member.simpleMemberInfoDTO();
-        }
-        else{
+
+
+        //현재 유저 비밀번호를 가져오기 위해 UserDetails 객체를 현재 유저 이메일로 가져온다.
+        UserDetails userDetails=customUserDetailsService.loadUserByUsername(member.getName());
+
+        //단순히 equals를 사용하면 암호화 시 매번 암호화 된 문자열이 바뀌기 때문에 아래 메소드를 사용함.
+        //userDetails로 가져온 password가 암호화 되어 db에 저장되어 있는 비밀번호, 그리고 전달 받은 평문 암호(새로운 비밀번호)와 동일한 지 검증.
+        if (!this.passwordEncoder.matches(updatePasswordRequest.getPassword(), userDetails.getPassword())) {
             throw new NotMatchPasswordException("비밀번호가 일치하지 않습니다.");
         }
+        else{
+            //일치하면 전달받은 새로운 비밀번호를 암호화 하여 다시 db에 저장.
+            member.updatePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+            return member.simpleMemberInfoDTO();
+        }
+
     }
     //position 변경(있을지 모르겠지만 혹시 모르니까)
     @Transactional

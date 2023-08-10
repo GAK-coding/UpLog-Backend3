@@ -83,7 +83,8 @@ public class TokenProvider implements InitializingBean {
                .signWith(key, SignatureAlgorithm.HS512)
                .compact();
 
-       redisDao.setValues(authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
+       System.out.println("REfresh: "+refreshToken);
+       redisDao.setValues("RT:"+authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
 
 
 
@@ -103,6 +104,7 @@ public class TokenProvider implements InitializingBean {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
@@ -111,6 +113,15 @@ public class TokenProvider implements InitializingBean {
         User principal = new User(claims.getSubject(), "", authorities);
         System.out.println("12");
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+    public Long getExpiration(String token){
+
+        Long date=Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody().getExpiration().getTime();
+
+        return date;
+
+
+
     }
 
     public boolean validateToken(String token) {

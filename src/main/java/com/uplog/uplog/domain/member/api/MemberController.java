@@ -28,10 +28,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 //TODO API 다시 경로 다시 설정!!!! 지금은 급해서 이렇게 올림
@@ -60,15 +63,17 @@ public class MemberController {
     //security 로직 추가
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
-        System.out.println("1 ");
+
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
-        System.out.println("2 ");
+
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        System.out.println("3 ");
+
+
         UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
-        System.out.println("user: "+userDetails.getPassword());
-        System.out.println("user1: "+passwordEncoder.encode((String)authenticationToken.getCredentials()));
+
+
+
 
         if (!this.passwordEncoder.matches((String)authenticationToken.getCredentials(), userDetails.getPassword())) {
             System.out.println("errorororoorr ");
@@ -89,6 +94,18 @@ public class MemberController {
         memberInfoDTO.addTokenToMemberInfoDTO(tokenDTO.getAccessToken(),tokenDTO.getRefreshToken());
 
         return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
+    }
+
+    @GetMapping("/members/logout")
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response,
+                             @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
+        System.out.println("logout1: "+SecurityContextHolder.getContext().getAuthentication()+" "+SecurityUtil.getCurrentUsername());
+        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+        System.out.println("logout2: "+SecurityContextHolder.getContext().getAuthentication()+" "+SecurityUtil.getCurrentUsername());
+        SecurityContextHolder.clearContext();
+        memberService.logout(tokenRequestDTO);
+
+        return "logout success";
     }
     //리프레시 토큰 만료 시
     @PostMapping("/members/refresh")

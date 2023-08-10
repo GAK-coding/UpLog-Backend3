@@ -29,6 +29,7 @@ import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailDTO;
 import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //TODO ProjectList null로 넣어놓은거 수정하기 -> 프로젝트가 완료 되면!!
 @Service
@@ -169,7 +171,8 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
-
+        Optional<String> d= SecurityUtil.getCurrentUsername();
+        System.out.println("product: "+d);
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
         }

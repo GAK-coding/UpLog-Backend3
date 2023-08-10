@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,7 @@ public class MailService {
     private final JavaMailSender javaMailSender; //Bean으로 등록해둔 MailConfig를 emailsender라는 이름으로 autowired
     //private final GlobalMethod globalMethod;
     private final MemberRepository memberRepository;
-
+    private final PasswordEncoder passwordEncoder;
     private String authNum;//인증 번호
     private String title="";
     private String subtitle="";
@@ -109,7 +110,8 @@ public class MailService {
         //비밀번호 변경이라면, 비번 재설정해줘야함.
         if(emailRequest.getType()==1){
             Member member = memberRepository.findMemberByEmail(emailRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
-            member.updatePassword(authNum);
+            //임시 비밀번호 암호화 후 db에 저장.
+            member.updatePassword(passwordEncoder.encode(authNum));
         }
         return ErrorResponse.builder()
                 .httpStatus(HttpStatus.OK)

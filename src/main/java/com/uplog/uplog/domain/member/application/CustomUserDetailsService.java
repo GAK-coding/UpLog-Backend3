@@ -33,7 +33,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserDetails userDetails=memberRepository.findOneWithAuthoritiesByEmail(name)
                 .map(member->createUser(name,member))
                 .orElseThrow(()-> new UsernameNotFoundException(name + " -> 데이터베이스에서 찾을 수 없습니다."));
-        System.out.println("2"+userDetails.getPassword());
+
         if(userDetails==null){
             throw new BadCredentialsException("username is not found. username=" + name);
         }
