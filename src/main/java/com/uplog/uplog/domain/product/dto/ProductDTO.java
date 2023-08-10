@@ -28,7 +28,7 @@ public class ProductDTO {
         //private Team team;x
         private String masterEmail;
         private String link;
-        //private int mailType; -> 백에서 처리해도 될 것 같음.
+       // private int mailType; -> 백에서 처리해도 될 것 같음.
 
         public Product toProductEntity(String company, Long companyId){
             return Product.builder()
