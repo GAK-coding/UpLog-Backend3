@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CommentDTO {
@@ -50,10 +51,16 @@ public class CommentDTO {
         private Long memberId;
         private Long parentId;
         private String content;
+        private String name;
+        //private String image;
+        private String nickName;
+        private LocalDateTime createTime;
 
 
 
     }
+
+
     @Getter
     @Builder
     @NoArgsConstructor
