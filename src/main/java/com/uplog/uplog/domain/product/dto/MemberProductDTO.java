@@ -40,12 +40,38 @@ public class MemberProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MemberProductInfoDTO{
+    public static class SimpleMemberProductInfoDTO{
         private Long id;
         private Long memberId;
         private String memberName;
         private Long productId;
     }
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberProductInfoDTO{
+        private Long productId;
+        private String productName;
+        private String memberName;
+        private PowerType powerType;
+        private Long index;
+
+    }
+//    @Builder
+//    @Getter
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    public static class SortedMemberProductInfoDTO{
+//        private Long productId;
+//        priv
+//        private String memberName;
+//        private PowerType powerType;
+//        private Long index;
+//
+//    }
+
+
 
     @Builder
     @Getter
@@ -61,7 +87,7 @@ public class MemberProductDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberPowerListDTO{
-        private Long poductId;
+        private Long productId;
         private String productName;
         private String master;
         private int leaderCnt;

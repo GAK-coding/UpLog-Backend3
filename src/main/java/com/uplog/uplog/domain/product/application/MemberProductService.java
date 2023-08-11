@@ -69,7 +69,7 @@ public class MemberProductService {
 
     @Transactional
     public Long updateMemberPowerType(memberTeamDTO.UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest) {
-        MemberProduct memberProduct = memberProductRepository.findMemberProductsByMemberIdAndProductId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        MemberProduct memberProduct = memberProductRepository.findMemberProductByMemberIdAndProductId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
         memberProduct.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberProduct.getId();
     }
