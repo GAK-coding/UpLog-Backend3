@@ -8,12 +8,12 @@ import com.uplog.uplog.domain.product.dao.MemberProductRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.MemberProductDTO;
 import com.uplog.uplog.domain.product.dto.MemberProductDTO.CreateMemberProductRequest;
+import com.uplog.uplog.domain.product.dto.MemberProductDTO.MemberProductInfoDTO;
+import com.uplog.uplog.domain.product.dto.MemberProductDTO.SimpleMemberProductInfoDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO;
-import com.uplog.uplog.domain.product.dto.ProductDTO.CreateProductRequest;
-import com.uplog.uplog.domain.product.dto.ProductDTO.ProductInfoDTO;
-import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateProductRequest;
-import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateResultDTO;
+import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
+import com.uplog.uplog.domain.product.exception.MasterException;
 import com.uplog.uplog.domain.product.model.MemberProduct;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 //TODO ProjectList null로 넣어놓은거 수정하기 -> 프로젝트가 완료 되면!!
@@ -170,10 +171,21 @@ public class ProductService {
     //============================Update==================================
     //제품 수정
     @Transactional
-    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
+    public UpdateResultDTO updateProduct(Long memberId, Long productId, UpdateProductRequest updateProductRequest) throws Exception {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        MemberProduct memberProduct = memberProductRepository.findMemberProductByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
+        //TODO 초대는 마스터와 리더만 할 수 있음.
+        if(memberProduct.getPowerType()!=PowerType.MASTER||memberProduct.getPowerType()!=PowerType.LEADER){
+            throw new AuthorityException("제품 수정은 마스터와 리더만 가능합니다.");
+        }
+
+        //마스터 권한으로 초대시, 제한 -> 마스터는 한명임.
+        if(updateProductRequest.getPowerType()==PowerType.MASTER){
+            throw new MasterException();
+        }
 
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
@@ -191,7 +203,8 @@ public class ProductService {
                                 .link(updateProductRequest.getLink())
                                 .build();
                         memberProductService.createMemberProduct(createMemberProductRequest);
-                        //제품에 초대되면 프로젝트에도 추가되어야함,
+                        //제품에 초대되면 프로젝트에도 추가되어야함.
+
                     }
                     else{
                         duplicatedMemberList.add(s);
@@ -210,6 +223,26 @@ public class ProductService {
                 .build();
 
     }
+
+    @Transactional(readOnly = true)
+    public List<MemberProductInfoDTO> sortProductsByMember(Long memberId){
+        List<MemberProduct> memberProductList = memberProductRepository.findMemberProductsByMemberIdAndOrderByIndex(memberId);
+        List<MemberProductInfoDTO> simpleMemberProductInfoDTOList = new ArrayList<>();
+        for(MemberProduct mp : memberProductList){
+            simpleMemberProductInfoDTOList.add(mp.toMemberProductInfoDTO());
+        }
+        return simpleMemberProductInfoDTOList;
+    }
+
+//    @Transactional
+//    public List<MemberProductInfoDTO> updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest){
+//        List<MemberProduct> memberProductList = memberProductRepository.findMemberProductsByMemberIdAndOrderByIndex(memberId);
+//        for(int i = 0 ; i < updateIndexRequest.getUpdateIndexList().size()/2 ; i++){
+//            //변경전 값을 우선 빼고 나머지 앞으로 이동
+//            memberProductList.set()
+//}
+//        }
+
 
     //마스터, 리더들이 제품에 멤버 추가할때
 
