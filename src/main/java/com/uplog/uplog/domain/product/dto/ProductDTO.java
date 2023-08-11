@@ -57,6 +57,13 @@ public class ProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class UpdateIndexRequest{
+        List<Long> updateIndexList;
+    }
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class UpdateProductRequest{
         private String link;
         private String newName;

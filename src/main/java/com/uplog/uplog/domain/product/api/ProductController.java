@@ -4,6 +4,8 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.product.application.ProductService;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.dto.MemberProductDTO;
+import com.uplog.uplog.domain.product.dto.MemberProductDTO.MemberProductInfoDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.model.Product;
@@ -38,8 +40,8 @@ public class ProductController {
     }
     //====================read=======================
     @GetMapping(value = "/products/{product-id}")
-    public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id")Long id){
-        ProductInfoDTO productInfoDTO = productService.findProductById(id);
+    public ResponseEntity<ProductInfoDTO> findProductById(@PathVariable(name = "product-id")Long productId){
+        ProductInfoDTO productInfoDTO = productService.findProductById(productId);
         return new ResponseEntity<>(productInfoDTO, HttpStatus.OK);
     }
 
@@ -53,6 +55,13 @@ public class ProductController {
     public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(Long companyId){
         List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompanyId(companyId);
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/products")
+    public ResponseEntity<List<MemberProductInfoDTO>> sortProjectByMember(){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        List<MemberProductInfoDTO> memberProductInfoDTOList = productService.sortProductsByMember(memberId);
+        return ResponseEntity.ok(memberProductInfoDTOList);
     }
     //====================update=====================
     //여기서 조회가 제대로 안되면 실패한것임
