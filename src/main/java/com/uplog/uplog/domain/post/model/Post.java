@@ -88,6 +88,14 @@ public class Post extends BaseTime {
 //                .build();
 //    }
 
+    public SimplePostInfoDTO toSimplePostInfoDTO(){
+        return SimplePostInfoDTO.builder()
+                .id(this.id)
+                .postTitle(this.title)
+                .build();
+
+    }
+
     public void updatePostTitle(String updateTitle){this.title=updateTitle;}
     public void updatePostContent(String updatecontent){this.content=updatecontent;}
     public void updatePostMenu(Menu menu){this.menu=menu;}
