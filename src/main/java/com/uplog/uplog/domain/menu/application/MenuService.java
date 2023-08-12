@@ -216,23 +216,28 @@ public class MenuService {
         return new MenuPostsDTO(menuInfoDTO, noticePostDTO, postDTOList);
     }
 
-    public Page<MenuPostsDTO> findPagedMenuPosts(Long menuId, Pageable pageable) {
-        Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
+    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, Pageable pageable) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+
+        Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
+
         Post noticePost = menu.getNoticePost();
-        MenuInfoDTO menuInfoDTO = menu.toMenuInfoDTO();
-
         PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
-        Page<MenuPostsDTO> menuPostsDTOPage = postPage.map(post -> {
-            List<PostDTO.PostInfoDTO> postDTOList = postPage.getContent().stream()
-                    .map(postService::toPostInfoDTO)
-                    .collect(Collectors.toList());
 
-            return new MenuPostsDTO(menuInfoDTO, noticePostDTO, postDTOList);
-        });
+        List<MenuPostsDTO> menuPostsDTOList = postPage.getContent().stream()
+                .map(post -> {
+                    PostDTO.PostInfoDTO postInfoDTO = postService.toPostInfoDTO(post);
+                    return new MenuPostsDTO(
+                            menu.toMenuInfoDTO(),
+                            noticePostDTO,
+                            Collections.singletonList(postInfoDTO)
+                    );
+                })
+                .collect(Collectors.toList());
 
-        return menuPostsDTOPage;
+        boolean nextPage = postPage.hasNext();
+
+        return new PagingPostDTO(nextPage, menuPostsDTOList);
     }
-
 }
 
