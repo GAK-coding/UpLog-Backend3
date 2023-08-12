@@ -108,6 +108,8 @@ public class MenuController {
         MenuPostsDTO menuPostsDTO = menuService.findPostsInfoByMenuId(menuId);
         return ResponseEntity.ok(menuPostsDTO);
     }
+
+    //페이지네이션
     @GetMapping("/menus/{menu-id}/posts/pages")
     public ResponseEntity<PagingPostDTO> findMenuPosts(
             @PathVariable(name = "menu-id") Long menuId,

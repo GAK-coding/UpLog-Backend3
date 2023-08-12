@@ -220,24 +220,16 @@ public class MenuService {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
 
         Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
+        List<PostDTO.PostInfoDTO> postInfoDTOList = postPage.getContent().stream()
+                .map(postService::toPostInfoDTO)
+                .collect(Collectors.toList());
 
         Post noticePost = menu.getNoticePost();
         PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
 
-        List<MenuPostsDTO> menuPostsDTOList = postPage.getContent().stream()
-                .map(post -> {
-                    PostDTO.PostInfoDTO postInfoDTO = postService.toPostInfoDTO(post);
-                    return new MenuPostsDTO(
-                            menu.toMenuInfoDTO(),
-                            noticePostDTO,
-                            Collections.singletonList(postInfoDTO)
-                    );
-                })
-                .collect(Collectors.toList());
-
         boolean nextPage = postPage.hasNext();
 
-        return new PagingPostDTO(nextPage, menuPostsDTOList);
+        return new PagingPostDTO(nextPage, menu.toMenuInfoDTO(), noticePostDTO, postInfoDTOList);
     }
 }
 

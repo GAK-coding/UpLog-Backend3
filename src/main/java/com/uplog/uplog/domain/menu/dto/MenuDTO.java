@@ -90,12 +90,12 @@ public class MenuDTO {
     }
 
     @Getter
-    @Builder
-    @NoArgsConstructor
     @AllArgsConstructor
-    public static class PagingPostDTO{
+    public static class PagingPostDTO {
         private boolean nextPage;
-        List<MenuPostsDTO> PagingPostData=new ArrayList<>();
+        private MenuInfoDTO menuInfo;
+        private PostDTO.PostInfoDTO noticePost;
+        private List<PostDTO.PostInfoDTO> posts;
     }
 
     @Getter
