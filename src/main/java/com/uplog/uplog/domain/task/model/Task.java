@@ -3,7 +3,7 @@ package com.uplog.uplog.domain.task.model;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.task.dto.TaskDTO.*;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,9 +32,8 @@ public class Task extends BaseTime {
     private Member targetMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "projectTeam_id")
-    private ProjectTeam projectTeam;
-
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
@@ -74,8 +73,8 @@ public class Task extends BaseTime {
                 .taskDetail(this.taskDetail)
                 .menuId(this.getMenu().getId())
                 .menuName(this.getMenu().getMenuName())
-                .projectTeamId(this.getProjectTeam().getId())
-                .projectTeamName(this.getProjectTeam().getName())
+                .teamId(this.getTeam().getId())
+                .teamName(this.getTeam().getName())
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
@@ -102,7 +101,7 @@ public class Task extends BaseTime {
     public void updateTaskContent(String updateContent){this.taskDetail=updateContent;}
 
     public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}
-    public void updateTaskTeam(ProjectTeam team){this.projectTeam=team;}
+    public void updateTaskTeam(Team team){this.team=team;}
     public void updateTaskMenu(Menu menu){this.menu=menu;}
 
     public void updateTaskStatus(TaskStatus taskStatus){

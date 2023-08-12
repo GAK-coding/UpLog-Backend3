@@ -130,6 +130,16 @@ public class PostDTO {
         private int commentCount;
     }
 
+    //좋아요 위해서 만듬.
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimplePostInfoDTO{
+        private Long id;
+        private String postTitle;
+    }
+
     @Getter
     @Builder
     @NoArgsConstructor

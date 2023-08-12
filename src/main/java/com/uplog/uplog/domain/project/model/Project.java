@@ -7,10 +7,8 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.project.dto.ProjectDTO.ProjectInfoDTO;
 import com.uplog.uplog.domain.project.dto.ProjectDTO.SimpleProjectInfoDTO;
-import com.uplog.uplog.domain.team.dto.ProjectTeamDTO;
-import com.uplog.uplog.domain.team.dto.ProjectTeamDTO.SimpleProjectTeamInfoDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +30,7 @@ public class Project extends BaseTime {
     private Long id;
 
     @OneToMany(mappedBy = "project")
-    private List<ProjectTeam> projectTeamList = new ArrayList<>();
+    private List<Team> teamList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -47,9 +45,8 @@ public class Project extends BaseTime {
     private ProjectStatus projectStatus;
 
     @Builder
-    public Project(List<ProjectTeam> projectTeamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
-
-        this.projectTeamList=projectTeamList;
+    public Project(List<Team> teamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
+        this.teamList=teamList;
         this.product=product;
         this.menuList=menuList;
         this.version=version;
@@ -95,7 +92,7 @@ public class Project extends BaseTime {
     public ProjectDTO.requestProjectAllInfo toRequestProjectAllInfo(PowerType powerType, String productName, String company){
         return ProjectDTO.requestProjectAllInfo.builder()
                 .projectId(this.id)
-                .projectTeamList(this.projectTeamList)
+                //.teamList(this.teamList)
                 .menuList(this.menuList)
                 .version(this.version)
                 .projectStatus(this.projectStatus)

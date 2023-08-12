@@ -15,8 +15,8 @@ import com.uplog.uplog.domain.task.model.QTask;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.exception.*;
 import com.uplog.uplog.domain.task.model.TaskStatus;
-import com.uplog.uplog.domain.team.dao.ProjectTeamRepository;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final MemberRepository memberRepository;
-    private final ProjectTeamRepository projectTeamRepository;
+    private final TeamRepository teamRepository;
     private final MenuRepository menuRepository;
 
 
@@ -61,7 +61,7 @@ public class TaskService {
         Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
                 .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
-        ProjectTeam projectTeam = projectTeamRepository.findById(createTaskRequest.getProjectTeamId())
+        Team projectTeam = teamRepository.findById(createTaskRequest.getTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
 
         if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
@@ -110,8 +110,8 @@ public class TaskService {
                         ))
                         .menuId(menu.getId())
                         .menuName(menu.getMenuName())
-                        .projectTeamId(task.getProjectTeam().getId())
-                        .projectTeamName(task.getProjectTeam().getName())
+                        .teamId(task.getTeam().getId())
+                        .teamName(task.getTeam().getName())
                         .taskStatus(task.getTaskStatus())
                         .taskDetail(task.getTaskDetail())
                         .startTime(task.getStartTime())
@@ -289,7 +289,7 @@ public class TaskService {
 
     @Transactional
     public Task updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest) {
-        ProjectTeam projectTeam = projectTeamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
+        Team projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 

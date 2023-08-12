@@ -7,7 +7,7 @@ import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.menu.model.Menu;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,17 +28,17 @@ public class TaskDTO {
     public static class CreateTaskRequest{
         private String taskName;
         private Long menuId;
-        private Long projectTeamId;
+        private Long teamId;
         private String taskDetail;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
 
-        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
+        public Task toEntity(Member targetMember,Menu menu, Team team) {
             return Task.builder()
                     .targetMember(targetMember)
                     .menu(menu)
                     .taskStatus(TaskStatus.PROGRESS_BEFORE)
-                    .projectTeam(projectTeam)
+                    .team(team)
                     .taskName(taskName)
                     .taskDetail(taskDetail)
                     .startTime(startTime)
@@ -86,8 +86,8 @@ public class TaskDTO {
         //private String targetmemberName;
         private Long menuId;
         private String menuName;
-        private Long projectTeamId;
-        private String projectTeamName;
+        private Long teamId;
+        private String teamName;
         private TaskStatus taskStatus;
         private String taskDetail;
         private LocalDateTime startTime;

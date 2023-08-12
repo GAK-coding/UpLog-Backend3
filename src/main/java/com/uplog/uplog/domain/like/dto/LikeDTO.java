@@ -43,4 +43,12 @@ public class LikeDTO {
         private int cnt;
     }
 
+//    @Builder
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @Getter
+//    public static class PostLikeInfoDTO{
+//        private Long postId;
+//    }
+
 }
