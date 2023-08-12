@@ -333,8 +333,9 @@ public class TaskService {
 
     //========================================delete========================================
     @Transactional
-    public void deleteTask(Long id) {
+    public String deleteTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         taskRepository.delete(task);
+        return "delete";
     }
 }
