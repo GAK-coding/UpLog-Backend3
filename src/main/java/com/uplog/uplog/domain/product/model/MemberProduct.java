@@ -22,7 +22,7 @@ import static com.uplog.uplog.domain.product.dto.MemberProductDTO.*;
 public class MemberProduct{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "memberProduct_id")
+    @Column(name = "member_product_id")
     private Long id;
 
 
