@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.uplog.uplog.domain.project.dto.ProjectDTO.*;
 
 @RestController
@@ -70,6 +72,13 @@ public class ProjectController {
         requestProjectInfo requestProjectInfo=projectService.readProjectSimple(projectId,memberId);
 
         return new ResponseEntity<>(requestProjectInfo,HttpStatus.OK);
+    }
+
+    //제품으로 프로젝트 목록 불러오기
+    @GetMapping(value = "/products/{product-id}/projects")
+    public ResponseEntity<List<VerySimpleProjectInfoDTO>> findProjectsByProductId(@PathVariable(name = "product-id")Long productId){
+        List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = projectService.findProjectsByProductId(productId);
+        return ResponseEntity.ok(verySimpleProjectInfoDTOList);
     }
 
     @PatchMapping(value="/projects/{project-id}/{member-id}")
