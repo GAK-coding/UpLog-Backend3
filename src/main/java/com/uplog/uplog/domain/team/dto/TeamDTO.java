@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.team.dto;
 
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
@@ -24,18 +25,19 @@ public class TeamDTO {
     @NoArgsConstructor
     public static class CreateTeamRequest {
         //TODO 이부분은 좀 더 고려해봐야할듯.
-        private String memberEmail;
-        //private Long productId;
-        private String teamName;
-        //팀의 이름은 제품의 이름으로 들어가게 됨!
+        private List<Long> memberIdList;
+        private String name;
+        private Long projectId;
+        private Long parentTeamId;
         private String link;
-        private int mailType;
 
-        public Team toEntity(){
-            return Team.teamBuilder()
+        public Team toEntity(Project project, Team parentTeam){
+            return Team.builder()
                     //.product(product)
                     .memberTeamList(new ArrayList<>())
-                    .name(this.teamName)
+                    .project(project)
+                    .name(this.name)
+                    .parentTeam(parentTeam)
                     .build();
 
         }
@@ -47,8 +49,7 @@ public class TeamDTO {
     @NoArgsConstructor
     public static class TeamInfoDTO{
         private Long id;
-        //private Long productId;
-        private String productName;
+        private String projectName;
         private List<MemberTeam> memberTeamList;
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;
