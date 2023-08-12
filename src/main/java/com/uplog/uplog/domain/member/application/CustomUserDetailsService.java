@@ -37,7 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(userDetails==null){
             throw new BadCredentialsException("username is not found. username=" + name);
         }
-        System.out.println("user3 ");
+
         return userDetails;
     }
     private org.springframework.security.core.userdetails.User createUser(String name, Member member){
@@ -45,11 +45,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         //if(member.getActivated()==false){
         //    throw new RuntimeException(name + " -> 활성화되어 있지 않습니다.");
         //}
-        System.out.println("3");
+
         List<GrantedAuthority>grantedAuthorities=member.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
-        System.out.println("4");
+
         return new org.springframework.security.core.userdetails.User(member.getEmail(),
                 member.getPassword(),
                 grantedAuthorities);

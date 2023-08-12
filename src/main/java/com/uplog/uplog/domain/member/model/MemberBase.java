@@ -32,7 +32,7 @@ public class MemberBase {
     private Position position;
 
 
-    @ManyToMany(cascade=CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name="user_authority",
             joinColumns={@JoinColumn(name="member_id",referencedColumnName = "member_id")},

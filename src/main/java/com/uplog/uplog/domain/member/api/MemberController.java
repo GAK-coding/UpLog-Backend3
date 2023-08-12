@@ -72,16 +72,6 @@ public class MemberController {
 
         UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
 
-
-
-
-        if (!this.passwordEncoder.matches((String)authenticationToken.getCredentials(), userDetails.getPassword())) {
-            System.out.println("errorororoorr ");
-            //throw new BadCredentialsException("password is not matched");
-        }
-        else{
-            System.out.println("okokokok ");
-        }
         //String password=(String)authentication.getCredentials();
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -96,12 +86,11 @@ public class MemberController {
         return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
     }
 
-    @GetMapping("/members/logout")
+    @PostMapping("/members/logout")
     public String logoutPage(HttpServletRequest request, HttpServletResponse response,
                              @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
-        System.out.println("logout1: "+SecurityContextHolder.getContext().getAuthentication()+" "+SecurityUtil.getCurrentUsername());
+
         new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        System.out.println("logout2: "+SecurityContextHolder.getContext().getAuthentication()+" "+SecurityUtil.getCurrentUsername());
         SecurityContextHolder.clearContext();
         memberService.logout(tokenRequestDTO);
 
@@ -118,7 +107,6 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Member> getMyUserInfo(){
         Optional<String> d= SecurityUtil.getCurrentUsername();
-        System.out.println("sd"+d);
         return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
     }
     // 토큰 Role admin
@@ -155,7 +143,7 @@ public class MemberController {
     public ResponseEntity<SimpleMemberInfoDTO> updateMemberName(@PathVariable(name="member-id") Long id, @RequestBody @Validated UpdateNameRequest updateNameRequest){
         SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberName(id, updateNameRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
-        }
+    }
 
     @PatchMapping(value = "members/{member-id}/nickname")
     public ResponseEntity<SimpleMemberInfoDTO> updateMemberNickname(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdateNicknameRequest updateNicknameRequest){

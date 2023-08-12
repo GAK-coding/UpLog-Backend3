@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.member.application;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 //import com.uplog.uplog.domain.member.dao.RedisDao;
 //import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
@@ -13,6 +14,11 @@ import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
 //import com.uplog.uplog.domain.member.model.RefreshToken;
+import com.uplog.uplog.domain.member.model.MemberBase;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.QMemberTeam;
+import com.uplog.uplog.domain.team.model.QTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
@@ -101,7 +107,7 @@ public class MemberService {
         Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getRefreshToken());
 
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
-        String rtkInRedis = redisDao.getValues(authentication.getName());
+        String rtkInRedis = redisDao.getValues("RT:"+authentication.getName());
         if(rtkInRedis==null){
             throw new RuntimeException("로그아웃 된 사용자입니다.");
         }
@@ -161,6 +167,7 @@ public class MemberService {
         redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
 
     }
+
 
     @Transactional(readOnly = true)
     public Optional<Member> getUserWithAuthorities(String email){
@@ -233,7 +240,7 @@ public class MemberService {
 
 
         //현재 유저 비밀번호를 가져오기 위해 UserDetails 객체를 현재 유저 이메일로 가져온다.
-        UserDetails userDetails=customUserDetailsService.loadUserByUsername(member.getName());
+        UserDetails userDetails=customUserDetailsService.loadUserByUsername(member.getEmail());
 
         //단순히 equals를 사용하면 암호화 시 매번 암호화 된 문자열이 바뀌기 때문에 아래 메소드를 사용함.
         //userDetails로 가져온 password가 암호화 되어 db에 저장되어 있는 비밀번호, 그리고 전달 받은 평문 암호(새로운 비밀번호)와 동일한 지 검증.
@@ -260,15 +267,47 @@ public class MemberService {
     @Transactional
     public String deleteMember(Long id, DeleteMemberRequest deleteMemberRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
+        //MemberBase memberBase=memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         //TODO SpringSecurity 하고 나서 getCurrentMember 하고나서 로직 수정 필요함.
         //TODO 닉네임(이름)되어있는 것을 -> (알수없음)(이름)으로 바꾸는 과정 있어야함. -> 나중에 프론트와 상의가 필요할 수도 있음.
-        if(member.getPassword().equals(deleteMemberRequest.getPassword())){
+        //TODO memberTeam 객체 지우고 Team 객체의 memberTeamList 가져와서 해당 되는 memberTeam객체 빼준 뒤에 업데이트 해줘야할듯
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QMemberTeam memberTeam=QMemberTeam.memberTeam;
+
+
+        //QTeam team=QTeam.team;
+        if(this.passwordEncoder.matches(deleteMemberRequest.getPassword(), member.getPassword())){
+
+            MemberTeam memberTeam1=query
+                    .selectFrom(memberTeam)
+                    .where(memberTeam.member.id.eq(id))
+                    .fetchOne();
+
+//            Team team1=query
+//                    .select(team)
+//                    .from(team)
+//                    .where(team.id.eq(memberTeam1.getTeam().getId()))
+//                    .fetchOne();
+
+            query.delete(memberTeam)
+                    .where(memberTeam.member.id.eq(id))
+                    .execute();
+
+            // 회원(Member)를 삭제
             memberRepository.delete(member);
+
+            //회원 탈퇴 후에도 토큰이 유효하기 때문에 jwt정보 제거 하고 로그아웃 처리해야 됨
+            SecurityContextHolder.clearContext();
+            TokenRequestDTO tokenRequestDTO=new TokenRequestDTO();
+            tokenRequestDTO.addTokenToMemberInfoDTO(deleteMemberRequest.getAccessToken(),deleteMemberRequest.getRefreshToken());
+            logout(tokenRequestDTO);
+
             return "DELETE";
         }
         else{
             throw new NotMatchPasswordException("비밀번호가 일치하지 않습니다.");
         }
+
 
 
     }

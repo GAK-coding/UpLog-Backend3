@@ -101,6 +101,8 @@ public class CommentService {
         List<SimpleCommentInfo> commentInfos=new ArrayList<>();
 
         for(Comment comment_tmp : commentList)
+
+
             commentInfos.add(comment_tmp.toSimpleCommentInfo());
 
         return commentInfos;
