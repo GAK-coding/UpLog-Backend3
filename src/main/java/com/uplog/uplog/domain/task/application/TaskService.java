@@ -15,10 +15,13 @@ import com.uplog.uplog.domain.task.model.QTask;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.exception.*;
 import com.uplog.uplog.domain.task.model.TaskStatus;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.NotFountTeamByProjectException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +53,7 @@ public class TaskService {
     private final TeamRepository teamRepository;
     private final MenuRepository menuRepository;
     private final AuthorizedMethod authorizedMethod;
+    private final MemberTeamRepository memberTeamRepository;
 
 
     //========================================create========================================
@@ -72,6 +76,7 @@ public class TaskService {
 
         //테스크 생성자, 타겟멤버 둘다 권한 확인
         authorizedMethod.CreatePostTaskValidateByMemberId(AuthorMember,rootTeam);
+        authorizedMethod.CreatePostTaskValidateByMemberId(targetMember,rootTeam);
 
         if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
             throw new AuthorityException("해당 프로젝트 팀은 현재 프로젝트에 존재하지 않는 프로젝트팀 입니다.");
@@ -291,6 +296,7 @@ public class TaskService {
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
+        authorizedMethod.CreatePostTaskValidateByMemberId(member,task.getTeam());
         task.updateTaskmember(member);
 
         return task;
@@ -301,6 +307,11 @@ public class TaskService {
         Team projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        //바꾸려는 팀이 프로젝트에 존재하지 않을때
+        if (!projectTeam.getProject().getId().equals(task.getMenu().getProject().getId())) {
+            throw new NotFountTeamByProjectException();
+        }
 
         task.updateTaskTeam(projectTeam);
 

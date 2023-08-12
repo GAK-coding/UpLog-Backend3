@@ -67,7 +67,7 @@ public class AuthorizedMethod {
 
 
 /*
-    테스크,포스트 생성권한
+    테스크,포스트 생성권한 및 테스크할당자 권한
  */
 
 //- 해당 프로젝트 팀 내에 존재하는 멤버 ->나중에 윤정이가 줄거임
@@ -78,7 +78,7 @@ public class AuthorizedMethod {
 
         //기업회원이 아닌 개인 회원(기업이면 예외)
         if(member.getPosition()== Position.COMPANY){
-            throw new AuthorityException("기업회원은 생성 권한이 없습니다");
+            throw new AuthorityException("기업회원은 권한이 없습니다");
         }
 
         //TODO 임시 나중에 프로젝트를 통해 프로젝트 팀 아이디 받아야함
@@ -119,7 +119,7 @@ public class AuthorizedMethod {
         if(!"결과물".equals(menuName)){
             //기업회원이 아닌 개인 회원(기업이면 예외)
             if(member.getPosition()== Position.COMPANY){
-                throw new AuthorityException("기업회원은 생성 권한이 없습니다");
+                throw new AuthorityException("기업회원은 권한이 없습니다");
             }
 
             //클라이언트가 아닌 멤버(클라이언트면 예외)
