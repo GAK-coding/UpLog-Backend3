@@ -2,6 +2,8 @@ package com.uplog.uplog.domain.product.model;
 
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.SimpleProductMemberInfoDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,8 +51,8 @@ public class ProductMember {
         this.indexNum = indexNum;
     }
 
-    public ProductMemberDTO.SimpleProductMemberInfoDTO toSimpleMemberProductInfoDTO() {
-        return ProductMemberDTO.SimpleProductMemberInfoDTO.builder()
+    public SimpleProductMemberInfoDTO toSimpleProductMemberInfoDTO() {
+        return SimpleProductMemberInfoDTO.builder()
                 .id(this.id)
                 .memberId(this.member.getId())
                 .memberName(this.member.getName())
@@ -58,8 +60,8 @@ public class ProductMember {
                 .build();
     }
 
-    public ProductMemberDTO.ProductMemberInfoDTO toMemberProductInfoDTO() {
-        return ProductMemberDTO.ProductMemberInfoDTO.builder()
+    public ProductMemberInfoDTO toProductMemberInfoDTO() {
+        return ProductMemberInfoDTO.builder()
                 .productId(this.id)
                 .productName(this.getProduct().getName())
                 .memberName(this.member.getName())
