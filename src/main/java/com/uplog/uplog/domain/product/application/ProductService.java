@@ -1,37 +1,22 @@
 package com.uplog.uplog.domain.product.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
-import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
-import com.uplog.uplog.domain.product.dao.MemberProductRepository;
+import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
-import com.uplog.uplog.domain.product.dto.MemberProductDTO;
-import com.uplog.uplog.domain.product.dto.MemberProductDTO.CreateMemberProductRequest;
-import com.uplog.uplog.domain.product.dto.MemberProductDTO.MemberProductInfoDTO;
-import com.uplog.uplog.domain.product.dto.MemberProductDTO.SimpleMemberProductInfoDTO;
-import com.uplog.uplog.domain.product.dto.ProductDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.CreateProductMemberRequest;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
-import com.uplog.uplog.domain.product.model.MemberProduct;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
-import com.uplog.uplog.domain.team.application.TeamService;
-import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
-import com.uplog.uplog.domain.team.dto.TeamDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
-import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
-import com.uplog.uplog.global.mail.MailDTO;
-import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 //TODO ProjectList null로 넣어놓은거 수정하기 -> 프로젝트가 완료 되면!!
@@ -50,11 +34,11 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
-    private final MemberProductRepository memberProductRepository;
+    private final ProductMemberRepository productMemberRepository;
 
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
-    private final MemberProductService memberProductService;
+    private final ProductMemberService productMemberService;
 
     //========================================Create=============================================
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
@@ -77,13 +61,13 @@ public class ProductService {
             Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
             productRepository.save(product);
 
-            CreateMemberProductRequest createMemberProductRequest = CreateMemberProductRequest.builder()
+            CreateProductMemberRequest createProductMemberRequest = CreateProductMemberRequest.builder()
                     .memberEmail(createProductRequest.getMasterEmail())
                     .productId(product.getId())
                     .link(createProductRequest.getLink())
                     .powerType(PowerType.MASTER)
                     .build();
-            memberProductService.createMemberProduct(createMemberProductRequest);
+            productMemberService.createProductMember(createProductMemberRequest);
 
 
 
@@ -98,35 +82,35 @@ public class ProductService {
     //=====================================Read================================================
     //프로덕트 내에 멤버 리스트 출력
     @Transactional(readOnly = true)
-    public MemberProductDTO.MemberPowerListDTO findMemberPowerList(Long productId) {
+    public ProductMemberDTO.ProductMemberPowerListDTO findMemberPowerList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> leaderList = new ArrayList<>();
         List<String> clientList = new ArrayList<>();
         List<String> workerList = new ArrayList<>();
         String master = "";
 
-        List<MemberProduct> masterL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.MASTER);
-        List<MemberProduct> leaderL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.LEADER);
-        List<MemberProduct>clientL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.CLIENT);
-        List<MemberProduct> workerL = memberProductRepository.findMemberProductsByProductIdAndPowerType(product.getId(), PowerType.DEFAULT);
+        List<ProductMember> masterL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.MASTER);
+        List<ProductMember> leaderL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.LEADER);
+        List<ProductMember>clientL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.CLIENT);
+        List<ProductMember> workerL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.DEFAULT);
 
         //마스터
-        for (MemberProduct m : masterL) {
+        for (ProductMember m : masterL) {
             master = m.getMember().getEmail();
         }
         //리더 리스트
-        for (MemberProduct l : leaderL) {
+        for (ProductMember l : leaderL) {
             leaderList.add(l.getMember().getEmail());
         }
         //작업자 리스트
-        for (MemberProduct w : workerL) {
+        for (ProductMember w : workerL) {
             workerList.add(w.getMember().getEmail());
         }
         //의뢰인 리스트
-        for (MemberProduct c : clientL) {
+        for (ProductMember c : clientL) {
             clientList.add(c.getMember().getEmail());
         }
-        return MemberProductDTO.MemberPowerListDTO.builder()
+        return ProductMemberDTO.ProductMemberPowerListDTO.builder()
                 .productId(productId)
                 .productName(product.getName())
                 .master(master)
@@ -175,7 +159,7 @@ public class ProductService {
     @Transactional
     public UpdateResultDTO updateProduct(Long memberId, Long productId, UpdateProductRequest updateProductRequest) throws Exception {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
-        MemberProduct memberProduct = memberProductRepository.findMemberProductByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+        ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
 
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
@@ -197,14 +181,14 @@ public class ProductService {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
                 if (memberRepository.existsByEmail(s)) {
                     //팀 멤버 내에 초대된 사람인지 중복 확인
-                    if(!memberProductRepository.existsMemberProductsByMemberEmailAndProductId( s,product.getId())) {
-                        CreateMemberProductRequest createMemberProductRequest = CreateMemberProductRequest.builder()
+                    if(!productMemberRepository.existsProductMembersByMemberEmailAndProductId( s,product.getId())) {
+                        CreateProductMemberRequest createMemberProductRequest = CreateProductMemberRequest.builder()
                                 .memberEmail(s)
                                 .productId(productId)
                                 .powerType(updateProductRequest.getPowerType())
                                 .link(updateProductRequest.getLink())
                                 .build();
-                        memberProductService.createMemberProduct(createMemberProductRequest);
+                        productMemberService.createProductMember(createMemberProductRequest);
                         //제품에 초대되면 프로젝트에도 추가되어야함.
 
                     }
