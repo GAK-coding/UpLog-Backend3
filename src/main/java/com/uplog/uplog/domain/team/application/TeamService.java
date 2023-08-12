@@ -10,8 +10,10 @@ import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
+import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,14 @@ public class TeamService {
     private final MailService mailService;
 
     @Transactional
-    public Long saveTeam(CreateTeamRequest createTeamRequest) throws Exception {
+    public Long createTeam(Long currentMemberId, CreateTeamRequest createTeamRequest) throws Exception {
+
         Project project = projectRepository.findById(createTeamRequest.getProjectId()).orElseThrow(NotFoundIdException::new);
+        //멤버가 현재 프로젝트에 속한사람인지 확인
+        Team rootTeam = teamRepository.findByProjectIdAndName(project.getId(), project.getVersion()).orElseThrow(NotFoundIdException::new);
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(currentMemberId, rootTeam.getId())){
+            throw new AuthorityException("팀에 속하지 않은 멤버로, 팀 생성 권한이 없습니다.");
+        }
 
 //            Team parentTeam = teamRepository.findTeamById(createTeamRequest.getParentTeamId());
             //생성 외에 부모가 널로 들어왔다면, 프로젝트 생성시에 만들어진 젠체 그룹으로 부모넣어주기
@@ -46,9 +54,6 @@ public class TeamService {
                 teamRepository.save(team);
 
                 //PowerType알아내기 --> 어떻게 알아내지  -> memberProduct에서 찾자. team을 이름으로 찾고 team이랑 멤버 아이디로 해도 되는데 그럼 중복된 이름이 걸릴 수 있음.
-
-
-
                 for (Long memberId : createTeamRequest.getMemberIdList()) {
                     ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, createTeamRequest.getProjectId()).orElseThrow(NotFoundIdException::new);
                     CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
