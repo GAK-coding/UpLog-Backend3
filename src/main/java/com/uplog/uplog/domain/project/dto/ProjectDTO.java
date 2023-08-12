@@ -30,7 +30,7 @@ public class ProjectDTO {
 
         public Project toEntity(Product product){
             return Project.builder()
-                    //.projectTeamList(new ArrayList<>())
+                    .teamList(new ArrayList<>())
                     .menuList(new ArrayList<>())
                     .version(this.version)
                     .product(product)

@@ -46,7 +46,6 @@ public class Project extends BaseTime {
 
     @Builder
     public Project(List<Team> teamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
-
         this.teamList=teamList;
         this.product=product;
         this.menuList=menuList;
