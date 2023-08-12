@@ -80,7 +80,7 @@ public class ProjectDTO {
         private String version;
         private Long productId;
         private List<SimpleMenuInfoDTO> menuList;
-        private List<Long> projectTeamIdList;
+        private List<Long> teamIdList;
         private ProjectStatus projectStatus;
     }
 

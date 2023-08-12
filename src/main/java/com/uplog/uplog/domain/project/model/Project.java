@@ -67,7 +67,7 @@ public class Project extends BaseTime {
         return ProjectInfoDTO.builder()
                 .id(this.id)
                 .version(this.version)
-                .projectTeamIdList(projectTeamIdList)
+                .teamIdList(projectTeamIdList)
                 .projectStatus(this.projectStatus)
                 .productId(this.product.getId())
                 .menuList(simpleMenuInfoDTOList)
