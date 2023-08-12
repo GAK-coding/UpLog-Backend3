@@ -1,7 +1,9 @@
 package com.uplog.uplog.domain.project.api;
 
 import com.uplog.uplog.domain.comment.api.CommentController;
+import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.project.application.ProjectService;
+import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +26,8 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    private final MemberRepository memberRepository;
+
     // summary -> api 내용(기능) description -> 세부 설명 tag -> 그룹 (도메인 별 컨트롤러 이름)
     @Operation(summary = "project", description = "project", tags = { "project Controller" })
     // response 코드 별로 응답 시 내용(설명) 작성
@@ -38,11 +42,8 @@ public class ProjectController {
     //todo 처음에 default로 일단 해당 제품의 멤버(그룹으로 치면 전체)를 TeamList로 넣어줘야 하나?
     @PostMapping(value="/products/{product-id}/projects")
     public ResponseEntity<ProjectInfoDTO> CreateInitProject(@RequestBody CreateProjectRequest createProjectRequest, @PathVariable("product-id")Long productId) throws Exception {
-
-        //진행 중인 프로젝트가 있을 시 접근 제한
-        //projectService.checkProcessProject(productId); -> 하위 서비스에서 하는데 중복으로 들어가서 지움.
-
-        ProjectInfoDTO projectInfoDTO = projectService.createProject(createProjectRequest,productId);
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        ProjectInfoDTO projectInfoDTO = projectService.createProject(memberId, createProjectRequest,productId);
 
 
         return new ResponseEntity<>(projectInfoDTO, HttpStatus.CREATED);
