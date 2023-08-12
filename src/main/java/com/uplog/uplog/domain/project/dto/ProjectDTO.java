@@ -7,7 +7,6 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class ProjectDTO {
 
         public Project toEntity(Product product){
             return Project.builder()
-                    .projectTeamList(new ArrayList<>())
+                    .teamList(new ArrayList<>())
                     .menuList(new ArrayList<>())
                     .version(this.version)
                     .product(product)
@@ -94,7 +93,7 @@ public class ProjectDTO {
         private String productName;
         private String company;
         private Long projectId;
-        private List<ProjectTeam> projectTeamList;
+        //private List<ProjectTeam> projectTeamList;
         private List<Menu> menuList;
         private String version;
         private ProjectStatus projectStatus;

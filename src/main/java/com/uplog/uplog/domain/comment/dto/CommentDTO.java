@@ -45,6 +45,16 @@ public class CommentDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class VerySimpleCommentInfoDTO{
+        private Long id;
+        private String content;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SimpleCommentInfo {
 
         private Long id;

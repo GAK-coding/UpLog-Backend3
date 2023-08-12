@@ -1,14 +1,9 @@
 package com.uplog.uplog.domain.product.dto;
 
-import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerListDTO;
 import com.uplog.uplog.domain.product.model.Product;
-import com.uplog.uplog.domain.project.dto.ProjectDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
-import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,12 +22,12 @@ public class ProductDTO {
         //private Team team;x
         private String masterEmail;
         private String link;
-        //private int mailType; -> 백에서 처리해도 될 것 같음.
+       // private int mailType; -> 백에서 처리해도 될 것 같음.
 
-        public Product toProductEntity(String company, Team team){
+        public Product toProductEntity(String company, Long companyId){
             return Product.builder()
                     .name(this.name)
-                    .team(team)
+                    .companyId(companyId)
                     .company(company)
                     .build();
         }
@@ -48,10 +43,17 @@ public class ProductDTO {
         private Long id;
         private String name;
         private String company;
-        private Long teamId;
+        private MemberPowerListDTO memberPowerListDTO;
         private List<Long> projectListId;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateIndexRequest{
+        List<Long> updateIndexList;
+    }
     @Builder
     @Getter
     @AllArgsConstructor
@@ -81,7 +83,7 @@ public class ProductDTO {
     public static class UpdateProductInfoDTO{
         //        private Long id;
 //        private String name;
-        private MemberPowerListDTO memberPowerListDTO;
+        private ProductMemberPowerListDTO memberPowerListDTO;
         private UpdateResultDTO updateResultDTO;
     }
 

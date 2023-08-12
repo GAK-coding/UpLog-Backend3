@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.comment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uplog.uplog.domain.comment.dto.CommentDTO;
+import com.uplog.uplog.domain.comment.dto.CommentDTO.VerySimpleCommentInfoDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.global.BaseTime;
@@ -62,6 +63,13 @@ public class Comment extends BaseTime {
                 .createTime(this.getCreatedTime())
                 .parentId((this.parent==null)?null:this.parent.getId())
                 .memberId(this.author.getId())
+                .build();
+    }
+
+    public VerySimpleCommentInfoDTO toVerySimpleCommentInfoDTO(){
+        return VerySimpleCommentInfoDTO.builder()
+                .id(this.id)
+                .content(this.content)
                 .build();
     }
 
