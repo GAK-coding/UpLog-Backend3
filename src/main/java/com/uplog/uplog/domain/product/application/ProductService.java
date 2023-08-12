@@ -83,6 +83,8 @@ public class ProductService {
                     .link(createProductRequest.getLink())
                     .powerType(PowerType.MASTER)
                     .build();
+            memberProductService.createMemberProduct(createMemberProductRequest);
+
 
 
             return product.getId();
@@ -96,7 +98,7 @@ public class ProductService {
     //=====================================Read================================================
     //프로덕트 내에 멤버 리스트 출력
     @Transactional(readOnly = true)
-    public MemberPowerListDTO findMemberPowerList(Long productId) {
+    public MemberProductDTO.MemberPowerListDTO findMemberPowerList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> leaderList = new ArrayList<>();
         List<String> clientList = new ArrayList<>();
@@ -124,8 +126,8 @@ public class ProductService {
         for (MemberProduct c : clientL) {
             clientList.add(c.getMember().getEmail());
         }
-        return MemberPowerListDTO.builder()
-                .poductId(productId)
+        return MemberProductDTO.MemberPowerListDTO.builder()
+                .productId(productId)
                 .productName(product.getName())
                 .master(master)
                 .leaderCnt(leaderList.size())
@@ -224,15 +226,15 @@ public class ProductService {
 
     }
 
-    @Transactional(readOnly = true)
-    public List<MemberProductInfoDTO> sortProductsByMember(Long memberId){
-        List<MemberProduct> memberProductList = memberProductRepository.findMemberProductsByMemberIdAndOrderByIndex(memberId);
-        List<MemberProductInfoDTO> simpleMemberProductInfoDTOList = new ArrayList<>();
-        for(MemberProduct mp : memberProductList){
-            simpleMemberProductInfoDTOList.add(mp.toMemberProductInfoDTO());
-        }
-        return simpleMemberProductInfoDTOList;
-    }
+//    @Transactional(readOnly = true)
+//    public List<MemberProductInfoDTO> sortProductsByMember(Long memberId){
+//        List<MemberProduct> memberProductList = memberProductRepository.findMemberProductsByMemberIdAndOrderByIndex(memberId);
+//        List<MemberProductInfoDTO> simpleMemberProductInfoDTOList = new ArrayList<>();
+//        for(MemberProduct mp : memberProductList){
+//            simpleMemberProductInfoDTOList.add(mp.toMemberProductInfoDTO());
+//        }
+//        return simpleMemberProductInfoDTOList;
+//    }
 
 //    @Transactional
 //    public List<MemberProductInfoDTO> updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest){

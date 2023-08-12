@@ -57,19 +57,19 @@ public class ProductController {
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/products")
-    public ResponseEntity<List<MemberProductInfoDTO>> sortProjectByMember(){
-        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        List<MemberProductInfoDTO> memberProductInfoDTOList = productService.sortProductsByMember(memberId);
-        return ResponseEntity.ok(memberProductInfoDTOList);
-    }
+//    @GetMapping(value = "/products")
+//    public ResponseEntity<List<MemberProductInfoDTO>> sortProjectByMember(){
+//        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+//        List<MemberProductInfoDTO> memberProductInfoDTOList = productService.sortProductsByMember(memberId);
+//        return ResponseEntity.ok(memberProductInfoDTOList);
+//    }
     //====================update=====================
     //여기서 조회가 제대로 안되면 실패한것임
     @PatchMapping(value = "/products/{product-id}")
     public ResponseEntity<UpdateProductInfoDTO> updateProduct(@PathVariable(name = "product-id") Long productId, @RequestBody @Validated UpdateProductRequest updateProductRequest) throws Exception {
         Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         UpdateResultDTO updateResultDTO = productService.updateProduct(memberId, productId, updateProductRequest);
-        MemberPowerListDTO memberPowerListDTO = productService.findMemberPowerList(productId);
+        MemberProductDTO.MemberPowerListDTO memberPowerListDTO = productService.findMemberPowerList(productId);
         UpdateProductInfoDTO updateProductInfoDTO = UpdateProductInfoDTO.builder()
                 .memberPowerListDTO(memberPowerListDTO)
                 .updateResultDTO(updateResultDTO)

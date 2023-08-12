@@ -89,7 +89,7 @@ public class ProductDTO {
     public static class UpdateProductInfoDTO{
         //        private Long id;
 //        private String name;
-        private MemberPowerListDTO memberPowerListDTO;
+        private MemberProductDTO.MemberPowerListDTO memberPowerListDTO;
         private UpdateResultDTO updateResultDTO;
     }
 
