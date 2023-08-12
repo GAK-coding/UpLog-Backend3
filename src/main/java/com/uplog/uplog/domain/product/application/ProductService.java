@@ -134,7 +134,7 @@ public class ProductService {
     //멤버아이디로 제품 목록 리스트 뽑기
     @Transactional(readOnly = true)
     public List<SimpleProductInfoDTO> findProductByMemberId(Long memberId){
-        List<ProductMember> productMemberList = productMemberRepository.findMemberProductsByMemberId(memberId);
+        List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberId(memberId);
         List<SimpleProductInfoDTO> simpleProductInfoDTOList = new ArrayList<>();
 
         for(ProductMember pm : productMemberList){
@@ -253,21 +253,21 @@ public class ProductService {
         return simpleProductMemberInfoDTOList;
     }
 
+    //for drag/drop
+    //제일 처음 원래 순서대로 목록을 부름
+    //updateIndexRequest에는 0번부터 프로젝트의 객체 아이디가 순서대로 들어가있음.
     @Transactional
     public void updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest) {
         List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
-        int i = 0;
-        for (ProductMember pm : productMemberList) {
-            pm.updateIndex(updateIndexRequest.getUpdateIndexList().get(i));
-            i++;
+        Long cnt = productMemberRepository.countProductMembersByMemberId(memberId);
+        for(int i = 0 ; i < cnt ; i++ ){
+            ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new);
+            productMember.updateIndex(new Long(i));
         }
     }
 
 
     //마스터, 리더들이 제품에 멤버 추가할때
-
-
-    //제품수정(이름,이미지,의뢰인추가->의뢰인추가는 팀에서 관리해야하는거같기도?)
 
 
 }

@@ -5,6 +5,7 @@ import com.uplog.uplog.domain.product.application.ProductService;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,12 +59,12 @@ public class ProductController {
         return ResponseEntity.ok(simpleProductInfoDTOList);
     }
 
-//    @GetMapping(value = "/products")
-//    public ResponseEntity<List<MemberProductInfoDTO>> sortProjectByMember(){
-//        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-//        List<MemberProductInfoDTO> memberProductInfoDTOList = productService.sortProductsByMember(memberId);
-//        return ResponseEntity.ok(memberProductInfoDTOList);
-//    }
+    @GetMapping(value = "/products")
+    public ResponseEntity<List<ProductMemberInfoDTO>> sortProjectByMember(){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        List<ProductMemberInfoDTO> memberProductInfoDTOList = productService.sortProductsByMember(memberId);
+        return ResponseEntity.ok(memberProductInfoDTOList);
+    }
     //====================update=====================
     //여기서 조회가 제대로 안되면 실패한것임
     @PatchMapping(value = "/products/{product-id}")
@@ -76,7 +77,13 @@ public class ProductController {
                 .updateResultDTO(updateResultDTO)
                 .build();
         return new ResponseEntity<>(updateProductInfoDTO, HttpStatus.OK);
-
+    }
+    @PatchMapping(value = "/products")
+    public ResponseEntity<List<ProductMemberInfoDTO>> updateIndex(UpdateIndexRequest updateIndexRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        productService.updateIndex(memberId, updateIndexRequest);
+        List<ProductMemberInfoDTO> productMemberInfoDTOList = productService.sortProductsByMember(memberId);
+        return ResponseEntity.ok(productMemberInfoDTOList);
     }
 
 }
