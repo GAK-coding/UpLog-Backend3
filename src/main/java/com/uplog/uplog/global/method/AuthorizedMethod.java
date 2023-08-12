@@ -11,12 +11,15 @@ import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.exception.ExistProcessProjectExeption;
+import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.NotFoundMemberByTeamException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,7 @@ public class AuthorizedMethod {
 
     private final ChangedIssueRepository changedIssueRepository;
     private final MemberRepository memberRepository;
+    private final MemberTeamRepository memberTeamRepository;
 
 
     //memberId로 권한 확인->리더인지 마스터인지
@@ -69,10 +73,15 @@ public class AuthorizedMethod {
 //- 해당 프로젝트 팀 내에 존재하는 멤버 ->나중에 윤정이가 줄거임
 //- 기업회원이 아닌 개인 회원->이건 내가 체크 완료
 //- 클라이언트가 아닌 멤버-> 준이오빠가 준 글로벌그쪽에 내가 하나 더 만들었삼(클라이언트면 예외처리)
-    public void CreatePostTaskValidateByMemberId(Member member){
+    public void CreatePostTaskValidateByMemberId(Member member, Team projectTeam){
         Long memberId=member.getId();
-        //TODO 현재 프로젝트 팀 내에 존재하는 멤버인지 확인
 
+        //TODO 임시 나중에 프로젝트를 통해 프로젝트 팀 아이디 받아야함
+        Long teamId=1L;
+        //TODO 현재 프로젝트 팀 내에 존재하는 멤버인지 확인
+//        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId,teamId)){
+//            throw new NotFoundMemberByTeamException();
+//        }
         //기업회원이 아닌 개인 회원(기업이면 예외)
         if(member.getPosition()== Position.COMPANY){
             throw new AuthorityException("기업회원은 생성 권한이 없습니다");

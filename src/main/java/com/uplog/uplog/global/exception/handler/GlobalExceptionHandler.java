@@ -1,9 +1,6 @@
 package com.uplog.uplog.global.exception.handler;
 
-import com.uplog.uplog.global.exception.AuthorityException;
-import com.uplog.uplog.global.exception.ExpireAccessTokenException;
-import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
-import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.*;
 import com.uplog.uplog.global.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,6 +24,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundIdException.class)
     protected final ResponseEntity<ErrorResponse> notFoundIdExceptionHandler(NotFoundIdException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+    @ExceptionHandler(NotFoundMemberByTeamException.class)
+    protected final ResponseEntity<ErrorResponse> notFoundMemberByTeamExceptionHandler(NotFoundMemberByTeamException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())

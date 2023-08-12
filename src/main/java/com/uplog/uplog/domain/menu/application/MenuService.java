@@ -202,7 +202,7 @@ public class MenuService {
 //                .map(Post::toPostInfoDTO)
 //                .collect(Collectors.toList());
 //    }
-    public MenuPostsDTO findMenuInfoById(Long menuId) {
+    public MenuPostsDTO findPostsInfoByMenuId(Long menuId) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         Post noticePost = menu.getNoticePost();
         List<Post> posts = postService.findPostsByMenuId(menuId);
@@ -216,6 +216,20 @@ public class MenuService {
         return new MenuPostsDTO(menuInfoDTO, noticePostDTO, postDTOList);
     }
 
+    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, Pageable pageable) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
 
+        Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
+        List<PostDTO.PostInfoDTO> postInfoDTOList = postPage.getContent().stream()
+                .map(postService::toPostInfoDTO)
+                .collect(Collectors.toList());
+
+        Post noticePost = menu.getNoticePost();
+        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
+
+        boolean nextPage = postPage.hasNext();
+
+        return new PagingPostDTO(nextPage, menu.toMenuInfoDTO(), noticePostDTO, postInfoDTOList);
+    }
 }
 

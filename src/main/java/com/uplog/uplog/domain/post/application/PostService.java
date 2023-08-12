@@ -21,6 +21,8 @@ import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,19 +50,22 @@ public class PostService {
         Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
-        //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
-        authorizedMethod.CreatePostTaskValidateByMemberId(author);
-
         Menu menu = menuRepository.findById(createPostRequest.getMenuId())
                 .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
         Project project = projectRepository.findById(createPostRequest.getProjectId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트는 존재하지 않습니다."));
 
+
         Product product = productRepository.findById(createPostRequest.getProductId())
                 .orElseThrow(() -> new NotFoundIdException("해당 제품은 존재하지 않습니다."));
 
+        //현재 진행중인 프로젝트가 아니면 예외
+        authorizedMethod.checkProjectProgress(project.getId());
+        //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
 
+        //TODO 프로젝트팀 넘겨주기
+        //authorizedMethod.CreatePostTaskValidateByMemberId(author);
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정
@@ -218,6 +223,10 @@ public class PostService {
     public List<Post> findPostsByMenuId(Long menuId) {
         List<Post> postList = postRepository.findByMenuId(menuId);
         return postList;
+    }
+    public Page<Post> findPagedPostsByMenuId(Long menuId, Pageable pageable) {
+        // 메뉴 ID를 기반으로 페이지네이션된 포스트 목록을 가져옴
+        return postRepository.findByMenuId(menuId, pageable);
     }
 
     public PostInfoDTO toPostInfoDTO(Post post) {

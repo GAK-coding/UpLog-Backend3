@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -83,11 +85,13 @@ public class MenuController {
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
         return ResponseEntity.ok(menuTasksDTO);
     }
+
+    //페이지네이션
     @GetMapping("/menus/{menu-id}/tasks/pages")
     public ResponseEntity<PagingTaskDTO> findTasksByMenuIdWithPagination(
             @PathVariable(name = "menu-id") Long menuId,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size
+            @RequestParam(name = "size", defaultValue = "20") int size //테스크는 20개 기본
     ) {
         PagingTaskDTO pagingTaskDTO = menuService.findTasksByMenuIdWithPagination(menuId, page, size);
         return ResponseEntity.ok(pagingTaskDTO);
@@ -101,8 +105,20 @@ public class MenuController {
     //메뉴별 포스트 가져오기
     @GetMapping("/menus/{menu-id}/posts")
     public ResponseEntity<MenuPostsDTO> findMenuPosts(@PathVariable(name="menu-id") Long menuId) {
-        MenuPostsDTO menuPostsDTO = menuService.findMenuInfoById(menuId);
+        MenuPostsDTO menuPostsDTO = menuService.findPostsInfoByMenuId(menuId);
         return ResponseEntity.ok(menuPostsDTO);
+    }
+
+    //페이지네이션
+    @GetMapping("/menus/{menu-id}/posts/pages")
+    public ResponseEntity<PagingPostDTO> findMenuPosts(
+            @PathVariable(name = "menu-id") Long menuId,
+            @RequestParam(defaultValue = "0") int page, // 기본 페이지 번호는 0부터 시작
+            @RequestParam(defaultValue = "10") int size)// 기본 페이지 당 포스트 수는 10개
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        PagingPostDTO pagingPostDTO = (PagingPostDTO) menuService.findPostsByMenuIdWithPagination(menuId, pageable);
+        return ResponseEntity.ok(pagingPostDTO);
     }
 //    @GetMapping("/menus/{menu-id}/posts")
 //    public ResponseEntity<List<PostDTO.PostInfoDTO>> findPostsByMenuId(@PathVariable("menu-id") Long menuId) {
