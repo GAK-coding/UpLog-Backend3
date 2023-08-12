@@ -53,7 +53,7 @@ public class MemberTeamService {
         //MemberTeamInfoDTO memberTeamInfoDTO = memberTeam.toMemberTeamInfoDTO();
         EmailRequest emailRequest = EmailRequest.builder()
                 .email(member.getEmail())
-                .type(createMemberTeamRequest.getMailType())
+                .type(2)
                 .link(createMemberTeamRequest.getLink())
                 .powerType(createMemberTeamRequest.getPowerType())
                 .build();
