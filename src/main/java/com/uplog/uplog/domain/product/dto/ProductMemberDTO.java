@@ -1,11 +1,9 @@
 package com.uplog.uplog.domain.product.dto;
 
 import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.domain.product.model.MemberProduct;
 import com.uplog.uplog.domain.product.model.Product;
-import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,12 +11,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-public class MemberProductDTO {
+public class ProductMemberDTO {
     @Builder
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CreateMemberProductRequest{
+    public static class CreateProductMemberRequest{
         private String memberEmail;
         private Long memberId;
         private Long productId;
@@ -26,12 +24,12 @@ public class MemberProductDTO {
         private String link;
         //private int type;//0이면 프로덕트 생성 1이면 프로젝트 그룹 생성 -> 아이디, 이메일로 멤버 찾는거 구분때문에 만듬.
 
-        public MemberProduct toMemberProduct(Product product, Member member, Long index){
-            return MemberProduct.builder()
+        public ProductMember toProductMember(Product product, Member member, Long indexNum){
+            return ProductMember.builder()
                     .product(product)
                     .member(member)
                     .powerType(this.powerType)
-                    .index(index)
+                    .indexNum(indexNum)
                     .build();
         }
     }
@@ -40,7 +38,7 @@ public class MemberProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SimpleMemberProductInfoDTO{
+    public static class SimpleProductMemberInfoDTO{
         private Long id;
         private Long memberId;
         private String memberName;
@@ -50,12 +48,12 @@ public class MemberProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MemberProductInfoDTO{
+    public static class ProductMemberInfoDTO{
         private Long productId;
         private String productName;
         private String memberName;
         private PowerType powerType;
-        private Long index;
+        private Long indexNum;
 
     }
 //    @Builder
@@ -77,7 +75,7 @@ public class MemberProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MemberPowerDTO{
+    public static class ProductMemberPowerDTO{
         private String memberEmail;
         private PowerType powerType;
     }
@@ -86,7 +84,7 @@ public class MemberProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MemberPowerListDTO{
+    public static class ProductMemberPowerListDTO{
         private Long productId;
         private String productName;
         private String master;
@@ -102,7 +100,7 @@ public class MemberProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UpdateMemberPowerTypeRequest{
+    public static class UpdateProductMemberPowerTypeRequest{
         private PowerType newPowerType;
         private Long memberId;
         private Long productId;
