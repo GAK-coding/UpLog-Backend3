@@ -8,6 +8,7 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.CreateProductMemberRequest;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
 import com.uplog.uplog.domain.product.model.Product;
@@ -164,7 +165,7 @@ public class ProductService {
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
         //TODO 초대는 마스터와 리더만 할 수 있음.
-        if(memberProduct.getPowerType()!=PowerType.MASTER||memberProduct.getPowerType()!=PowerType.LEADER){
+        if(memberProduct.getPowerType()==PowerType.CLIENT||memberProduct.getPowerType()==PowerType.DEFAULT){
             throw new AuthorityException("제품 수정은 마스터와 리더만 가능합니다.");
         }
 
@@ -210,24 +211,25 @@ public class ProductService {
 
     }
 
-//    @Transactional(readOnly = true)
-//    public List<MemberProductInfoDTO> sortProductsByMember(Long memberId){
-//        List<MemberProduct> memberProductList = memberProductRepository.findMemberProductsByMemberIdAndOrderByIndex(memberId);
-//        List<MemberProductInfoDTO> simpleMemberProductInfoDTOList = new ArrayList<>();
-//        for(MemberProduct mp : memberProductList){
-//            simpleMemberProductInfoDTOList.add(mp.toMemberProductInfoDTO());
-//        }
-//        return simpleMemberProductInfoDTOList;
-//    }
+    @Transactional(readOnly = true)
+    public List<ProductMemberInfoDTO> sortProductsByMember(Long memberId){
+        List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
+        List<ProductMemberInfoDTO> simpleProductMemberInfoDTOList = new ArrayList<>();
+        for(ProductMember mp : productMemberList){
+            simpleProductMemberInfoDTOList.add(mp.toProductMemberInfoDTO());
+        }
+        return simpleProductMemberInfoDTOList;
+    }
 
-//    @Transactional
-//    public List<MemberProductInfoDTO> updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest){
-//        List<MemberProduct> memberProductList = memberProductRepository.findMemberProductsByMemberIdAndOrderByIndex(memberId);
-//        for(int i = 0 ; i < updateIndexRequest.getUpdateIndexList().size()/2 ; i++){
-//            //변경전 값을 우선 빼고 나머지 앞으로 이동
-//            memberProductList.set()
-//}
-//        }
+    @Transactional
+    public void updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest) {
+        List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
+        int i = 0;
+        for (ProductMember pm : productMemberList) {
+            pm.updateIndex(updateIndexRequest.getUpdateIndexList().get(i));
+            i++;
+        }
+    }
 
 
     //마스터, 리더들이 제품에 멤버 추가할때
