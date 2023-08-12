@@ -30,6 +30,7 @@ public class TaskDTO {
         private Long menuId;
         private Long teamId;
         private String taskDetail;
+        private Long targetMemberId;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
 
