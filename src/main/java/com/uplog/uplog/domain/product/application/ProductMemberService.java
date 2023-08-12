@@ -33,7 +33,7 @@ public class ProductMemberService {
     public Long createProductMember(CreateProductMemberRequest createProductMemberRequest) throws Exception {
         Member member = memberRepository.findMemberByEmail(createProductMemberRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Product product = productRepository.findById(createProductMemberRequest.getProductId()).orElseThrow(NotFoundIdException::new);
-        Long index = productMemberRepository.countMemberProductsByMemberId(member.getId());
+        Long index = productMemberRepository.countProductMembersByMemberId(member.getId());
         ProductMember memberProduct = createProductMemberRequest.toProductMember(product, member, index+1);
 
         productMemberRepository.save(memberProduct);
