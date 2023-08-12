@@ -1,8 +1,10 @@
 package com.uplog.uplog.domain.product.model;
 
+import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerDTO;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.SimpleProductMemberInfoDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
 import lombok.Builder;
@@ -67,6 +69,15 @@ public class ProductMember {
                 .memberName(this.member.getName())
                 .powerType(this.powerType)
                 .indexNum(this.indexNum)
+                .build();
+    }
+
+    public ProductMemberPowerDTO toProductMemberPowerDTO(){
+        return ProductMemberPowerDTO.builder()
+                .memberId(this.member.getId())
+                .memberEmail(this.member.getEmail())
+                .nickName(this.member.getNickname())
+                .powerType(this.powerType)
                 .build();
     }
 }

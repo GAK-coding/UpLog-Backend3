@@ -77,6 +77,8 @@ public class ProductMemberDTO {
     @NoArgsConstructor
     public static class ProductMemberPowerDTO{
         private String memberEmail;
+        private Long memberId;
+        private String nickName;
         private PowerType powerType;
     }
 
