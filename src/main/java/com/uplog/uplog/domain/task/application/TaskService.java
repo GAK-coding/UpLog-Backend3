@@ -75,8 +75,8 @@ public class TaskService {
         Team rootTeam = teamRepository.findByProjectIdAndName(menu.getProject().getId(), menu.getProject().getVersion()).orElseThrow(NotFoundIdException::new);
 
         //테스크 생성자, 타겟멤버 둘다 권한 확인
-        authorizedMethod.CreatePostTaskValidateByMemberId(AuthorMember,rootTeam);
-        authorizedMethod.CreatePostTaskValidateByMemberId(targetMember,rootTeam);
+        authorizedMethod.PostTaskValidateByMemberId(AuthorMember,rootTeam);
+        authorizedMethod.PostTaskValidateByMemberId(targetMember,rootTeam);
 
         if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
             throw new AuthorityException("해당 프로젝트 팀은 현재 프로젝트에 존재하지 않는 프로젝트팀 입니다.");
@@ -296,7 +296,7 @@ public class TaskService {
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
-        authorizedMethod.CreatePostTaskValidateByMemberId(member,task.getTeam());
+        authorizedMethod.PostTaskValidateByMemberId(member,task.getTeam());
         task.updateTaskmember(member);
 
         return task;

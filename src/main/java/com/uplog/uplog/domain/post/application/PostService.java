@@ -70,7 +70,7 @@ public class PostService {
         //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
 
         //TODO 프로젝트팀 넘겨주기
-        authorizedMethod.CreatePostTaskValidateByMemberId(author,rootTeam);
+        authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정
