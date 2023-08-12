@@ -1,15 +1,9 @@
 package com.uplog.uplog.domain.product.dto;
 
-import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.domain.product.model.MemberProduct;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerListDTO;
 import com.uplog.uplog.domain.product.model.Product;
-import com.uplog.uplog.domain.project.dto.ProjectDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
-import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -89,7 +83,7 @@ public class ProductDTO {
     public static class UpdateProductInfoDTO{
         //        private Long id;
 //        private String name;
-        private MemberProductDTO.MemberPowerListDTO memberPowerListDTO;
+        private ProductMemberPowerListDTO memberPowerListDTO;
         private UpdateResultDTO updateResultDTO;
     }
 

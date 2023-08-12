@@ -1,17 +1,10 @@
 package com.uplog.uplog.domain.product.api;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
-import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.product.application.ProductService;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
-import com.uplog.uplog.domain.product.dto.MemberProductDTO;
-import com.uplog.uplog.domain.product.dto.MemberProductDTO.MemberProductInfoDTO;
-import com.uplog.uplog.domain.product.dto.ProductDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
-import com.uplog.uplog.domain.product.model.Product;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
-import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +62,7 @@ public class ProductController {
     public ResponseEntity<UpdateProductInfoDTO> updateProduct(@PathVariable(name = "product-id") Long productId, @RequestBody @Validated UpdateProductRequest updateProductRequest) throws Exception {
         Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         UpdateResultDTO updateResultDTO = productService.updateProduct(memberId, productId, updateProductRequest);
-        MemberProductDTO.MemberPowerListDTO memberPowerListDTO = productService.findMemberPowerList(productId);
+        ProductMemberDTO.ProductMemberPowerListDTO memberPowerListDTO = productService.findMemberPowerList(productId);
         UpdateProductInfoDTO updateProductInfoDTO = UpdateProductInfoDTO.builder()
                 .memberPowerListDTO(memberPowerListDTO)
                 .updateResultDTO(updateResultDTO)
