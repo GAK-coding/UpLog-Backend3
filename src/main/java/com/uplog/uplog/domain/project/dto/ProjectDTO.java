@@ -75,6 +75,16 @@ public class ProjectDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class VerySimpleProjectInfoDTO{
+        private Long id;
+        private String version;
+        private ProjectStatus projectStatus;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ProjectInfoDTO{
         private Long id;
         private String version;

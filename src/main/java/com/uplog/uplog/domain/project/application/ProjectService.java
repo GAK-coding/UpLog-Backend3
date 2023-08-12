@@ -139,6 +139,19 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
+    public List<VerySimpleProjectInfoDTO> findProjectsByProductId(Long productId){
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+
+        List<Project> projectList = projectRepository.findProjectsByProductId(productId);
+        List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = new ArrayList<>();
+
+        for(Project p : projectList){
+            verySimpleProjectInfoDTOList.add(p.toVerySimpleProjectInfoDTO());
+        }
+        return verySimpleProjectInfoDTOList;
+    }
+
+    @Transactional(readOnly = true)
     public requestProjectInfo readProjectSimple(Long projectId, Long memberId) {
 
         Project project = projectRepository.findById(projectId)
