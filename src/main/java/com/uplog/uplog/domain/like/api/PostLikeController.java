@@ -27,8 +27,9 @@ public class PostLikeController {
 
     private final MemberRepository memberRepository;
 
-    @PostMapping(value = "/members/{member-id}/posts/{post-id}/likes")
-    public ResponseEntity<LikeInfoDTO> createPostLike(@PathVariable(name = "member-id")Long memberId, @PathVariable(name = "post-id")Long postId){
+    @PostMapping(value = "/posts/{post-id}/likes")
+    public ResponseEntity<LikeInfoDTO> createPostLike(@PathVariable(name = "post-id")Long postId){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         LikeInfoDTO likeInfoDTO = likeSerivce.createPostLike(memberId, postId);
         return ResponseEntity.ok(likeInfoDTO);
     }
