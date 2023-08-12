@@ -57,6 +57,10 @@ public class Comment extends BaseTime {
         return CommentDTO.SimpleCommentInfo.builder()
                 .content(this.content)
                 .id(this.id)
+                .nickName((this.author==null)?null:this.author.getNickname())
+                .name((this.author==null)?null:this.author.getName())
+                .memberId((this.author==null)?null:this.author.getId())
+                .createTime(this.getCreatedTime())
                 .parentId((this.parent==null)?null:this.parent.getId())
                 .memberId(this.author.getId())
                 .build();
@@ -68,6 +72,7 @@ public class Comment extends BaseTime {
                 .content(this.content)
                 .build();
     }
+
 
     public void updateCommentContent(String content){
         this.content=content;

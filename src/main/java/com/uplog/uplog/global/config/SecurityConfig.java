@@ -6,6 +6,7 @@ import com.uplog.uplog.global.jwt.JwtSecurityConfig;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,15 +30,17 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
+    private final RedisTemplate redisTemplate;
     public SecurityConfig(
             TokenProvider tokenProvider,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtAccessDeniedHandler jwtAccessDeniedHandler
+            JwtAccessDeniedHandler jwtAccessDeniedHandler,
+            RedisTemplate redisTemplate
     ){
         this.tokenProvider=tokenProvider;
         this.jwtAuthenticationEntryPoint=jwtAuthenticationEntryPoint;
         this.jwtAccessDeniedHandler=jwtAccessDeniedHandler;
+        this.redisTemplate=redisTemplate;
     }
 
     @Bean
@@ -54,7 +57,6 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("Fist?");
         //token 사용하는 방식이기 때문에 csrf을 disable
         http
                 .csrf().disable()
@@ -80,7 +82,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .apply(new JwtSecurityConfig(tokenProvider,redisTemplate));
 
         http
                 .logout()

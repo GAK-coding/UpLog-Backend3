@@ -100,7 +100,7 @@ public class MemberDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePasswordRequest{
-       // private Long id;
+        // private Long id;
         private String password;
         private String newPassword;
     }
@@ -129,7 +129,7 @@ public class MemberDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpdatePositionRequest{
-       // private long id;
+        // private long id;
         private Position newPosition;
     }
 
@@ -139,6 +139,8 @@ public class MemberDTO {
     @NoArgsConstructor
     public static class DeleteMemberRequest{
         private String password;
+        private String accessToken;
+        private String refreshToken;
     }
 
     @Getter
