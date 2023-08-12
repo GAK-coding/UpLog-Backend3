@@ -1,33 +1,23 @@
 package com.uplog.uplog.domain.team.application;
 
-import com.uplog.uplog.domain.product.dao.MemberProductRepository;
+import com.uplog.uplog.domain.product.application.ProductMemberService;
+import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
-import com.uplog.uplog.domain.product.model.MemberProduct;
-import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
-import com.uplog.uplog.domain.team.dto.TeamDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
-import com.uplog.uplog.domain.team.dto.TeamDTO.TeamInfoDTO;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
-import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.NotFoundIdException;
-import com.uplog.uplog.global.mail.MailDTO;
-import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.uplog.uplog.global.mail.MailDTO.EmailRequest.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +27,10 @@ public class TeamService {
     private final ProductRepository productRepository;
     private final ProjectRepository projectRepository;
     private final MemberTeamRepository memberTeamRepository;
-    private final MemberProductRepository memberProductRepository;
+    private final ProductMemberRepository productMemberRepository;
 
+
+    private final ProductMemberService productMemberService;
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
 
@@ -58,7 +50,7 @@ public class TeamService {
 
 
                 for (Long memberId : createTeamRequest.getMemberIdList()) {
-                    MemberProduct memberProduct = memberProductRepository.findMemberProductByMemberIdAndProductId(memberId, createTeamRequest.getProjectId()).orElseThrow(NotFoundIdException::new);
+                    ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, createTeamRequest.getProjectId()).orElseThrow(NotFoundIdException::new);
                     CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
                             .teamId(team.getId())
                             .memberId(memberId)
@@ -75,7 +67,7 @@ public class TeamService {
                 teamRepository.save(team);
 
                 for(Long memberId : createTeamRequest.getMemberIdList()) {
-                    MemberProduct memberProduct = memberProductRepository.findMemberProductByMemberIdAndProductId(memberId, createTeamRequest.getProjectId()).orElseThrow(NotFoundIdException::new);
+                    ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, createTeamRequest.getProjectId()).orElseThrow(NotFoundIdException::new);
                     CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
                             .teamId(team.getId())
                             .memberId(memberId)
