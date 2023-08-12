@@ -21,6 +21,9 @@ import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -206,6 +209,15 @@ public class TaskService {
         List<Task> taskList = taskRepository.findByMenuId(menuId);
         return taskList;
     }
+
+    @Transactional(readOnly = true)
+    public Page<Task> findPageByMenuId(Long menuId, Pageable pageable) {
+        return taskRepository.findByMenuId(menuId, pageable);
+    }
+
+//    public Slice<Task> findSliceByMenuId(Long menuId, Pageable pageable) {
+//        return taskRepository.findSliceByMenuId(menuId, pageable);
+//    }
 
 
 

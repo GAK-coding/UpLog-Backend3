@@ -8,10 +8,12 @@ import com.uplog.uplog.domain.task.dto.TaskDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,6 +82,15 @@ public class MenuController {
 
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
         return ResponseEntity.ok(menuTasksDTO);
+    }
+    @GetMapping("/menus/{menu-id}/tasks/pages")
+    public ResponseEntity<PagingTaskDTO> findTasksByMenuIdWithPagination(
+            @PathVariable(name = "menu-id") Long menuId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size
+    ) {
+        PagingTaskDTO pagingTaskDTO = menuService.findTasksByMenuIdWithPagination(menuId, page, size);
+        return ResponseEntity.ok(pagingTaskDTO);
     }
 //    @GetMapping("/menus/{menu-id}/tasks")
 //    public ResponseEntity<List<TaskDTO.TaskInfoDTO>> findTasksByMenuId(@PathVariable("menu-id") Long menuId) {
