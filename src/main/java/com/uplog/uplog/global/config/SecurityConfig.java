@@ -55,13 +55,27 @@ public class SecurityConfig {
                 .antMatchers("/favicon.ico","/swagger-ui.html","/swagger-ui/**",
                         "/swagger-resources/**","/api-docs/**");
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration configuration=new CorsConfiguration();
+
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",configuration);
+        return source;
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //token 사용하는 방식이기 때문에 csrf을 disable
         http
-                .csrf().disable()
-                .cors(cors -> cors.disable());
-        ;
+                .csrf().disable();
+        //.cors(cors -> cors.disable());
+
 
         http
                 .authorizeRequests()
@@ -69,7 +83,9 @@ public class SecurityConfig {
                 .antMatchers("/api/v2/**","/health","/swagger-ui.html","/swagger/**",
                         "/swagger-resources/**","/webjars/**","/api-docs/**",
                         "/swagger-ui/**","/api/login").permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .cors();
 
         http
                 .exceptionHandling()
