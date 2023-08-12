@@ -50,6 +50,14 @@ public class ProductController {
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
 
+    //멤버 아이디로 제품목록 가져오기
+    @GetMapping(value = "/products")
+    public ResponseEntity<List<SimpleProductInfoDTO>> findProductsByMemberId(){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        List<SimpleProductInfoDTO> simpleProductInfoDTOList = productService.findProductByMemberId(memberId);
+        return ResponseEntity.ok(simpleProductInfoDTOList);
+    }
+
 //    @GetMapping(value = "/products")
 //    public ResponseEntity<List<MemberProductInfoDTO>> sortProjectByMember(){
 //        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();

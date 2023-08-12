@@ -9,6 +9,7 @@ import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.CreateProductMemberRequest;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerListDTO;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
 import com.uplog.uplog.domain.product.model.Product;
@@ -41,6 +42,7 @@ public class ProductService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final ProductMemberRepository productMemberRepository;
+
 
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
@@ -88,7 +90,7 @@ public class ProductService {
     //=====================================Read================================================
     //프로덕트 내에 멤버 리스트 출력
     @Transactional(readOnly = true)
-    public ProductMemberDTO.ProductMemberPowerListDTO findMemberPowerList(Long productId) {
+    public ProductMemberPowerListDTO findMemberPowerList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<String> leaderList = new ArrayList<>();
         List<String> clientList = new ArrayList<>();
@@ -116,7 +118,7 @@ public class ProductService {
         for (ProductMember c : clientL) {
             clientList.add(c.getMember().getEmail());
         }
-        return ProductMemberDTO.ProductMemberPowerListDTO.builder()
+        return ProductMemberPowerListDTO.builder()
                 .productId(productId)
                 .productName(product.getName())
                 .master(master)
@@ -129,6 +131,17 @@ public class ProductService {
                 .build();
     }
 
+    //멤버아이디로 제품 목록 리스트 뽑기
+    @Transactional(readOnly = true)
+    public List<SimpleProductInfoDTO> findProductByMemberId(Long memberId){
+        List<ProductMember> productMemberList = productMemberRepository.findMemberProductsByMemberId(memberId);
+        List<SimpleProductInfoDTO> simpleProductInfoDTOList = new ArrayList<>();
+
+        for(ProductMember pm : productMemberList){
+            simpleProductInfoDTOList.add(pm.getProduct().toSimpleProductInfoDTO());
+        }
+        return simpleProductInfoDTOList;
+    }
 
 
     //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기

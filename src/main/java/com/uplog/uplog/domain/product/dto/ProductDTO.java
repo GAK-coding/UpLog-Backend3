@@ -51,6 +51,16 @@ public class ProductDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class SimpleProductInfoDTO{
+        private Long id;
+        private String name;
+        private String company;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class UpdateIndexRequest{
         List<Long> updateIndexList;
     }
