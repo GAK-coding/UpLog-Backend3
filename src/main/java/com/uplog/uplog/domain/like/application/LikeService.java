@@ -17,7 +17,10 @@ import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.dto.PostDTO;
 import com.uplog.uplog.domain.post.dto.PostDTO.SimplePostInfoDTO;
 import com.uplog.uplog.domain.post.model.Post;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,11 +40,15 @@ public class LikeService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final TeamRepository teamRepository;
+    private final AuthorizedMethod authorizedMethod;
 
     @Transactional
     public LikeInfoDTO createPostLike(Long memberId, Long postId) {
         Member member = memberRepository.findMemberById(memberId).orElseThrow(NotFoundIdException::new);
         Post post = postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
+        Team rootTeam = teamRepository.findByProjectIdAndName(post.getMenu().getProject().getId(),post.getMenu().getProject().getVersion()).orElseThrow(NotFoundIdException::new);
+        authorizedMethod.CreateCommentAndLikeValidateByMemberId(post.getMenu().getMenuName(),member,rootTeam);
 
         if (postLikeRepository.existsByMemberIdAndPostId(memberId, postId)) {
             PostLike postLike = postLikeRepository.findPostLikeByMemberIdAndPostId(memberId, postId);
@@ -71,6 +78,8 @@ public class LikeService {
     public LikeInfoDTO createCommentLike(Long memberId, Long commentId) {
         Member member = memberRepository.findMemberById(memberId).orElseThrow(NotFoundIdException::new);
         Comment comment = commentRepository.findById(commentId).orElseThrow(NotFoundIdException::new);
+        Team rootTeam = teamRepository.findByProjectIdAndName(comment.getPost().getMenu().getProject().getId(),comment.getPost().getMenu().getProject().getVersion()).orElseThrow(NotFoundIdException::new);
+        authorizedMethod.CreateCommentAndLikeValidateByMemberId(comment.getPost().getMenu().getMenuName(),member,rootTeam);
 
         if (commentLikeRepository.existsByMemberIdAndCommentId(memberId, commentId)) {
             CommentLike commentLike = commentLikeRepository.findCommentLikesByMemberIdAndCommentId(memberId, commentId);
