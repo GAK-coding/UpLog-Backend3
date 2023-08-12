@@ -16,7 +16,8 @@ public interface ProductMemberRepository extends JpaRepository<ProductMember, Lo
     Long countMemberProductsByMemberId(Long memberId);
     Optional<ProductMember> findProductMemberByMemberIdAndProductId(Long memberId, Long ProductId);
     List<ProductMember> findProductMembersByProductIdAndPowerType(Long productId, PowerType powerType);
-    //List<MemberProduct> findMemberProductsByMemberIdAndOrderByIndex(Long memberId);
+    List<ProductMember> findProductMembersByMemberIdOrderByIndexNum(Long memberId);
     boolean existsProductMembersByMemberEmailAndProductId(String memberEmail, Long productId);
+    boolean existsProductMemberByMemberIdAndProductId(Long memberId, Long ProductId);
 
 }
