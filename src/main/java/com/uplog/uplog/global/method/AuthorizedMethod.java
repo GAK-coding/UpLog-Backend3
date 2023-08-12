@@ -67,26 +67,25 @@ public class AuthorizedMethod {
 
 
 /*
-    테스크,포스트 생성권한
+    테스크,포스트,메뉴 생성권한 및 테스크할당자 권한
  */
 
 //- 해당 프로젝트 팀 내에 존재하는 멤버 ->나중에 윤정이가 줄거임
 //- 기업회원이 아닌 개인 회원->이건 내가 체크 완료
 //- 클라이언트가 아닌 멤버-> 준이오빠가 준 글로벌그쪽에 내가 하나 더 만들었삼(클라이언트면 예외처리)
-    public void CreatePostTaskValidateByMemberId(Member member, Team projectTeam){
+    public void PostTaskValidateByMemberId(Member member, Team projectRootTeam){
         Long memberId=member.getId();
 
-        //TODO 임시 나중에 프로젝트를 통해 프로젝트 팀 아이디 받아야함
-        Long teamId=1L;
-        //TODO 현재 프로젝트 팀 내에 존재하는 멤버인지 확인
-//        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId,teamId)){
-//            throw new NotFoundMemberByTeamException();
-//        }
         //기업회원이 아닌 개인 회원(기업이면 예외)
         if(member.getPosition()== Position.COMPANY){
-            throw new AuthorityException("기업회원은 생성 권한이 없습니다");
+            throw new AuthorityException("기업회원은 권한이 없습니다");
         }
 
+        //TODO 임시 나중에 프로젝트를 통해 프로젝트 팀 아이디 받아야함
+        //TODO 현재 프로젝트 팀 내에 존재하는 멤버인지 확인
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId())){
+            throw new AuthorityException("프로젝트에 속하지 않은 멤버입니다");
+        }
         //클라이언트가 아닌 멤버(클라이언트면 예외)
         PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
 
@@ -102,23 +101,25 @@ public class AuthorizedMethod {
     }
 
     /*
-         댓글 생성 권한
+         댓글 생성 권한 + 좋아요 생성 권한
      */
 //해당 프로젝트 팀 내에 존재하는 멤버 ->나중에 윤정이가 줄거임
 //기업회원이 아닌 개인 회원
 // ->기업은 결과물 메뉴에 있는 포스트글에만 댓글 작성 가능
 //클라이언트가 아닌 멤버
 // ->클라이언트는 결과물 메뉴에 있는 포스트글에만 댓글 작성 가능
-    public void CreateCommentValidateByMemberId(String menuName, Member member){
+    public void CreateCommentAndLikeValidateByMemberId(String menuName, Member member, Team projectRootTeam){
         Long memberId=member.getId();
 
         //TODO 현재 프로젝트 팀 내에 존재하는 멤버인지 확인
-
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId())){
+            throw new AuthorityException("프로젝트에 속하지 않은 멤버입니다");
+        }
         //결과물 메뉴가 아닐때
-        if(!menuName.equals("결과물")){
+        if(!"결과물".equals(menuName)){
             //기업회원이 아닌 개인 회원(기업이면 예외)
             if(member.getPosition()== Position.COMPANY){
-                throw new AuthorityException("기업회원은 생성 권한이 없습니다");
+                throw new AuthorityException("기업회원은 권한이 없습니다");
             }
 
             //클라이언트가 아닌 멤버(클라이언트면 예외)

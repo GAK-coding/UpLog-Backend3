@@ -16,6 +16,8 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
@@ -41,6 +43,7 @@ public class PostService {
     private final AuthorizedMethod authorizedMethod;
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
+    private final TeamRepository teamRepository;
 
     /*
     Create
@@ -59,13 +62,15 @@ public class PostService {
 
         Product product = productRepository.findById(createPostRequest.getProductId())
                 .orElseThrow(() -> new NotFoundIdException("해당 제품은 존재하지 않습니다."));
+        Team rootTeam = teamRepository.findByProjectIdAndName(project.getId(), project.getVersion()).orElseThrow(NotFoundIdException::new);
+
 
         //현재 진행중인 프로젝트가 아니면 예외
         authorizedMethod.checkProjectProgress(project.getId());
         //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
 
         //TODO 프로젝트팀 넘겨주기
-        //authorizedMethod.CreatePostTaskValidateByMemberId(author);
+        authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정

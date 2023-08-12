@@ -45,9 +45,9 @@ public class MenuController {
     DELETE
      */// 삭제시 밑에꺼 다 삭제되는거
     @DeleteMapping("/menus/{menu-id}")
-    public ResponseEntity<Void> deleteMenu(@PathVariable(name="menu-id") Long id){
-        menuService.deleteMenu(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteMenu(@PathVariable(name="menu-id") Long id){
+        String m=menuService.deleteMenu(id);
+        return ResponseEntity.ok(m);
     }
 
     /*

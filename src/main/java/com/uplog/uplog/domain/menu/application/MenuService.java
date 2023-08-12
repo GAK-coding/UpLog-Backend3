@@ -98,12 +98,13 @@ public class MenuService {
     DELETE
      */
     @Transactional
-    public void deleteMenu(Long menuId){
+    public String deleteMenu(Long menuId){
         Menu menu=menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         if ("결과물".equals(menu.getMenuName())) {
             throw new MenuUpdateNotAllowedException();
         }
         menuRepository.delete(menu);
+        return "delete";
     }
 
     /*
