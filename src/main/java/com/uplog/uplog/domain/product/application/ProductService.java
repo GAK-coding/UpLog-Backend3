@@ -13,9 +13,14 @@ import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.product.model.ProductMember;
+import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.model.PowerType;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailService;
@@ -191,6 +196,20 @@ public class ProductService {
                                 .build();
                         productMemberService.createProductMember(createMemberProductRequest);
                         //제품에 초대되면 프로젝트에도 추가되어야함.
+                        //제일 루트 팀에 초대되어야함.
+                        //진행중인 팀을 찾아야함. ->
+                        for(Project p : product.getProjectList()) {
+                            if(p.getProjectStatus() == ProjectStatus.PROGRESS_IN){
+                                Team team = teamRepository.findByProjectIdAndName(p.getId(), p.getVersion()).orElseThrow(NotFoundIdException::new);
+                                CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+                                        .memberEmail(s)
+                                        .teamId(team.getId())
+                                        .powerType(updateProductRequest.getPowerType() == PowerType.MASTER || updateProductRequest.getPowerType() == PowerType.LEADER ? PowerType.LEADER : updateProductRequest.getPowerType())
+                                        .build();
+                                memberTeamService.createMemberTeam(createMemberTeamRequest);
+                            }
+
+                        }
 
                     }
                     else{
