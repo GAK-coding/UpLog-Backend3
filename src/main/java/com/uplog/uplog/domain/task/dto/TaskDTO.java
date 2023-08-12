@@ -31,8 +31,8 @@ public class TaskDTO {
         private Long teamId;
         private String taskDetail;
         private Long targetMemberId;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalDate startTime;
+        private LocalDate endTime;
 
         public Task toEntity(Member targetMember,Menu menu, Team team) {
             return Task.builder()
@@ -91,8 +91,8 @@ public class TaskDTO {
         private String teamName;
         private TaskStatus taskStatus;
         private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalDate startTime;
+        private LocalDate endTime;
     }
 
 
@@ -129,8 +129,8 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class UpdateTaskDateRequest{
         //private Long id;
-        private LocalDateTime updateStartTime;
-        private LocalDateTime updateEndTime;
+        private LocalDate updateStartTime;
+        private LocalDate updateEndTime;
 
     }
 
