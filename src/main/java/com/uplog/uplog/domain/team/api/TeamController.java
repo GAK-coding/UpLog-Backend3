@@ -1,6 +1,10 @@
 package com.uplog.uplog.domain.team.api;
 
+import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.team.application.TeamService;
+import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,7 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TeamController {
     private final TeamService teamService;
-    //team 생성시 기업만 만들 수 있으므로 pathvariable에 기업의 아이디가 들어감.
+
+    private final MemberRepository memberRepository;
+
+    @PostMapping(value = "/teams")
+    public ResponseEntity<Long> createTeam(CreateTeamRequest createTeamRequest) throws Exception {
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Long teamId = teamService.createTeam(memberId, createTeamRequest);
+        return new ResponseEntity<>(teamId, HttpStatus.CREATED);
+    }
 
     @PostMapping(value = "/teams/{team-id}")
     public ResponseEntity<String> deleteTeam(@PathVariable(name = "team-id")Long id){
