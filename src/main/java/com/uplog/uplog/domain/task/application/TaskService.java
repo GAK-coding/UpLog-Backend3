@@ -68,12 +68,10 @@ public class TaskService {
 
         Team projectTeam = teamRepository.findById(createTaskRequest.getTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
-
+        Team rootTeam = teamRepository.findByProjectIdAndName(menu.getProject().getId(), menu.getProject().getVersion()).orElseThrow(NotFoundIdException::new);
 
         //테스크 생성자, 타겟멤버 둘다 권한 확인
-        //TODO 저 프로젝트팀은 할당된 팀이고 프로젝트의 팀을 넘겨줘야함 나중에 수정!!
-        authorizedMethod.CreatePostTaskValidateByMemberId(AuthorMember,projectTeam);
-        authorizedMethod.CreatePostTaskValidateByMemberId(targetMember,projectTeam);
+        authorizedMethod.CreatePostTaskValidateByMemberId(AuthorMember,rootTeam);
 
         if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
             throw new AuthorityException("해당 프로젝트 팀은 현재 프로젝트에 존재하지 않는 프로젝트팀 입니다.");
