@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -83,6 +85,8 @@ public class MenuController {
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
         return ResponseEntity.ok(menuTasksDTO);
     }
+
+    //페이지네이션
     @GetMapping("/menus/{menu-id}/tasks/pages")
     public ResponseEntity<PagingTaskDTO> findTasksByMenuIdWithPagination(
             @PathVariable(name = "menu-id") Long menuId,
@@ -101,8 +105,18 @@ public class MenuController {
     //메뉴별 포스트 가져오기
     @GetMapping("/menus/{menu-id}/posts")
     public ResponseEntity<MenuPostsDTO> findMenuPosts(@PathVariable(name="menu-id") Long menuId) {
-        MenuPostsDTO menuPostsDTO = menuService.findMenuInfoById(menuId);
+        MenuPostsDTO menuPostsDTO = menuService.findPostsInfoByMenuId(menuId);
         return ResponseEntity.ok(menuPostsDTO);
+    }
+    @GetMapping("/menus/{menu-id}/posts/pages")
+    public ResponseEntity<PagingPostDTO> findMenuPosts(
+            @PathVariable(name = "menu-id") Long menuId,
+            @RequestParam(defaultValue = "0") int page, // 기본 페이지 번호는 0부터 시작
+            @RequestParam(defaultValue = "10") int size // 기본 페이지 당 아이템 수는 10개
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        PagingPostDTO pagingPostDTO = (PagingPostDTO) menuService.findPagedMenuPosts(menuId, pageable);
+        return ResponseEntity.ok(pagingPostDTO);
     }
 //    @GetMapping("/menus/{menu-id}/posts")
 //    public ResponseEntity<List<PostDTO.PostInfoDTO>> findPostsByMenuId(@PathVariable("menu-id") Long menuId) {

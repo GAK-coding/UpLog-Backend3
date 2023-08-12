@@ -21,6 +21,8 @@ import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -218,6 +220,10 @@ public class PostService {
     public List<Post> findPostsByMenuId(Long menuId) {
         List<Post> postList = postRepository.findByMenuId(menuId);
         return postList;
+    }
+    public Page<Post> findPagedPostsByMenuId(Long menuId, Pageable pageable) {
+        // 메뉴 ID를 기반으로 페이지네이션된 포스트 목록을 가져옴
+        return postRepository.findByMenuId(menuId, pageable);
     }
 
     public PostInfoDTO toPostInfoDTO(Post post) {
