@@ -38,6 +38,14 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.ok(errorResponse);
     }
+    @ExceptionHandler(NotFountTeamByProjectException.class)
+    protected final ResponseEntity<ErrorResponse> notFountTeamByProjectExceptionHandler(NotFountTeamByProjectException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
 
     @ExceptionHandler(ExpireRefreshTokenException.class)
     protected final ResponseEntity<ErrorResponse> ExpireJwtTokenExceptionHandler(ExpireRefreshTokenException e, WebRequest webRequest){
