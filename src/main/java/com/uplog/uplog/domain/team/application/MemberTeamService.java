@@ -41,6 +41,7 @@ public class MemberTeamService {
     public Long createMemberTeam(CreateMemberTeamRequest createMemberTeamRequest) throws Exception {
         Member member = memberRepository.findMemberByIdOrEmail(createMemberTeamRequest.getMemberId(), createMemberTeamRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Team team = teamRepository.findById(createMemberTeamRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        log.info(team+"team");
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
         memberTeamRepository.save(memberTeam);
