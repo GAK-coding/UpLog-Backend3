@@ -55,7 +55,7 @@ public class CommentService {
         String currentPostMenuName=post.getMenu().getMenuName();
 
         //댓글 생성 권한 확인
-        authorizedMethod.CreateCommentValidateByMemberId(currentPostMenuName,member,rootTeam);
+        authorizedMethod.CreateCommentAndLikeValidateByMemberId(currentPostMenuName,member,rootTeam);
 
         SimpleCommentInfo simpleCommentInfo;
         //parentId가 null일 때 기본 정보만 저장.
