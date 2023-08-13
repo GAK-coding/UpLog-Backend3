@@ -55,4 +55,13 @@ public class TeamDTO {
         private LocalDateTime modifiedTime;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimpleTeamInfoDTO{
+        private Long id;
+        private String teamName;
+    }
+
 }

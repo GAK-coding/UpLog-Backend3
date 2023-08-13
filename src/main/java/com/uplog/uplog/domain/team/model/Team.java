@@ -2,6 +2,8 @@ package com.uplog.uplog.domain.team.model;
 
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.model.Task;
+import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.TeamInfoDTO;
 import com.uplog.uplog.global.BaseTime;
 import lombok.*;
@@ -63,8 +65,10 @@ public class Team extends BaseTime {
                 .build();
     }
 
-
-
-
-
+    public SimpleTeamInfoDTO toSimpleTeamInfoDTO(){
+        return SimpleTeamInfoDTO.builder()
+                .id(this.id)
+                .teamName(this.name)
+                .build();
+    }
 }
