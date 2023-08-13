@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class MenuDTO {
@@ -87,6 +89,23 @@ public class MenuDTO {
         private List<PostDTO.PostInfoDTO> posts;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class PagingPostDTO {
+        private boolean nextPage;
+        private MenuInfoDTO menuInfo;
+        private PostDTO.PostInfoDTO noticePost;
+        private List<PostDTO.PostInfoDTO> posts;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PagingTaskDTO{
+        private boolean nextPage;
+        List<MenuTasksDTO> pagingTaskData=new ArrayList<>();
+    }
 
 
 

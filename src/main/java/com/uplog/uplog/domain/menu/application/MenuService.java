@@ -11,18 +11,24 @@ import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.application.TaskService;
+import com.uplog.uplog.domain.task.dto.TaskDTO;
 import com.uplog.uplog.domain.task.dto.TaskDTO.*;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,12 +98,13 @@ public class MenuService {
     DELETE
      */
     @Transactional
-    public void deleteMenu(Long menuId){
+    public String deleteMenu(Long menuId){
         Menu menu=menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         if ("결과물".equals(menu.getMenuName())) {
             throw new MenuUpdateNotAllowedException();
         }
         menuRepository.delete(menu);
+        return "delete";
     }
 
     /*
@@ -170,6 +177,22 @@ public class MenuService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public PagingTaskDTO findTasksByMenuIdWithPagination(Long menuId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> taskPage = taskService.findPageByMenuId(menuId, pageable);
+
+        boolean nextPage = taskPage.hasNext();
+
+        List<TaskDTO.TaskInfoDTO> taskInfoDTOList = taskPage.getContent().stream()
+                .map(Task::toTaskInfoDTO)
+                .collect(Collectors.toList());
+
+        MenuInfoDTO menuInfoDTO = findMenuById(menuId);
+        MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
+
+        return new PagingTaskDTO(nextPage, Collections.singletonList(menuTasksDTO));
+    }
 
 
     //해당 메뉴의 포스트 가져오는거(공지글 포함)
@@ -180,7 +203,7 @@ public class MenuService {
 //                .map(Post::toPostInfoDTO)
 //                .collect(Collectors.toList());
 //    }
-    public MenuPostsDTO findMenuInfoById(Long menuId) {
+    public MenuPostsDTO findPostsInfoByMenuId(Long menuId) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         Post noticePost = menu.getNoticePost();
         List<Post> posts = postService.findPostsByMenuId(menuId);
@@ -194,6 +217,20 @@ public class MenuService {
         return new MenuPostsDTO(menuInfoDTO, noticePostDTO, postDTOList);
     }
 
+    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, Pageable pageable) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
 
+        Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
+        List<PostDTO.PostInfoDTO> postInfoDTOList = postPage.getContent().stream()
+                .map(postService::toPostInfoDTO)
+                .collect(Collectors.toList());
+
+        Post noticePost = menu.getNoticePost();
+        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
+
+        boolean nextPage = postPage.hasNext();
+
+        return new PagingPostDTO(nextPage, menu.toMenuInfoDTO(), noticePostDTO, postInfoDTOList);
+    }
 }
 

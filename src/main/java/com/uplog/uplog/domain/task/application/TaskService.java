@@ -15,12 +15,19 @@ import com.uplog.uplog.domain.task.model.QTask;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.exception.*;
 import com.uplog.uplog.domain.task.model.TaskStatus;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.NotFountTeamByProjectException;
+import com.uplog.uplog.global.method.AuthorizedMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +52,8 @@ public class TaskService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final MenuRepository menuRepository;
+    private final AuthorizedMethod authorizedMethod;
+    private final MemberTeamRepository memberTeamRepository;
 
 
     //========================================create========================================
@@ -52,7 +61,10 @@ public class TaskService {
 
     @Transactional
     public Task createTask(Long id,CreateTaskRequest createTaskRequest) {
-        Member targetMember = memberRepository.findById(id)
+        Member AuthorMember = memberRepository.findById(id)
+                .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
+
+        Member targetMember=memberRepository.findById(createTaskRequest.getTargetMemberId())
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
         Menu menu = menuRepository.findById(createTaskRequest.getMenuId())
@@ -60,6 +72,11 @@ public class TaskService {
 
         Team projectTeam = teamRepository.findById(createTaskRequest.getTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
+        Team rootTeam = teamRepository.findByProjectIdAndName(menu.getProject().getId(), menu.getProject().getVersion()).orElseThrow(NotFoundIdException::new);
+
+        //테스크 생성자, 타겟멤버 둘다 권한 확인
+        authorizedMethod.PostTaskValidateByMemberId(AuthorMember,rootTeam);
+        authorizedMethod.PostTaskValidateByMemberId(targetMember,rootTeam);
 
         if (!projectTeam.getProject().getId().equals(menu.getProject().getId())) {
             throw new AuthorityException("해당 프로젝트 팀은 현재 프로젝트에 존재하지 않는 프로젝트팀 입니다.");
@@ -207,6 +224,15 @@ public class TaskService {
         return taskList;
     }
 
+    @Transactional(readOnly = true)
+    public Page<Task> findPageByMenuId(Long menuId, Pageable pageable) {
+        return taskRepository.findByMenuId(menuId, pageable);
+    }
+
+//    public Slice<Task> findSliceByMenuId(Long menuId, Pageable pageable) {
+//        return taskRepository.findSliceByMenuId(menuId, pageable);
+//    }
+
 
 
 
@@ -270,6 +296,7 @@ public class TaskService {
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
+        authorizedMethod.PostTaskValidateByMemberId(member,task.getTeam());
         task.updateTaskmember(member);
 
         return task;
@@ -280,6 +307,11 @@ public class TaskService {
         Team projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        //바꾸려는 팀이 프로젝트에 존재하지 않을때
+        if (!projectTeam.getProject().getId().equals(task.getMenu().getProject().getId())) {
+            throw new NotFountTeamByProjectException();
+        }
 
         task.updateTaskTeam(projectTeam);
 
@@ -301,8 +333,9 @@ public class TaskService {
 
     //========================================delete========================================
     @Transactional
-    public void deleteTask(Long id) {
+    public String deleteTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         taskRepository.delete(task);
+        return "delete";
     }
 }
