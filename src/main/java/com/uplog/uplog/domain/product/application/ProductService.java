@@ -9,6 +9,7 @@ import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.CreateProductMemberRequest;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerDTO;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerListDTO;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
@@ -143,6 +144,17 @@ public class ProductService {
         return simpleProductInfoDTOList;
     }
 
+    //제품에 속한 사람들 출력
+    @Transactional(readOnly = true)
+    public List<ProductMemberPowerDTO> findMembersByProductId(Long productId){
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        List<ProductMemberPowerDTO> productMemberPowerDTOList = new ArrayList<>();
+        for(ProductMember pm : product.getProductMemberList()){
+            productMemberPowerDTOList.add(pm.toProductMemberPowerDTO());
+        }
+        return productMemberPowerDTOList;
+    }
+
 
     //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
     @Transactional(readOnly = true)
@@ -173,6 +185,7 @@ public class ProductService {
         }
         return productInfoDTOList;
     }
+
     //============================Update==================================
     //제품 수정
     @Transactional

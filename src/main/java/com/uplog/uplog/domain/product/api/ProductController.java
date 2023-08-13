@@ -6,6 +6,7 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerDTO;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +60,14 @@ public class ProductController {
         return ResponseEntity.ok(simpleProductInfoDTOList);
     }
 
+    //프로덕트에 속한 멤버 리스트 출력하기
+    @GetMapping(value = "products/{product-id}/members")
+    public ResponseEntity<List<ProductMemberPowerDTO>> findMembersByProductId(@PathVariable(name = "product-id")Long productId){
+        List<ProductMemberPowerDTO> productMemberPowerDTOList = productService.findMembersByProductId(productId);
+        return ResponseEntity.ok(productMemberPowerDTOList);
+    }
+
+    //멤버별로 제품 정렬된 순서로 불러오기
     @GetMapping(value = "/products")
     public ResponseEntity<List<ProductMemberInfoDTO>> sortProjectByMember(){
         Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
@@ -78,6 +87,7 @@ public class ProductController {
                 .build();
         return new ResponseEntity<>(updateProductInfoDTO, HttpStatus.OK);
     }
+    //드래그 드랍을 이용한 순서 바꾸기
     @PatchMapping(value = "/products")
     public ResponseEntity<List<ProductMemberInfoDTO>> updateIndex(UpdateIndexRequest updateIndexRequest){
         Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
