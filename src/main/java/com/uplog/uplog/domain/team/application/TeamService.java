@@ -95,6 +95,7 @@ public class TeamService {
     //팀에 속한 멤버 출력
     @Transactional(readOnly = true)
     public List<MemberPowerDTO> findMembersByTeamId(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
         List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
 
         List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
@@ -103,6 +104,26 @@ public class TeamService {
         }
         return memberPowerDTOList;
     }
+
+    //팀에 속한 자식 팀까지 보고싶을 때
+    //형식 고려해봐야할 듯.
+    @Transactional(readOnly = true)
+    public List<MemberPowerDTO> findMembersIncludeChildByTeamId(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
+
+        List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
+        for (MemberTeam mt : memberTeamList) {
+            memberPowerDTOList.add(mt.toMemberPowerDTO());
+        }
+        if(!team.getChildTeamList().isEmpty()){
+
+        }
+        return memberPowerDTOList;
+    }
+
+    //팀과 자식 팀 조회
+
 
 
     //TODO DELETE는 마스터만 가능하게? 기업도 가능하게 해야해? 우선 둘다 가능하게 함. -> 이건 나중에 고려
