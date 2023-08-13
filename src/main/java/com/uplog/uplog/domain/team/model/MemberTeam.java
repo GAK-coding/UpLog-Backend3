@@ -3,6 +3,7 @@ package com.uplog.uplog.domain.team.model;
 
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberTeamInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,8 @@ public class MemberTeam {
     @Enumerated(EnumType.STRING)
     private PowerType powerType;
 
+    public void updatePowerType(PowerType newPowerType){ this.powerType = newPowerType; }
+
     @Builder
     public MemberTeam(Long id, Team team, Member member, PowerType powerType){
         this.id = id;
@@ -49,7 +52,17 @@ public class MemberTeam {
                 .build();
     }
 
-    public void updatePowerType(PowerType newPowerType){ this.powerType = newPowerType; }
+    public MemberPowerDTO toMemberPowerDTO(){
+        return MemberPowerDTO.builder()
+                .memberId(this.member.getId())
+                .memberEmail(this.member.getEmail())
+                .memberNickname(this.member.getNickname())
+                .powerType(this.powerType)
+                .build();
+
+    }
+
+
 
 
 }

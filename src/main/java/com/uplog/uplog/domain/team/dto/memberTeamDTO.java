@@ -51,7 +51,9 @@ public class memberTeamDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberPowerDTO{
+        private Long memberId;
         private String memberEmail;
+        private String memberNickname;
         private PowerType powerType;
     }
 
