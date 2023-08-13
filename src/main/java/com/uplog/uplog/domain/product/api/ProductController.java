@@ -53,7 +53,7 @@ public class ProductController {
     }
 
     //멤버 아이디로 제품목록 가져오기
-    @GetMapping(value = "/products")
+    @GetMapping(value = "/products/member")
     public ResponseEntity<List<SimpleProductInfoDTO>> findProductsByMemberId(){
         Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         List<SimpleProductInfoDTO> simpleProductInfoDTOList = productService.findProductByMemberId(memberId);
