@@ -95,7 +95,7 @@ public class TaskController {
     }
 
     //날짜 수정(시작날짜,종료날짜)
-    @PatchMapping("/tasks/{task_id}/date")
+    @PatchMapping("/tasks/{task-id}/date")
     public ResponseEntity<TaskInfoDTO> updateTaskDate(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskDateRequest updateTaskDateRequest) {
         Task updatedTask = taskService.updateTaskDate(id,updateTaskDateRequest);
         TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
