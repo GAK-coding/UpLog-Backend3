@@ -66,6 +66,7 @@ public class Task extends BaseTime {
 //    }
 
     public TaskInfoDTO toTaskInfoDTO(){
+        Long parentTeamIdValue = (this.getTeam().getParentTeam() != null) ? this.getTeam().getParentTeam().getId() : null;
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
@@ -75,6 +76,7 @@ public class Task extends BaseTime {
                 .menuName(this.getMenu().getMenuName())
                 .teamId(this.getTeam().getId())
                 .teamName(this.getTeam().getName())
+                .parentTeamId(parentTeamIdValue)
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
