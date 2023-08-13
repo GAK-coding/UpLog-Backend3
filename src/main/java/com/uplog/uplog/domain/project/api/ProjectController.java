@@ -3,6 +3,8 @@ package com.uplog.uplog.domain.project.api;
 import com.uplog.uplog.domain.comment.api.CommentController;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.project.application.ProjectService;
+import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -54,6 +56,15 @@ public class ProjectController {
     //Todo read 어떤 걸 보여줄 지 더 고민 -> projectTeamList, productId, menuList, version
     //Todo 새로고침 시 전체를 넘겨주는 상황.
 
+    //==========================Read=============================================
+
+    //제품에 속한 팀 목록 다 나옴. 부모, 자식 구분 없음.
+    @GetMapping(value = "projects/{project-id}/teams")
+    public ResponseEntity<List<SimpleTeamInfoDTO>> findTeamsByProjectId(@PathVariable(name = "project-id")Long projectId){
+        List<SimpleTeamInfoDTO> simpleTeamInfoDTOList = projectService.findTeamsByProjectId(projectId);
+        return ResponseEntity.ok(simpleTeamInfoDTOList);
+    }
+
     //전체 조회
     @GetMapping(value="/projects/{project-id}/{member-id}")
     public ResponseEntity<requestProjectAllInfo> readProjectAllInfo(@PathVariable("project-id")Long projectId,
@@ -80,6 +91,8 @@ public class ProjectController {
         List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = projectService.findProjectsByProductId(productId);
         return ResponseEntity.ok(verySimpleProjectInfoDTOList);
     }
+//===============================update=======================================================
+    //제품에 해당하는 팀 불러오기
 
     @PatchMapping(value="/projects/{project-id}/{member-id}")
     public ResponseEntity<UpdateProjectInfo> updateProjectInfo(@RequestBody UpdateProjectStatus updateProjectStatus,

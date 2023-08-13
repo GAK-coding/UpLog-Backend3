@@ -22,6 +22,7 @@ import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
@@ -121,6 +122,19 @@ public class ProjectService {
         return project.toProjectInfoDTO(simpleMenuInfoDTOList, projectTeamIdList);
     }
 
+    //====================read=============================
+    //프로젝트에 속한 팀 모두 출력 -> 부모, 자식 구분 안함.
+    @Transactional(readOnly = true)
+    public List<SimpleTeamInfoDTO> findTeamsByProjectId(Long projectId){
+        List<Team> teamList = teamRepository.findTeamsByProjectId(projectId);
+        List<SimpleTeamInfoDTO> simpleTeamInfoDTOList = new ArrayList<>();
+
+        for(Team t : teamList){
+            simpleTeamInfoDTOList.add(t.toSimpleTeamInfoDTO());
+        }
+
+        return simpleTeamInfoDTOList;
+    }
     @Transactional(readOnly = true)
     public requestProjectAllInfo readProject(Long projectId, Long memberId) {
 
