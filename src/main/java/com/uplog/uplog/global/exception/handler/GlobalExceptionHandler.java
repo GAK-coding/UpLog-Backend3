@@ -22,6 +22,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(errorResponse);
     }
 
+    @ExceptionHandler(DuplicatedNameException.class)
+    protected final ResponseEntity<ErrorResponse> duplicatedNameExceptionHandler(DuplicatedNameException e, WebRequest w){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.CONFLICT)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
     @ExceptionHandler(NotFoundIdException.class)
     protected final ResponseEntity<ErrorResponse> notFoundIdExceptionHandler(NotFoundIdException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
