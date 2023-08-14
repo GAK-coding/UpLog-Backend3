@@ -70,6 +70,15 @@ public class PostController {
         return ResponseEntity.ok(postInfoDTO);
     }
 
+    @PatchMapping("/posts/{post-id}")
+    public ResponseEntity<PostInfoDTO> updatePost(
+            @PathVariable("post-id") Long id,
+            @RequestBody UpdatePostRequest updatePostRequest) {
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        PostInfoDTO updatedPost = postService.updatePostInfo(id, updatePostRequest, currentUserId);
+        return ResponseEntity.ok(updatedPost);
+    }
+
     /*
     GET
      */
