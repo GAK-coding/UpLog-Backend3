@@ -47,7 +47,7 @@ public class ProductController {
     }
 
     @GetMapping(value = "/products/companyId")
-    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(Long companyId){
+    public ResponseEntity<List<ProductInfoDTO>> findProductsByCompany(@RequestBody @Validated Long companyId){
         List<ProductInfoDTO> productInfoDTOList = productService.findProductsByCompanyId(companyId);
         return new ResponseEntity<>(productInfoDTOList, HttpStatus.OK);
     }
@@ -89,7 +89,7 @@ public class ProductController {
     }
     //드래그 드랍을 이용한 순서 바꾸기
     @PatchMapping(value = "/products")
-    public ResponseEntity<List<ProductMemberInfoDTO>> updateIndex(UpdateIndexRequest updateIndexRequest){
+    public ResponseEntity<List<ProductMemberInfoDTO>> updateIndex(@RequestBody @Validated UpdateIndexRequest updateIndexRequest){
         Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         productService.updateIndex(memberId, updateIndexRequest);
         List<ProductMemberInfoDTO> productMemberInfoDTOList = productService.sortProductsByMember(memberId);
