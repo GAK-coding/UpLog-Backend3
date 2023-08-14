@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long> {
+public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long>, MemberTeamCustomRepository{
     List<MemberTeam> findMemberTeamsByTeamId(Long teamId);
     Optional<MemberTeam> findMemberTeamByMemberAndTeamId(Long memberId, Long teamId);
     Optional<MemberTeam> findMemberTeamById(Long id);
