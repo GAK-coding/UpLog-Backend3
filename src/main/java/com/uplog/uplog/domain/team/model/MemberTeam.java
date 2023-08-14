@@ -2,13 +2,17 @@ package com.uplog.uplog.domain.team.model;
 
 
 import com.uplog.uplog.domain.member.model.Member;
+import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberTeamInfoDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.build.Plugin;
 
 import javax.persistence.*;
 
@@ -49,6 +53,13 @@ public class MemberTeam {
                 .memberId(this.getMember().getId())
                 .memberName(this.getMember().getName())
                 .teamId(this.getTeam().getId())
+                .build();
+    }
+
+    public TeamAndPowerTypeDTO toTeamAndPowerTypeDTO(SimpleTeamInfoDTO simpleTeamInfoDTO){
+        return TeamAndPowerTypeDTO.builder()
+                .simpleTeamInfoDTO(simpleTeamInfoDTO)
+                .powerType(this.powerType)
                 .build();
     }
 
