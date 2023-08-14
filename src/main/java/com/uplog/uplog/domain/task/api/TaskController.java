@@ -31,17 +31,15 @@ public class TaskController {
     @PostMapping(value="/tasks")
     public ResponseEntity<TaskInfoDTO> createTask(@RequestBody CreateTaskRequest createTaskRequest) {
         Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        Task createdTask = taskService.createTask(memberId,createTaskRequest);
-        TaskInfoDTO taskInfoDTO = createdTask.toTaskInfoDTO();
-        return new ResponseEntity<>(taskInfoDTO, HttpStatus.CREATED);
+        TaskInfoDTO createdTask = taskService.createTask(memberId,createTaskRequest);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     //개별조회
     @GetMapping("/tasks/{task-id}")
     public ResponseEntity<TaskInfoDTO> findTaskById(@PathVariable(name="task-id") Long id) {
-        Task task = taskService.findTaskById(id);
-        TaskInfoDTO taskInfoDTO = task.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO task = taskService.findTaskById(id);
+        return ResponseEntity.ok(task);
     }
 
     //전체조회
@@ -89,59 +87,59 @@ public class TaskController {
     //이름 수정
     @PatchMapping("/tasks/{task-id}/title")
     public ResponseEntity<TaskInfoDTO> updateTaskName(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskNameRequest updateTaskNameRequest) {
-        Task updatedTask = taskService.updateTaskName(id,updateTaskNameRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskName(id,updateTaskNameRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
     //날짜 수정(시작날짜,종료날짜)
     @PatchMapping("/tasks/{task-id}/date")
     public ResponseEntity<TaskInfoDTO> updateTaskDate(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskDateRequest updateTaskDateRequest) {
-        Task updatedTask = taskService.updateTaskDate(id,updateTaskDateRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskDate(id,updateTaskDateRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
     //상세 내용 수정
     @PatchMapping("/tasks/{task-id}/content")
     public ResponseEntity<TaskInfoDTO> updateTaskContent(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskContentRequest updateTaskContentRequest) {
-        Task updatedTask = taskService.updateTaskContent(id,updateTaskContentRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskContent(id,updateTaskContentRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
     //target멤버 수정
     @PatchMapping("/tasks/{task-id}/target-Member")
     public ResponseEntity<TaskInfoDTO> updateTaskStatus(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskMemberRequest updateTaskMemberRequest) {
-        Task updatedTask = taskService.updateTaskMember(id,updateTaskMemberRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskMember(id,updateTaskMemberRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
     //Menu수정
     @PatchMapping("/tasks/{task-id}/menu")
     public ResponseEntity<TaskInfoDTO> updateTaskMenu(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskMenuRequest updateTaskMenuRequest) {
-        Task updatedTask = taskService.updateTaskMenu(id,updateTaskMenuRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskMenu(id,updateTaskMenuRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
 
     //테스크 팀 수정
     @PatchMapping("/tasks/{task-id}/taskTeam")
     public ResponseEntity<TaskInfoDTO> updateTaskTeam(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskTeamRequest updateTaskTeamRequest) {
-        Task updatedTask = taskService.updateTaskProjectTeam(id,updateTaskTeamRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskProjectTeam(id,updateTaskTeamRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
 
     //상태 수정
     @PatchMapping("/tasks/{task-id}/status")
     public ResponseEntity<TaskInfoDTO> updateTaskStatus(@PathVariable(name="task-id") Long id, @RequestBody UpdateTaskStatusRequest UpdateTaskStatusRequest) {
-        Task updatedTask = taskService.updateTaskStatus(id,UpdateTaskStatusRequest);
-        TaskInfoDTO taskInfoDTO = updatedTask.toTaskInfoDTO();
-        return ResponseEntity.ok(taskInfoDTO);
+        TaskInfoDTO updatedTask = taskService.updateTaskStatus(id,UpdateTaskStatusRequest);
+        return ResponseEntity.ok(updatedTask);
+    }
+
+    //수정 전체
+    @PatchMapping("/tasks/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest updateTaskRequest) {
+        TaskInfoDTO updatedTask = taskService.updateTask(id, updateTaskRequest);
+        return ResponseEntity.ok(updatedTask);
     }
 
     //삭제

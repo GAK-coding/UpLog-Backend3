@@ -34,10 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,7 +57,7 @@ public class TaskService {
     //task 생성
 
     @Transactional
-    public Task createTask(Long id,CreateTaskRequest createTaskRequest) {
+    public TaskInfoDTO createTask(Long id,CreateTaskRequest createTaskRequest) {
         Member AuthorMember = memberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
@@ -83,9 +80,10 @@ public class TaskService {
         }
 
         if(targetMember.getPosition()== Position.INDIVIDUAL){
-            Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam);
+            Long createIndex=findMaxIndexByTaskStatus(TaskStatus.PROGRESS_BEFORE);
+            Task task = createTaskRequest.toEntity(targetMember,menu,projectTeam,createIndex);
             taskRepository.save(task);
-            return task;
+            return task.toTaskInfoDTO();
         }
         else{
             //기업인경우
@@ -96,9 +94,9 @@ public class TaskService {
     //========================================read========================================
     //task하나만읽기
     @Transactional(readOnly = true)
-    public Task findTaskById(Long id) {
+    public TaskInfoDTO findTaskById(Long id) {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
-        return task;
+        return task.toTaskInfoDTO();
     }
 
     //해당 프로젝트의 전체 테스크 조회
@@ -252,46 +250,47 @@ public class TaskService {
 
     //========================================update========================================
     @Transactional
-    public Task updateTaskName(Long id,UpdateTaskNameRequest updateTaskNameRequest){
+    public TaskInfoDTO updateTaskName(Long id,UpdateTaskNameRequest updateTaskNameRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskName(updateTaskNameRequest.getUpdatetaskName());
 
-        return task;
+        return task.toTaskInfoDTO();
     }
 
     @Transactional
-    public Task updateTaskDate(Long id,UpdateTaskDateRequest updateTaskDateRequest){
+    public TaskInfoDTO updateTaskDate(Long id,UpdateTaskDateRequest updateTaskDateRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskDate(updateTaskDateRequest.getUpdateStartTime(),updateTaskDateRequest.getUpdateEndTime());
 
-        return task;
+        return task.toTaskInfoDTO();
     }
 
     @Transactional
-    public Task updateTaskContent(Long id,UpdateTaskContentRequest updateTaskContentRequest){
+    public TaskInfoDTO updateTaskContent(Long id,UpdateTaskContentRequest updateTaskContentRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskContent(updateTaskContentRequest.getUpdateContent());
-
-        return task;
+        System.out.println(task.getTaskName());
+        System.out.println(task+"dakfjals;kdfj");
+        return task.toTaskInfoDTO();
     }
 
     //멤버, 메뉴, 그룹 업데이트 짜야함
     @Transactional
-    public Task updateTaskMenu(Long id,UpdateTaskMenuRequest updateTaskMenuRequest){
+    public TaskInfoDTO updateTaskMenu(Long id,UpdateTaskMenuRequest updateTaskMenuRequest){
         Menu menu = menuRepository.findById(updateTaskMenuRequest.getUpdateMenuId())
                 .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskMenu(menu);
 
-        return task;
+        return task.toTaskInfoDTO();
     }
 
     @Transactional
-    public Task updateTaskMember(Long id,UpdateTaskMemberRequest updateTaskMemberRequest){
+    public TaskInfoDTO updateTaskMember(Long id,UpdateTaskMemberRequest updateTaskMemberRequest){
         Member member = memberRepository.findById(updateTaskMemberRequest.getUpdateTargetMemberId())
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
@@ -299,11 +298,11 @@ public class TaskService {
         authorizedMethod.PostTaskValidateByMemberId(member,task.getTeam());
         task.updateTaskmember(member);
 
-        return task;
+        return task.toTaskInfoDTO();
     }
 
     @Transactional
-    public Task updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest) {
+    public TaskInfoDTO updateTaskProjectTeam(Long id,UpdateTaskTeamRequest updateTaskTeamRequest) {
         Team projectTeam = teamRepository.findById(updateTaskTeamRequest.getUpdateTeamId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
@@ -315,21 +314,80 @@ public class TaskService {
 
         task.updateTaskTeam(projectTeam);
 
-        return task;
+        return task.toTaskInfoDTO();
     }
 
 
 
     //task상태 변경(이건 아무곳에서나 변경 가능해서 로직 따로 뺐음)
     @Transactional
-    public Task updateTaskStatus(Long id,UpdateTaskStatusRequest UpdateTaskStatusRequest){
+    public TaskInfoDTO updateTaskStatus(Long id,UpdateTaskStatusRequest UpdateTaskStatusRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskStatus(UpdateTaskStatusRequest.getTaskStatus());
 
-        return task;
+        return task.toTaskInfoDTO();
     }
 
+
+    @Transactional
+    public TaskInfoDTO updateTask(Long id, UpdateTaskRequest updateTaskRequest) {
+        Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        // 업데이트 요청에 따라 필요한 정보만 업데이트
+        boolean updated = false;
+
+        if (updateTaskRequest.getUpdateTaskName() != null) {
+            task.updateTaskName(updateTaskRequest.getUpdateTaskName());
+            updated = true;
+        }
+
+        if (updateTaskRequest.getUpdateStartTime() != null || updateTaskRequest.getUpdateEndTime() != null) {
+            task.updateTaskDate(updateTaskRequest.getUpdateStartTime(), updateTaskRequest.getUpdateEndTime());
+            updated = true;
+        }
+
+        if (updateTaskRequest.getUpdateTaskDetail() != null) {
+            task.updateTaskContent(updateTaskRequest.getUpdateTaskDetail());
+            updated = true;
+        }
+
+        if (updateTaskRequest.getUpdateMenuId() != null) {
+            Menu menu = menuRepository.findById(updateTaskRequest.getUpdateMenuId())
+                    .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
+            task.updateTaskMenu(menu);
+            updated = true;
+        }
+
+        if (updateTaskRequest.getUpdateTargetMemberId() != null) {
+            Member member = memberRepository.findById(updateTaskRequest.getUpdateTargetMemberId())
+                    .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
+            authorizedMethod.PostTaskValidateByMemberId(member, task.getTeam());
+            task.updateTaskmember(member);
+            updated = true;
+        }
+
+        if (updateTaskRequest.getUpdateTeamId() != null) {
+            Team projectTeam = teamRepository.findById(updateTaskRequest.getUpdateTeamId())
+                    .orElseThrow(() -> new NotFoundIdException("해당 프로젝트팀은 존재하지 않습니다."));
+            // 바꾸려는 팀이 프로젝트에 존재하지 않을 때
+            if (!projectTeam.getProject().getId().equals(task.getMenu().getProject().getId())) {
+                throw new NotFountTeamByProjectException();
+            }
+            task.updateTaskTeam(projectTeam);
+            updated = true;
+        }
+
+        if (updateTaskRequest.getUpdateTaskStatus() != null) {
+            task.updateTaskStatus(updateTaskRequest.getUpdateTaskStatus());
+            updated = true;
+        }
+
+        if (updated) {
+            taskRepository.save(task);
+        }
+        return task.toTaskInfoDTO();
+    }
 
     //========================================delete========================================
     @Transactional
@@ -338,4 +396,46 @@ public class TaskService {
         taskRepository.delete(task);
         return "delete";
     }
+
+    @Transactional
+    public Long findMaxIndexByTaskStatus(TaskStatus taskStatus) {
+        JPAQueryFactory query = new JPAQueryFactory(entityManager);
+        QTask qTask = QTask.task;
+
+        Long maxIndex = query
+                .select(qTask.taskIndex.max().coalesce(0L).add(1L))
+                .from(qTask)
+                .where(qTask.taskStatus.eq(taskStatus))
+                .fetchOne();
+
+        return (maxIndex != null) ? maxIndex : 1L; // maxIndex가 null일 경우 1을 반환
+    }
+
+    @Transactional
+    public void updateTaskOrder(List<Long> taskIds, TaskStatus status) {
+        // 해당 상태에서의 최대 인덱스 조회
+        Long maxIndex = findMaxIndexByTaskStatus(status);
+
+        // 중복을 방지하기 위해 이미 존재하는 인덱스 값을 저장하는 Set
+        Set<Long> usedIndexes = new HashSet<>();
+
+        // 선택된 테스크들의 인덱스를 조정
+        for (Long taskId : taskIds) {
+            Task task = taskRepository.findById(taskId).orElseThrow(NotFoundTaskByIdException::new);
+
+            // 이미 사용 중인 인덱스인 경우, 현재 최대 인덱스에 1을 더한 값을 사용
+            if (usedIndexes.contains(task.getTaskIndex())) {
+                task.updateTaskIndex(maxIndex + 1);
+                maxIndex++;
+            } else {
+                // 중복이 아니라면 현재 인덱스로 설정하고, 사용 중인 인덱스 목록에 추가
+                task.updateTaskIndex(task.getTaskIndex());
+                usedIndexes.add(task.getTaskIndex());
+            }
+        }
+
+        // 변경된 순서의 Task들을 저장
+        taskRepository.saveAll(taskRepository.findAllById(taskIds));
+    }
+
 }
