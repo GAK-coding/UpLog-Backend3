@@ -1,3 +1,6 @@
+
+
+
 package com.uplog.uplog.domain.member.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -103,9 +106,11 @@ public class MemberService {
         if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
             throw new ExpireRefreshTokenException();
         }
+        SecurityContextHolder.clearContext();;
         // 2. Access Token에서 ID 가져오기
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getRefreshToken());
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
 
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
         String rtkInRedis = redisDao.getValues("RT:"+authentication.getName());
         if(rtkInRedis==null){
@@ -115,11 +120,14 @@ public class MemberService {
         if (!rtkInRedis.equals(tokenRequestDto.getRefreshToken())) {
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
+
+        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
+        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
         // 5. 새로운 토큰 생성
         TokenDTO tokenDto = tokenProvider.createToken(authentication);
 
         // 6. 저장소 정보 업데이트
-        redisDao.deleteValues(authentication.getName());
+        redisDao.deleteValues("RT:"+authentication.getName());
 
         redisDao.setValues("RT:"+authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
 

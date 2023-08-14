@@ -2,6 +2,7 @@ package com.uplog.uplog.global.jwt;
 
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.global.exception.ExpireAccessTokenException;
+import com.uplog.uplog.global.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,24 +39,21 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwt = resolveToken(httpServletRequest);
-
         //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
         String requestURI = httpServletRequest.getRequestURI();
 
         if(!requestURI.equals("/members/refresh")){
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
 
-
                 String isLogout = (String) redisTemplate.opsForValue().get(jwt);
 
                 if(isLogout==null) {
                     Authentication authentication = tokenProvider.getAuthentication(jwt);
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+                    System.out.println("Expire Time : "+tokenProvider.getExpiration(jwt));
                 }
 
 

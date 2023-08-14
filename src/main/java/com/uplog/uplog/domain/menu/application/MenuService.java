@@ -127,11 +127,12 @@ public class MenuService {
         }
 
         // 중복 검사
-        String menuName = updateMenuNameRequest.getUpdatemenuName();
-        List<Menu> existingMenus = menuRepository.findByProjectIdAndMenuName(id, menuName);
+        List<Menu> existingMenus = menuRepository.findByProjectIdAndMenuName(menu.getProject().getId(), updateName);
+
         if (!existingMenus.isEmpty()) {
             throw new DuplicatedMenuNameInProjectException();
         }
+
         menu.updateMenuName(updateMenuNameRequest.getUpdatemenuName());
         return menu.toMenuInfoDTO();
     }

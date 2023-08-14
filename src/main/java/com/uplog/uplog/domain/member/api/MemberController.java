@@ -67,15 +67,10 @@ public class MemberController {
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
 
+
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-
-        UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
-
-        //String password=(String)authentication.getCredentials();
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         TokenDTO tokenDTO =tokenProvider.createToken(authentication);
 
         HttpHeaders httpHeaders=new HttpHeaders();

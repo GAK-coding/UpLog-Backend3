@@ -70,9 +70,9 @@ public class AuthorizedMethod {
     테스크,포스트,메뉴 생성권한 및 테스크할당자 권한
  */
 
-//- 해당 프로젝트 팀 내에 존재하는 멤버 ->나중에 윤정이가 줄거임
-//- 기업회원이 아닌 개인 회원->이건 내가 체크 완료
-//- 클라이언트가 아닌 멤버-> 준이오빠가 준 글로벌그쪽에 내가 하나 더 만들었삼(클라이언트면 예외처리)
+//- 해당 프로젝트 팀 내에 존재하는 멤버
+//- 기업회원이 아닌 개인 회원-
+//- 클라이언트가 아닌 멤버
     public void PostTaskValidateByMemberId(Member member, Team projectRootTeam){
         Long memberId=member.getId();
 
@@ -81,8 +81,7 @@ public class AuthorizedMethod {
             throw new AuthorityException("기업회원은 권한이 없습니다");
         }
 
-        //TODO 임시 나중에 프로젝트를 통해 프로젝트 팀 아이디 받아야함
-        //TODO 현재 프로젝트 팀 내에 존재하는 멤버인지 확인
+        //현재 프로젝트 팀 내에 존재하는 멤버인지 확인
         if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId())){
             throw new AuthorityException("프로젝트에 속하지 않은 멤버입니다");
         }

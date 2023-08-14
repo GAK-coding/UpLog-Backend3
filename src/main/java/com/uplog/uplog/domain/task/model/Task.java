@@ -47,6 +47,8 @@ public class Task extends BaseTime {
     private LocalDate startTime;
     private LocalDate endTime;
 
+    private Long taskIndex; //drag and drop
+
 
 
 //
@@ -66,6 +68,7 @@ public class Task extends BaseTime {
 //    }
 
     public TaskInfoDTO toTaskInfoDTO(){
+        Long parentTeamIdValue = (this.getTeam().getParentTeam() != null) ? this.getTeam().getParentTeam().getId() : null;
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
@@ -75,9 +78,11 @@ public class Task extends BaseTime {
                 .menuName(this.getMenu().getMenuName())
                 .teamId(this.getTeam().getId())
                 .teamName(this.getTeam().getName())
+                .parentTeamId(parentTeamIdValue)
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
+                .taskIndex(this.taskIndex)
                 .build();
     }
 
@@ -97,7 +102,9 @@ public class Task extends BaseTime {
 //    }
 
     public void updateTaskName(String updateName){this.taskName=updateName;}
-    public void updateTaskDate(LocalDate updateStartTime, LocalDate updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
+    public void updateTaskStartDate(LocalDate updateStartTime){this.startTime=updateStartTime;}
+    public void updateTaskEndDate(LocalDate updateEndTime){this.endTime=updateEndTime;}
+
     public void updateTaskContent(String updateContent){this.taskDetail=updateContent;}
 
     public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}
@@ -107,6 +114,8 @@ public class Task extends BaseTime {
     public void updateTaskStatus(TaskStatus taskStatus){
         this.taskStatus=taskStatus;
     }
+
+    public void updateTaskIndex(Long updateTaskIndex){this.taskIndex=updateTaskIndex;}
 
 
 //    public updateTaskStatusDTO toUpdateTaskStatusDTO (UpdateTaskStatusRequest updateTaskStatusRequest){
