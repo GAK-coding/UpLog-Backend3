@@ -4,6 +4,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.menu.dao.MenuRepository;
+import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
@@ -53,6 +55,7 @@ public class ProductService {
     private final MemberTeamRepository memberTeamRepository;
     private final ProjectRepository projectRepository;
     private final PostRepository postRepository;
+    private final MenuRepository menuRepository;
 
 
     private final MemberTeamService memberTeamService;
@@ -228,9 +231,19 @@ public class ProductService {
         }
 
         //제품 이름이 변경되면, 포스트에 있는 이름도 변경해야함.
+        //TODO 관련 로직 나중에 성능을 위한 고도화 작업 할 것.
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
-//            List<Post>
+
+            Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow();
+            List<Menu> menuList = menuRepository.findByProjectId(project.getId());
+            for(Menu m : menuList){
+                List<Post> postList = postRepository.findByMenuId(m.getId());
+                for(Post p : postList){
+                    p.updatePostProductName(updateProductRequest.getNewName());
+                }
+            }
+
 
         }
         if (!updateProductRequest.getMemberEmailList().isEmpty()) {
