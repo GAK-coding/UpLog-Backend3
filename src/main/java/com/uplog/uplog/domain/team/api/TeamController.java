@@ -53,7 +53,7 @@ public class TeamController {
 //    public ResponseEntity<SimpleTeamInfoDTO> updateMemberPowerType()
 //    }
     //===========delete==============================
-    @PostMapping(value = "/teams/{team-id}")
+    @DeleteMapping(value = "/teams/{team-id}")
     public ResponseEntity<String> deleteTeam(@PathVariable(name = "team-id")Long id){
         String s = teamService.deleteTeam(id);
         return new ResponseEntity<>(s, HttpStatus.OK);
