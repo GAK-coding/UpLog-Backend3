@@ -1,10 +1,14 @@
 package com.uplog.uplog.domain.team.model;
 
+import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.TeamInfoDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.TeamsBysMemberAndProject;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import com.uplog.uplog.global.BaseTime;
 import lombok.*;
 
@@ -62,6 +66,14 @@ public class Team extends BaseTime {
                 .memberTeamList(this.memberTeamList)
                 .createdTime(this.getCreatedTime())
                 .modifiedTime(this.getModifiedTime())
+                .build();
+    }
+
+    public TeamsBysMemberAndProject toTeamsByMemberAndProject(String memberNickname, String projectName, List<TeamAndPowerTypeDTO> simpleTeamInfoDTOList){
+        return TeamsBysMemberAndProject.builder()
+                .memberNickname(memberNickname)
+                .projectName(projectName)
+                .teamAndPowerTypeDTOList(simpleTeamInfoDTOList)
                 .build();
     }
 

@@ -4,6 +4,7 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
+import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamResultDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.TeamDTO.TeamsBysMemberAndProject;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
@@ -28,10 +29,10 @@ public class TeamController {
 
     //================create=================
     @PostMapping(value = "/projects/{project-id}/teams")
-    public ResponseEntity<Long> createTeam(@PathVariable(name = "project-id")Long projectId, @RequestBody @Validated CreateTeamRequest createTeamRequest) throws Exception {
+    public ResponseEntity<CreateTeamResultDTO> createTeam(@PathVariable(name = "project-id")Long projectId, @RequestBody @Validated CreateTeamRequest createTeamRequest) throws Exception {
         Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        Long teamId = teamService.createTeam(memberId, projectId, createTeamRequest);
-        return new ResponseEntity<>(teamId, HttpStatus.CREATED);
+        CreateTeamResultDTO createTeamResultDTO = teamService.createTeam(memberId, projectId, createTeamRequest);
+        return new ResponseEntity<>(createTeamResultDTO, HttpStatus.CREATED);
     }
     //=============read==========================
     @GetMapping(value = "/teams/{team-id}")
