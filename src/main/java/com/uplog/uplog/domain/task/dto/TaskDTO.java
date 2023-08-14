@@ -33,7 +33,6 @@ public class TaskDTO {
         private Long targetMemberId;
         private LocalDate startTime;
         private LocalDate endTime;
-        private Long taskIndex;
 
         public Task toEntity(Member targetMember,Menu menu, Team team,Long createIndex) {
             return Task.builder()
@@ -150,6 +149,27 @@ public class TaskDTO {
         private LocalDate updateStartTime;
         private LocalDate updateEndTime;
 
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskStartDateRequest{
+        //private Long id;
+        private LocalDate updateStartTime;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskEndDateRequest{
+        //private Long id;
+        private LocalDate updateEndTime;
+
     }
 
     @Getter
@@ -198,14 +218,24 @@ public class TaskDTO {
         private TaskStatus taskStatus;
 
     }
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UpdateTaskIndexRequest{
-        //private Long id;
-        private Long updateTaskIndex;
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class UpdateTaskIndexRequest{
+//        //private Long id;
+//        private Long updateTaskIndex;
+//
+//    }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateTaskIndexRequest{
+        TaskStatus beforeTaskStatus;
+        Long movedTaskId;
+        List<Long> updateTaskIndexList;
     }
 //    @Getter
 //    @Builder
