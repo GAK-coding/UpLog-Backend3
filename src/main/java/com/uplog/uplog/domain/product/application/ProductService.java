@@ -1,5 +1,6 @@
 package com.uplog.uplog.domain.product.application;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
@@ -7,30 +8,34 @@ import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
-import com.uplog.uplog.domain.product.dto.ProductMemberDTO.CreateProductMemberRequest;
-import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
-import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerDTO;
-import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerListDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.*;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.product.model.ProductMember;
+import com.uplog.uplog.domain.project.dao.ProjectRepository;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.VerySimpleProjectInfoDTO;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
+import com.uplog.uplog.domain.project.model.QProject;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
-import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.UpdateMemberPowerTypeRequest;
+import com.uplog.uplog.domain.team.model.*;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +48,8 @@ public class ProductService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final ProductMemberRepository productMemberRepository;
+    private final MemberTeamRepository memberTeamRepository;
+    private final ProjectRepository projectRepository;
 
 
     private final MemberTeamService memberTeamService;
@@ -160,8 +167,19 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductInfoDTO findProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = new ArrayList<>();
+        List<Project> projectList = projectRepository.findProjectsByProductId(id);
+        for(Project p : projectList){
+            verySimpleProjectInfoDTOList.add(p.toVerySimpleProjectInfoDTO());
+        }
 
-        return product.toProductInfoDTO(null);
+        return product.toProductInfoDTO(verySimpleProjectInfoDTOList);
+    }
+
+    @Transactional(readOnly = true)
+    public SimpleProductInfoDTO findSimpleProductById(Long id){
+        Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        return product.toSimpleProductInfoDTO();
     }
 
     //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
@@ -256,6 +274,7 @@ public class ProductService {
 
     }
 
+    //index순서대로 정렬하기 -> 드래그 드랍 반영
     @Transactional(readOnly = true)
     public List<ProductMemberInfoDTO> sortProductsByMember(Long memberId){
         List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
@@ -266,15 +285,31 @@ public class ProductService {
         return simpleProductMemberInfoDTOList;
     }
 
+    //멤버 권한 바꾸기
+    //마스터로 바뀌면 프로젝트에는 리더로 바뀌게됨.
+    @Transactional
+    public void updateMemberPowerType(Long memberId, Long productId, UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest){
+        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+        productMember.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
+        //제품에서 권한이 바뀌면, 프로젝트 권한도 자동스럽게 바뀌어야한다.
+        //즉, 멤버팀의 권한이 바껴야함. -> 프로젝트 -> 제품에서 프로젝트 가져오기.
+        //현재 프로젝트 찾기
+        Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+        //프로젝트에 멤버가 속한 팀찾기
+
+
+    }
+
     //for drag/drop
     //제일 처음 원래 순서대로 목록을 부름
     //updateIndexRequest에는 0번부터 프로젝트의 객체 아이디가 순서대로 들어가있음.
     @Transactional
     public void updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest) {
-        List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
-        Long cnt = productMemberRepository.countProductMembersByMemberId(memberId);
-        for(int i = 0 ; i < cnt ; i++ ){
+        for(int i = 0 ; i < updateIndexRequest.getUpdateIndexList().size() ; i++ ){
             ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new);
+            log.info(productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new)+"d");
+            log.info(updateIndexRequest.getUpdateIndexList().get(i)+"d");
+            log.info(memberId+"d");
             productMember.updateIndex(new Long(i));
         }
     }

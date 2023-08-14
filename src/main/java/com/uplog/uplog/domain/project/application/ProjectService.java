@@ -152,6 +152,7 @@ public class ProjectService {
         return requestProjectAllInfo;
     }
 
+    //제품에 해당하는 프로젝트들 찾기
     @Transactional(readOnly = true)
     public List<VerySimpleProjectInfoDTO> findProjectsByProductId(Long productId){
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
