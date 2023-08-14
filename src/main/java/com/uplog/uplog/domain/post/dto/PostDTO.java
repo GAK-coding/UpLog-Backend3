@@ -195,4 +195,16 @@ public class PostDTO {
         private Long id;
         private String updateVersion;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostRequest{
+        private String updatePostTitle;
+        private String updatePostContent;
+        private String updatePostType;
+        private Long updateMenuId;
+
+    }
 }

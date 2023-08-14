@@ -184,6 +184,49 @@ public class PostService {
 
     }
 
+    @Transactional
+    public PostInfoDTO updatePostInfo(Long id, UpdatePostRequest updatePostRequest, Long currentUserId) {
+        Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+
+        if (!post.getAuthor().getId().equals(currentUserId)) {
+            throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
+        }
+
+        if (updatePostRequest.getUpdatePostTitle() != null) {
+            post.updatePostTitle(updatePostRequest.getUpdatePostTitle());
+        }
+
+        if (updatePostRequest.getUpdatePostContent() != null) {
+            post.updatePostContent(updatePostRequest.getUpdatePostContent());
+        }
+
+        if (updatePostRequest.getUpdatePostType() != null) {
+            String requestType = updatePostRequest.getUpdatePostType();
+            PostType updatedPostType;
+
+            switch (requestType) {
+                case "REQUEST_READ":
+                    updatedPostType = PostType.REQUEST_READ;
+                    break;
+                case "REQUEST_REQUIREMENT":
+                    updatedPostType = PostType.REQUEST_REQUIREMENT;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid PostType: " + requestType);
+            }
+
+            post.updatePostType(updatedPostType);
+        }
+
+        if (updatePostRequest.getUpdateMenuId() != null) {
+            Menu menu = menuRepository.findById(updatePostRequest.getUpdateMenuId())
+                    .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
+            post.updatePostMenu(menu);
+        }
+
+        return toPostInfoDTO(post);
+    }
+
 
     //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스
     @Transactional
