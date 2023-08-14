@@ -145,7 +145,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostTitleRequest{
-        private Long id;
+        //private Long id;
         private String updateTitle;
     }
 
@@ -154,7 +154,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostContentRequest{
-        private Long id;
+        //private Long id;
         private String updateContent;
     }
 
@@ -163,7 +163,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostTypeRequest{
-        private Long id;
+        //private Long id;
         private String updatePostType;
     }
 
@@ -172,7 +172,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostMenuRequest{
-        private Long id;
+        //private Long id;
         private Long updateMenuId;
     }
 
@@ -183,7 +183,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostProductRequest{
-        private Long id;
+        //private Long id;
         private String updateProductName;
     }
 
@@ -192,7 +192,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostVersionRequest{
-        private Long id;
+        //private Long id;
         private String updateVersion;
     }
 
