@@ -22,6 +22,7 @@ import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.DuplicatedNameException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,11 @@ public class TeamService {
         if (!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(currentMemberId, rootTeam.getId())) {
             throw new AuthorityException("팀에 속하지 않은 멤버로, 팀 생성 권한이 없습니다.");
         }
-
+        for(Team t : project.getTeamList()){
+            if(t.getName().equals(createTeamRequest.getName())){
+                throw new DuplicatedNameException("프로젝트 내에서 팀 이름이 중복됩니다.");
+            }
+        }
 //            Team parentTeam = teamRepository.findTeamById(createTeamRequest.getParentTeamId());
         //생성 외에 부모가 널로 들어왔다면, 프로젝트 생성시에 만들어진 젠체 그룹으로 부모넣어주기
         if (createTeamRequest.getParentTeamId() != null) {
