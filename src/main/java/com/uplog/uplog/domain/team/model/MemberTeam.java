@@ -50,9 +50,10 @@ public class MemberTeam {
     public MemberTeamInfoDTO toMemberTeamInfoDTO(){
         return MemberTeamInfoDTO.builder()
                 .id(this.id)
-                .memberId(this.getMember().getId())
-                .memberName(this.getMember().getName())
-                .teamId(this.getTeam().getId())
+                .memberId(this.member.getId())
+                .memberName(this.member.getName())
+                .memberNickname(this.member.getNickname())
+                .teamId(this.team.getId())
                 .build();
     }
 
@@ -67,6 +68,7 @@ public class MemberTeam {
         return MemberPowerDTO.builder()
                 .memberId(this.member.getId())
                 .memberEmail(this.member.getEmail())
+                .memberName(this.member.getName())
                 .memberNickname(this.member.getNickname())
                 .powerType(this.powerType)
                 .build();

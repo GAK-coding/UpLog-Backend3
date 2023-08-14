@@ -44,6 +44,7 @@ public class memberTeamDTO {
         private Long id;
         private Long memberId;
         private String memberName;
+        private String memberNickname;
         private Long teamId;
     }
 
@@ -54,6 +55,7 @@ public class memberTeamDTO {
     public static class MemberPowerDTO{
         private Long memberId;
         private String memberEmail;
+        private String memberName;
         private String memberNickname;
         private PowerType powerType;
     }
