@@ -149,6 +149,14 @@ public class TaskController {
         return ResponseEntity.ok(m);
     }
 
+    //드래그앤드랍
+    @PatchMapping(value = "/tasks/{taskStatus}/index")
+    public ResponseEntity<List<TaskInfoDTO>> updateIndex(@PathVariable(name="taskStatus")TaskStatus taskStatus, @RequestBody UpdateTaskIndexRequest updateTaskIndexRequest){
+        taskService.updateTaskIndex(taskStatus,updateTaskIndexRequest);
+        List<TaskInfoDTO> taskInfoDTOList = taskService.sortTaskByStatus(taskStatus);
+        return ResponseEntity.ok(taskInfoDTOList);
+    }
+
 
 
 }
