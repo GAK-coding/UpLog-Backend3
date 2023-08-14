@@ -27,11 +27,11 @@ public class ProductController {
     private final MemberRepository memberRepository;
 
     @PostMapping(value="/products")
-    public ResponseEntity<ProductInfoDTO> createProduct(@RequestBody @Validated CreateProductRequest createProductRequest) throws Exception {
+    public ResponseEntity<SimpleProductInfoDTO> createProduct(@RequestBody @Validated CreateProductRequest createProductRequest) throws Exception {
         Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         Long pId = productService.createProduct(memberId, createProductRequest);
-        ProductInfoDTO productInfoDTO = productService.findProductById(pId);
-        return new ResponseEntity<>(productInfoDTO, HttpStatus.CREATED);
+        SimpleProductInfoDTO simpleProductInfoDTO = productService.findSimpleProductById(pId);
+        return new ResponseEntity<>(simpleProductInfoDTO, HttpStatus.CREATED);
     }
     //====================read=======================
     @GetMapping(value = "/products/{product-id}")
