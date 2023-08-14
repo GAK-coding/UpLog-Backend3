@@ -2,6 +2,8 @@ package com.uplog.uplog.domain.product.dto;
 
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerListDTO;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.VerySimpleProjectInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
 import lombok.AllArgsConstructor;
@@ -44,7 +46,7 @@ public class ProductDTO {
         private String name;
         private String company;
         private MemberPowerListDTO memberPowerListDTO;
-        private List<Long> projectListId;
+        private List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList;
     }
 
     @Builder

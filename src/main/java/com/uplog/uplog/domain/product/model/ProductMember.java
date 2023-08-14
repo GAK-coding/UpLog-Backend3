@@ -64,7 +64,7 @@ public class ProductMember {
 
     public ProductMemberInfoDTO toProductMemberInfoDTO() {
         return ProductMemberInfoDTO.builder()
-                .productId(this.id)
+                .productId(this.product.getId())
                 .productName(this.getProduct().getName())
                 .memberName(this.member.getName())
                 .powerType(this.powerType)
