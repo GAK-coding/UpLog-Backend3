@@ -29,6 +29,7 @@ import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.DuplicatedNameException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,13 @@ public class ProjectService {
 
         //진행 중 프로젝트 있을 시 제한
         checkProcessProject(productId);
+
+        //프로젝트 이름 중복되면 예외처리
+        for(Project p : product.getProjectList()){
+            if(createProjectRequest.getVersion().equals(p.getVersion()))
+                throw new DuplicatedNameException("제품 내에서 프로젝트 버전이 중복됩니다.");
+        }
+
         //Member가 마스터인,리더인지 확인해야함. -> 스프링 시큐리티! -> 이건 제품에서 확인
         if(memberProduct.getPowerType() == PowerType.CLIENT || memberProduct.getPowerType()== PowerType.DEFAULT){
             throw new AuthorityException("프로젝트 생성 권한이 없습니다.");
