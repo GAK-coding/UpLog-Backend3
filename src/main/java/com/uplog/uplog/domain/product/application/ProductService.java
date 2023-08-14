@@ -4,6 +4,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.post.dao.PostRepository;
+import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
@@ -50,6 +52,7 @@ public class ProductService {
     private final ProductMemberRepository productMemberRepository;
     private final MemberTeamRepository memberTeamRepository;
     private final ProjectRepository projectRepository;
+    private final PostRepository postRepository;
 
 
     private final MemberTeamService memberTeamService;
@@ -162,8 +165,7 @@ public class ProductService {
         return productMemberPowerDTOList;
     }
 
-
-    //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
+    //프로덕트 아이디로 프로덕트 찾기
     @Transactional(readOnly = true)
     public ProductInfoDTO findProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
@@ -176,6 +178,7 @@ public class ProductService {
         return product.toProductInfoDTO(verySimpleProjectInfoDTOList);
     }
 
+    //프로덕트 아이디로 간단한 프로덕트 정보 넘겨주기
     @Transactional(readOnly = true)
     public SimpleProductInfoDTO findSimpleProductById(Long id){
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
@@ -213,7 +216,8 @@ public class ProductService {
 
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
-        //TODO 초대는 마스터와 리더만 할 수 있음.
+
+        //초대는 마스터와 리더만 할 수 있음.
         if(memberProduct.getPowerType()==PowerType.CLIENT||memberProduct.getPowerType()==PowerType.DEFAULT){
             throw new AuthorityException("제품 수정은 마스터와 리더만 가능합니다.");
         }
@@ -223,8 +227,11 @@ public class ProductService {
             throw new MasterException();
         }
 
+        //제품 이름이 변경되면, 포스트에 있는 이름도 변경해야함.
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
+//            List<Post>
+
         }
         if (!updateProductRequest.getMemberEmailList().isEmpty()) {
             for (String s : updateProductRequest.getMemberEmailList()) {
