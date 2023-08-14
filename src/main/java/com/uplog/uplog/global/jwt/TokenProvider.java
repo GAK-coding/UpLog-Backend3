@@ -128,9 +128,7 @@ public class TokenProvider implements InitializingBean {
     public boolean validateToken(String token) {
         try {
 
-            String jwt= String.valueOf(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token));
-            System.out.println("만료 시간!: "+token);
-            System.out.println("만료 시간!234: "+ jwt);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             logger.debug("만료 시간: "+getExpiration(token));
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
