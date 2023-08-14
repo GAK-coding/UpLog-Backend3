@@ -420,7 +420,15 @@ public class TaskService {
     @Transactional
     public String deleteTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        //현재 상태 받기
+        TaskStatus currentTaskStatus=task.getTaskStatus();
         taskRepository.delete(task);
+
+        //삭제한 다음 기존 상태의 인덱스 재정렬
+        List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(currentTaskStatus);
+        reorderIndices(currentTaskStatusList);
+
+
         return "delete";
     }
 
