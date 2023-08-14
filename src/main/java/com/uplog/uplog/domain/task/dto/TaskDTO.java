@@ -33,8 +33,9 @@ public class TaskDTO {
         private Long targetMemberId;
         private LocalDate startTime;
         private LocalDate endTime;
+        private Long taskIndex;
 
-        public Task toEntity(Member targetMember,Menu menu, Team team) {
+        public Task toEntity(Member targetMember,Menu menu, Team team,Long createIndex) {
             return Task.builder()
                     .targetMember(targetMember)
                     .menu(menu)
@@ -44,6 +45,7 @@ public class TaskDTO {
                     .taskDetail(taskDetail)
                     .startTime(startTime)
                     .endTime(endTime)
+                    .taskIndex(createIndex)
                     .build();
         }
     }
@@ -83,8 +85,6 @@ public class TaskDTO {
         private Long id;
         private String taskName;
         private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
-        //private Long targetMemberId;
-        //private String targetmemberName;
         private Long menuId;
         private String menuName;
         private Long teamId;
@@ -93,6 +93,23 @@ public class TaskDTO {
         private String taskDetail;
         private LocalDate startTime;
         private LocalDate endTime;
+        private Long taskIndex;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskRequest{
+        private String updateTaskName;
+        private Long updateTargetMemberId;
+        private Long updateMenuId;
+        private Long updateTeamId;
+        private String updateTeamName;
+        private TaskStatus updateTaskStatus;
+        private String updateTaskDetail;
+        private LocalDate updateStartTime;
+        private LocalDate updateEndTime;
     }
 
 
@@ -180,18 +197,15 @@ public class TaskDTO {
         private TaskStatus taskStatus;
 
     }
-
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PowerMemberInfoDTO {
-        private Long id;
-        private String name;
-        private String nickname;
-        private Position position;
-    }
+    public static class UpdateTaskIndexRequest{
+        //private Long id;
+        private Long updateTaskIndex;
 
+    }
 //    @Getter
 //    @Builder
 //    @NoArgsConstructor

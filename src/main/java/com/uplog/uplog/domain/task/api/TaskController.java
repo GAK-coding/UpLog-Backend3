@@ -135,6 +135,13 @@ public class TaskController {
         return ResponseEntity.ok(updatedTask);
     }
 
+    //수정 전체
+    @PatchMapping("/tasks/{id}")
+    public ResponseEntity<TaskInfoDTO> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest updateTaskRequest) {
+        TaskInfoDTO updatedTask = taskService.updateTask(id, updateTaskRequest);
+        return ResponseEntity.ok(updatedTask);
+    }
+
     //삭제
     @DeleteMapping("/tasks/{task-id}")
     public ResponseEntity<String> deleteTask(@PathVariable(name="task-id") Long id) {
