@@ -58,6 +58,7 @@ public class ProductMember {
                 .id(this.id)
                 .memberId(this.member.getId())
                 .memberName(this.member.getName())
+                .memberNickname(this.member.getNickname())
                 .productId(this.product.getId())
                 .build();
     }
@@ -67,6 +68,7 @@ public class ProductMember {
                 .productId(this.product.getId())
                 .productName(this.getProduct().getName())
                 .memberName(this.member.getName())
+                .memberNickname(this.member.getNickname())
                 .powerType(this.powerType)
                 .indexNum(this.indexNum)
                 .build();
@@ -76,7 +78,7 @@ public class ProductMember {
         return ProductMemberPowerDTO.builder()
                 .memberId(this.member.getId())
                 .memberEmail(this.member.getEmail())
-                .nickName(this.member.getNickname())
+                .memberNickName(this.member.getNickname())
                 .powerType(this.powerType)
                 .build();
     }

@@ -42,6 +42,7 @@ public class ProductMemberDTO {
         private Long id;
         private Long memberId;
         private String memberName;
+        private String memberNickname;
         private Long productId;
     }
     @Builder
@@ -52,6 +53,7 @@ public class ProductMemberDTO {
         private Long productId;
         private String productName;
         private String memberName;
+        private String memberNickname;
         private PowerType powerType;
         private Long indexNum;
 
@@ -78,7 +80,8 @@ public class ProductMemberDTO {
     public static class ProductMemberPowerDTO{
         private String memberEmail;
         private Long memberId;
-        private String nickName;
+        private String memberName;
+        private String memberNickName;
         private PowerType powerType;
     }
 
