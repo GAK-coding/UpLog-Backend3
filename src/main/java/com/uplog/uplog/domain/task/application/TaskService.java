@@ -330,6 +330,7 @@ public class TaskService {
 
         //현재 상태 받기
         TaskStatus currentTaskStatus=task.getTaskStatus();
+        //수정할 상태의 인덱스 최대 저장
         Long createIndex=findMaxIndexByTaskStatus(updateTaskStatusRequest.getTaskStatus());
 
         task.updateTaskStatus(updateTaskStatusRequest.getTaskStatus());
@@ -395,7 +396,17 @@ public class TaskService {
         }
 
         if (updateTaskRequest.getUpdateTaskStatus() != null) {
+            //현재 상태 받기
+            TaskStatus currentTaskStatus=task.getTaskStatus();
+            //수정할 상태의 인덱스 최대 저장
+            Long createIndex=findMaxIndexByTaskStatus(updateTaskRequest.getUpdateTaskStatus());
+
             task.updateTaskStatus(updateTaskRequest.getUpdateTaskStatus());
+            List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(currentTaskStatus);
+            reorderIndices(currentTaskStatusList);
+
+            task.updateTaskIndex(createIndex);
+
             updated = true;
         }
 
