@@ -47,6 +47,8 @@ public class Task extends BaseTime {
     private LocalDate startTime;
     private LocalDate endTime;
 
+    private Long taskIndex; //drag and drop
+
 
 
 //
@@ -78,6 +80,7 @@ public class Task extends BaseTime {
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
+                .taskIndex(this.taskIndex)
                 .build();
     }
 
@@ -107,6 +110,8 @@ public class Task extends BaseTime {
     public void updateTaskStatus(TaskStatus taskStatus){
         this.taskStatus=taskStatus;
     }
+
+    public void updateTaskIndex(Long updateTaskIndex){this.taskIndex=updateTaskIndex;}
 
 
 //    public updateTaskStatusDTO toUpdateTaskStatusDTO (UpdateTaskStatusRequest updateTaskStatusRequest){
