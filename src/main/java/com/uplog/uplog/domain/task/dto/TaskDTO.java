@@ -232,6 +232,8 @@ public class TaskDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpdateTaskIndexRequest{
+        TaskStatus beforeTaskStatus;
+        Long movedTaskId;
         List<Long> updateTaskIndexList;
     }
 //    @Getter

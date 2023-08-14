@@ -444,6 +444,22 @@ public class TaskService {
 
     @Transactional
     public void updateTaskIndex(TaskStatus taskStatus, UpdateTaskIndexRequest updateTaskIndexRequest){
+
+        //상태 변경+인덱스 변경할때 상태변경 먼저 하고 기존 상태는 하나 빠지는거니까 재정렬함
+        if(updateTaskIndexRequest.getBeforeTaskStatus()!=null && updateTaskIndexRequest.getMovedTaskId()!=null){
+            Task task=taskRepository.findById(updateTaskIndexRequest.getMovedTaskId()).orElseThrow(NotFoundTaskByIdException::new);
+            //상태변경
+            task.updateTaskStatus(taskStatus);
+
+            //변경 전 상태 받기
+            TaskStatus beforeTaskStatus=updateTaskIndexRequest.getBeforeTaskStatus();
+
+            //변경 후 하나 빠진거니까 변경전 상태 재정렬
+            List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(beforeTaskStatus);
+            reorderIndices(currentTaskStatusList);
+
+        }
+
         List<Task> taskList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(taskStatus);
         int i=0;
         for(Task t:taskList){
