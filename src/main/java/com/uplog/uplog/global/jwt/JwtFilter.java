@@ -2,6 +2,7 @@ package com.uplog.uplog.global.jwt;
 
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.global.exception.ExpireAccessTokenException;
+import com.uplog.uplog.global.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,24 +39,30 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
+        System.out.println("login8: "+SecurityUtil.getCurrentUsername());
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwt = resolveToken(httpServletRequest);
-
+        System.out.println("login test: "+ jwt);
         //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
         String requestURI = httpServletRequest.getRequestURI();
-
+        System.out.println("login9: "+SecurityUtil.getCurrentUsername());
+        System.out.println("login1241: "+jwt);
+//        if(requestURI.equals("/members/login")&&jwt!=null){
+//            tokenProvider.validateToken(jwt);
+//        }
         if(!requestURI.equals("/members/refresh")){
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-
+                System.out.println("login10: "+SecurityUtil.getCurrentUsername());
 
                 String isLogout = (String) redisTemplate.opsForValue().get(jwt);
-
+                System.out.println("login101: "+isLogout);
                 if(isLogout==null) {
                     Authentication authentication = tokenProvider.getAuthentication(jwt);
-
+                    System.out.println("login11: "+SecurityUtil.getCurrentUsername());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("login12: "+SecurityUtil.getCurrentUsername());
                     logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+                    System.out.println("Expire Time : "+tokenProvider.getExpiration(jwt));
                 }
 
 
@@ -70,8 +77,11 @@ public class JwtFilter extends GenericFilterBean {
     }
 
     private String resolveToken(HttpServletRequest request) {
+        System.out.println("login13: "+SecurityUtil.getCurrentUsername());
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        System.out.println("login14: "+SecurityUtil.getCurrentUsername());
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            System.out.println("login15: "+SecurityUtil.getCurrentUsername());
             return bearerToken.substring(7);
         }
 

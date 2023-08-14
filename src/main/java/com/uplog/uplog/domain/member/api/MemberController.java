@@ -63,19 +63,27 @@ public class MemberController {
     //security 로직 추가
     @PostMapping(value = "/members/login")
     public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
+        System.out.println("login0: "+SecurityUtil.getCurrentUsername());
 
+        System.out.println("login1: "+SecurityUtil.getCurrentUsername());
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
 
+        //System.out.println("loginToken: "+authenticationToken.getDetails().toString());
+        System.out.println("loginToken1: "+authenticationToken.getPrincipal().toString());
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
+        //System.out.println("loginToken2: "+authentication.getDetails().toString());
+        System.out.println("loginToken3: "+authentication.getPrincipal().toString());
 
-        UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
+        System.out.println("loginToken5: "+SecurityContextHolder.getContext().getAuthentication());
+
 
         //String password=(String)authentication.getCredentials();
-
+        System.out.println("login4: "+SecurityUtil.getCurrentUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        System.out.println("login5: "+SecurityUtil.getCurrentUsername());
+        System.out.println("loginToken6: "+SecurityContextHolder.getContext().getAuthentication());
         TokenDTO tokenDTO =tokenProvider.createToken(authentication);
 
         HttpHeaders httpHeaders=new HttpHeaders();
