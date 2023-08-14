@@ -149,6 +149,27 @@ public class TaskDTO {
         private LocalDate updateStartTime;
         private LocalDate updateEndTime;
 
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskStartDateRequest{
+        //private Long id;
+        private LocalDate updateStartTime;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskEndDateRequest{
+        //private Long id;
+        private LocalDate updateEndTime;
+
     }
 
     @Getter

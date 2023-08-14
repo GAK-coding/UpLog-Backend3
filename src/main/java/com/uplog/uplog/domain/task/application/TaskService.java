@@ -262,7 +262,8 @@ public class TaskService {
     public TaskInfoDTO updateTaskDate(Long id,UpdateTaskDateRequest updateTaskDateRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
-        task.updateTaskDate(updateTaskDateRequest.getUpdateStartTime(),updateTaskDateRequest.getUpdateEndTime());
+        task.updateTaskStartDate(updateTaskDateRequest.getUpdateStartTime());
+        task.updateTaskEndDate(updateTaskDateRequest.getUpdateEndTime());
 
         return task.toTaskInfoDTO();
     }
@@ -342,8 +343,12 @@ public class TaskService {
             updated = true;
         }
 
-        if (updateTaskRequest.getUpdateStartTime() != null || updateTaskRequest.getUpdateEndTime() != null) {
-            task.updateTaskDate(updateTaskRequest.getUpdateStartTime(), updateTaskRequest.getUpdateEndTime());
+        if (updateTaskRequest.getUpdateStartTime() != null) {
+            task.updateTaskStartDate(updateTaskRequest.getUpdateStartTime());
+            updated = true;
+        }
+        if (updateTaskRequest.getUpdateEndTime() != null) {
+            task.updateTaskEndDate(updateTaskRequest.getUpdateEndTime());
             updated = true;
         }
 
@@ -396,6 +401,11 @@ public class TaskService {
         taskRepository.delete(task);
         return "delete";
     }
+
+//    @Transactional(readOnly = true)
+//    public List<TaskInfoDTO> sortTaskByStatus(TaskStatus taskStatus){
+//        List<Task> taskByStatusList=taskRepository
+//    }
 
     @Transactional
     public Long findMaxIndexByTaskStatus(TaskStatus taskStatus) {
