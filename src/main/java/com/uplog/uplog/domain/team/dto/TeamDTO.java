@@ -80,6 +80,7 @@ public class TeamDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TeamsBysMemberAndProject{
+        private String memberName;
         private String memberNickname;
         private String projectName;
         private List<TeamAndPowerTypeDTO> teamAndPowerTypeDTOList;

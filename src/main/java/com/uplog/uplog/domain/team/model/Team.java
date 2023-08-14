@@ -69,8 +69,9 @@ public class Team extends BaseTime {
                 .build();
     }
 
-    public TeamsBysMemberAndProject toTeamsByMemberAndProject(String memberNickname, String projectName, List<TeamAndPowerTypeDTO> simpleTeamInfoDTOList){
+    public TeamsBysMemberAndProject toTeamsByMemberAndProject(String memberName, String memberNickname, String projectName, List<TeamAndPowerTypeDTO> simpleTeamInfoDTOList){
         return TeamsBysMemberAndProject.builder()
+                .memberName(memberName)
                 .memberNickname(memberNickname)
                 .projectName(projectName)
                 .teamAndPowerTypeDTOList(simpleTeamInfoDTOList)

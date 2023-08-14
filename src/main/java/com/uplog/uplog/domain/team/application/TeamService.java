@@ -139,6 +139,7 @@ public class TeamService {
         }
 
         return TeamsBysMemberAndProject.builder()
+                .memberName(member.getName())
                 .memberNickname(member.getNickname())
                 .projectName(project.getVersion())
                 .teamAndPowerTypeDTOList(teamAndPowerTypeDTOList)
