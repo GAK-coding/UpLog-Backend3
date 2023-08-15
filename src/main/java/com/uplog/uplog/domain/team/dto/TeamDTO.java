@@ -63,6 +63,29 @@ public class TeamDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class TeamIncludeChildInfoDTO{
+        private Long teamId;
+        private String projectName;
+        private String teamName;
+        private int depth;
+        private List<SimpleTeamIncludeChildInfoDTO> childTeamInfoDTOList;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimpleTeamIncludeChildInfoDTO{
+        private Long id;
+        private String teamName;
+        private int depth;
+        private List<SimpleTeamIncludeChildInfoDTO> childTeamInfoDTOList;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SimpleTeamInfoDTO{
         private Long id;
         private String teamName;
