@@ -448,8 +448,11 @@ public class TaskService {
         //상태 변경+인덱스 변경할때 상태변경 먼저 하고 기존 상태는 하나 빠지는거니까 재정렬함
         if(updateTaskIndexRequest.getBeforeTaskStatus()!=null && updateTaskIndexRequest.getMovedTaskId()!=null){
             Task task=taskRepository.findById(updateTaskIndexRequest.getMovedTaskId()).orElseThrow(NotFoundTaskByIdException::new);
+            //상태 변경 전 변경하고자하는 상태의 최대 인덱스 찾기
+            Long createIndex=findMaxIndexByTaskStatus(taskStatus);
             //상태변경
             task.updateTaskStatus(taskStatus);
+            task.updateTaskIndex(createIndex);
 
             //변경 전 상태 받기
             TaskStatus beforeTaskStatus=updateTaskIndexRequest.getBeforeTaskStatus();
@@ -461,8 +464,10 @@ public class TaskService {
         }
 
         List<Task> taskList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(taskStatus);
+
         int i=0;
         for(Task t:taskList){
+//            System.out.println(t.getId()+"를"+i+"번째"+updateTaskIndexRequest.getUpdateTaskIndexList().get(i));
             t.updateTaskIndex(updateTaskIndexRequest.getUpdateTaskIndexList().get(i));
             i++;
         }
