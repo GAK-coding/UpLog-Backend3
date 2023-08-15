@@ -191,7 +191,7 @@ public class ProjectService {
 
 
     }
-
+//=================================update======================================가
     @Transactional
     public UpdateProjectInfo updateProject(Long memberId,UpdateProjectStatus updateProjectStatus, Long projectId) {
         //마스터와 리더만 프로젝트를 수정할 수 있음.
@@ -225,18 +225,7 @@ public class ProjectService {
 
         return updateProjectInfo;
     }
-
-    @Transactional
-    public String deleteProject(Long memberId, Long projectId) {
-        //권한 확인
-        powerValidate(memberId, projectId);
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundProjectException(projectId));
-        projectRepository.delete(project);
-        return "Delete Ok";
-
-    }
-
+    //======================method======================================
     public PowerType checkMemberType(Long memberId, Long projectId) {
 
         //JPAQueryFactory query = new JPAQueryFactory(entityManager);
@@ -294,5 +283,17 @@ public class ProjectService {
         return powerType;
 
     }
+    //===============================delete===========================
+    @Transactional
+    public String deleteProject(Long memberId, Long projectId) {
+        //권한 확인
+        powerValidate(memberId, projectId);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundProjectException(projectId));
+        projectRepository.delete(project);
+        return "Delete Ok";
+
+    }
+
 
 }
