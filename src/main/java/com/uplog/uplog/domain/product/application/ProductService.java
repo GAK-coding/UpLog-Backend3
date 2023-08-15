@@ -83,6 +83,16 @@ public class ProductService {
             Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
             productRepository.save(product);
 
+            //기업에 들어갈 시에는 클라이언트로 들어감.
+            CreateProductMemberRequest createProductMemberRequest2 = CreateProductMemberRequest.builder()
+                    .memberEmail(member.getEmail())
+                    .productId(product.getId())
+                    .link(createProductRequest.getLink())
+                    .powerType(PowerType.CLIENT)
+                    .build();
+            productMemberService.createProductMember(createProductMemberRequest2);
+
+            //마스터 생성
             CreateProductMemberRequest createProductMemberRequest = CreateProductMemberRequest.builder()
                     .memberEmail(createProductRequest.getMasterEmail())
                     .productId(product.getId())

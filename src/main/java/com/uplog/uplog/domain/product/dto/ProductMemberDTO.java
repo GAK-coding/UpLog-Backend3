@@ -18,7 +18,7 @@ public class ProductMemberDTO {
     @NoArgsConstructor
     public static class CreateProductMemberRequest{
         private String memberEmail;
-        private Long memberId;
+        //private Long memberId;
         private Long productId;
         private PowerType powerType;
         private String link;
