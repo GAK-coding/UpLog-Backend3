@@ -4,9 +4,7 @@ import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.TeamInfoDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.TeamsBysMemberAndProject;
+import com.uplog.uplog.domain.team.dto.TeamDTO.*;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import com.uplog.uplog.global.BaseTime;
@@ -88,5 +86,24 @@ public class Team extends BaseTime {
                 .teamName(this.name)
                 .depth(this.depth)
                 .build();
+    }
+    public SimpleTeamIncludeChildInfoDTO toSimpleTeamIncludeChildInfoDTO(List<SimpleTeamIncludeChildInfoDTO> childTeamInfoDTOList){
+        return SimpleTeamIncludeChildInfoDTO.builder()
+                .id(this.id)
+                .teamName(this.name)
+                .depth(this.depth)
+                .childTeamInfoDTOList(childTeamInfoDTOList)
+                .build();
+    }
+
+    public TeamIncludeChildInfoDTO toTeamIncludeChildInfoDTO(List<SimpleTeamIncludeChildInfoDTO> childTeamInfoDTOList){
+        return TeamIncludeChildInfoDTO.builder()
+                .projectName(this.project.getVersion())
+                .teamId(this.id)
+                .teamName(this.name)
+                .depth(this.depth)
+                .childTeamInfoDTOList(childTeamInfoDTOList)
+                .build();
+
     }
 }

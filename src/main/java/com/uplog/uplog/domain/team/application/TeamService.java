@@ -8,6 +8,7 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
@@ -136,7 +137,7 @@ public class TeamService {
         return memberPowerDTOList;
     }
 
-    //프로젝트와 멤버아이디로 멤버가 속한 팉을 보고싶을 때. -> 파워타입까지 확인해야하기 때문에 memberTeam을 queryDSL로 한 거임.
+    //프로젝트와 멤버아이디로 멤버가 속한 팀을 보고싶을 때. -> 파워타입까지 확인해야하기 때문에 memberTeam을 queryDSL로 한 거임.
     @Transactional(readOnly = true)
     public TeamsBysMemberAndProject findTeamsByMemberIdAndProjectId(Long memberId, Long projectId){
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
@@ -158,21 +159,26 @@ public class TeamService {
     }
 
     //팀에 속한 자식 팀까지 보고싶을 때
-    //형식 고려해봐야할 듯.
-//    @Transactional(readOnly = true)
-//    public List<MemberPowerDTO> findMembersIncludeChildByTeamId(Long teamId) {
-//        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-//        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
-//
-//        List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
-//        for (MemberTeam mt : memberTeamList) {
-//            memberPowerDTOList.add(mt.toMemberPowerDTO());
-//        }
-//        if(!team.getChildTeamList().isEmpty()){
-//
-//        }
-//        return memberPowerDTOList;
-//    }
+    @Transactional(readOnly = true)
+    public TeamIncludeChildInfoDTO findTeamIncludeChildByTeamId(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        List<SimpleTeamIncludeChildInfoDTO> childTeamDTOList = new ArrayList<>();
+
+        if(!team.getChildTeamList().isEmpty()){
+            for(Team t : team.getChildTeamList()){
+                List<SimpleTeamIncludeChildInfoDTO> childList = new ArrayList<>();
+                if(!t.getChildTeamList().isEmpty()){
+                    for(Team ct : t.getChildTeamList()){
+                        //2번째 부터는 자식이 없음.
+                        childList.add(ct.toSimpleTeamIncludeChildInfoDTO(null));
+                    }
+                }
+                childTeamDTOList.add(t.toSimpleTeamIncludeChildInfoDTO(childList));
+            }
+        }
+
+        return team.toTeamIncludeChildInfoDTO(childTeamDTOList);
+    }
 
     //팀과 자식 팀 조회
 
