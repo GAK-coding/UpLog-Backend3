@@ -45,7 +45,6 @@ public class MemberTeamService {
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
         memberTeamRepository.save(memberTeam);
-        //TODO Null point 확인
 //        log.info(team.getName());
 //        log.info(team.getMemberTeamList()+"null?");
 //        log.info(memberTeam+"what null");
