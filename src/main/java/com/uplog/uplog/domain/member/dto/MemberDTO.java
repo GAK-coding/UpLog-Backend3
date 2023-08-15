@@ -99,6 +99,17 @@ public class MemberDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class VerySimpleMemberInfoDTO{
+        private Long id;
+        private String image;
+        private String name;
+        private String nickname;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UpdatePasswordRequest{
         // private Long id;
         private String password;
