@@ -11,12 +11,11 @@ import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamResultDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.TeamsBysMemberAndProject;
+import com.uplog.uplog.domain.team.dto.TeamDTO.*;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.SimpleMemberPowerInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
@@ -179,8 +178,43 @@ public class TeamService {
 
     //=========================update==============================================
     //새로운 멤버가 초대되었을 때
-//    @Transactional
-//    public
+    @Transactional
+    public AddMemberTeamResultDTO addMemberToTeam(Long memberId, Long teamId, AddMemberToTeamRequest addMemberToTeamRequest) throws Exception {
+        List<Long> duplicatedMemberIdList = new ArrayList<>();
+
+        //팀의 존재 여부 확인
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        //현재 멤버가 프로젝트에 속한 사람인지 봐야함 아니라면, 초대 권한이 없음.
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, teamId)){
+            throw new AuthorityException("팀에 멤버를 초대할 수 있는 권한이 없습니다.");
+        }
+
+        Team rootTeam = teamRepository.findTeamByProjectIdAndDepth(team.getProject().getId(), 0).get(0);
+
+        for(Long nMemberId : addMemberToTeamRequest.getAddMemberIdList()){
+            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(memberId,rootTeam.getId()).orElseThrow(NotFoundIdException::new);
+            if(memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(nMemberId, teamId)){
+                duplicatedMemberIdList.add(nMemberId);
+                continue;
+            }
+            CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+                    .memberId(nMemberId)
+                    .teamId(teamId)
+                    .powerType(memberTeam.getPowerType())
+                    .link(addMemberToTeamRequest.getLink())
+                    .build();
+            memberTeamService.createMemberTeam(createMemberTeamRequest);
+        }
+
+        List<MemberPowerDTO> memberPowerDTOList = findMembersByTeamId(teamId);
+
+        return AddMemberTeamResultDTO.builder()
+                .id(teamId)
+                .MemberPowerDTO(memberPowerDTOList)
+                .DuplicatedMemberList(duplicatedMemberIdList)
+                .build();
+
+    }
 
 
     //멤버가 방출될 때.

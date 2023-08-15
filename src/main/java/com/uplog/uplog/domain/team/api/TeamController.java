@@ -3,10 +3,7 @@ package com.uplog.uplog.domain.team.api;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamResultDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.TeamsBysMemberAndProject;
+import com.uplog.uplog.domain.team.dto.TeamDTO.*;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
 import com.uplog.uplog.global.util.SecurityUtil;
@@ -49,9 +46,12 @@ public class TeamController {
         return ResponseEntity.ok(teamsBysMemberAndProject);
     }
     //================update========================
-//    @PatchMapping(value = "/teams/{team-id}/power-type")
-//    public ResponseEntity<SimpleTeamInfoDTO> updateMemberPowerType()
-//    }
+    @PatchMapping(value = "/teams/{team-id}")
+    public ResponseEntity<AddMemberTeamResultDTO> addMemberToTeam(@PathVariable(name = "team-id")Long teamId,@RequestBody @Validated AddMemberToTeamRequest addMemberToTeamRequest) throws Exception {
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        AddMemberTeamResultDTO addMemberTeamResultDTO = teamService.addMemberToTeam(memberId, teamId, addMemberToTeamRequest);
+        return ResponseEntity.ok(addMemberTeamResultDTO);
+    }
     //===========delete==============================
     @DeleteMapping(value = "/teams/{team-id}")
     public ResponseEntity<String> deleteTeam(@PathVariable(name = "team-id")Long id){
