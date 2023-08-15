@@ -43,19 +43,23 @@ public class Team extends BaseTime {
     @OneToMany(mappedBy = "parentTeam")
     private List<Team> childTeamList = new ArrayList<Team>();
 
-    protected String name;
+    private String name;
+
+    private int depth;
+
 
     public void updateName(String newName){ this.name = newName; }
 
     public void updateMemberTeamList(List<MemberTeam> memberTeamList){this.memberTeamList = memberTeamList;}
 
     @Builder
-    public Team(Long id, List<MemberTeam> memberTeamList, String name, Project project, Team parentTeam){
+    public Team(Long id, List<MemberTeam> memberTeamList, String name, Project project, Team parentTeam, int depth){
         this.id = id;
         this.memberTeamList = memberTeamList;
         this.name = name;
         this.project = project;
         this.parentTeam = parentTeam;
+        this.depth = depth;
     }
 
 

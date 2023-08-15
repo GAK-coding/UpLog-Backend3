@@ -22,6 +22,7 @@ import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.DepthException;
 import com.uplog.uplog.global.exception.DuplicatedNameException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailService;
@@ -68,7 +69,11 @@ public class TeamService {
         if (createTeamRequest.getParentTeamId() != null) {
             List<Long> duplicatedMemberIdList = new ArrayList<>();
             Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(NotFoundIdException::new);
-            Team team = createTeamRequest.toEntity(project, parentTeam);
+            //팀의 최대 depth는 2임. 부모가 2가 되면 안됨
+            if(parentTeam.getDepth()==2){
+                throw new DepthException("팀의 최대 depth를 초과했습니다.");
+            }
+            Team team = createTeamRequest.toEntity(project, parentTeam,parentTeam.getDepth()+1);
             teamRepository.save(team);
 
             //PowerType알아내기 --> 어떻게 알아내지  -> memberProduct에서 찾자. team을 이름으로 찾고 team이랑 멤버 아이디로 해도 되는데 그럼 중복된 이름이 걸릴 수 있음.
@@ -90,9 +95,10 @@ public class TeamService {
                     .DuplicatedMemberList(duplicatedMemberIdList)
                     .build();
         } else {
+            //부모를 입력 안해줬을 경우, 루트 밑으로 들어가니까 뎁스는 당연히 1
             List<Long> duplicatedMemberIdList = new ArrayList<>();
             Team parentTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(NotFoundIdException::new);
-            Team team = createTeamRequest.toEntity(project, parentTeam);
+            Team team = createTeamRequest.toEntity(project, parentTeam,1);
             teamRepository.save(team);
 
             for (Long memberId : createTeamRequest.getMemberIdList()) {
@@ -172,7 +178,9 @@ public class TeamService {
     //팀과 자식 팀 조회
 
     //=========================update==============================================
-    //멤버가 초대되었을 때.
+    //새로운 멤버가 초대되었을 때
+//    @Transactional
+//    public
 
 
     //멤버가 방출될 때.

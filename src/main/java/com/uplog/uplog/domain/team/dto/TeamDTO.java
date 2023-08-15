@@ -32,13 +32,14 @@ public class TeamDTO {
         private Long parentTeamId;
         private String link;
 
-        public Team toEntity(Project project, Team parentTeam){
+        public Team toEntity(Project project, Team parentTeam, int depth){
             return Team.builder()
                     //.product(product)
                     .memberTeamList(new ArrayList<>())
                     .project(project)
                     .name(this.name)
                     .parentTeam(parentTeam)
+                    .depth(depth)
                     .build();
 
         }
