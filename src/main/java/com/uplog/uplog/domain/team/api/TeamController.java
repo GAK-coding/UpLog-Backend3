@@ -47,6 +47,7 @@ public class TeamController {
         TeamsBysMemberAndProject teamsBysMemberAndProject = teamService.findTeamsByMemberIdAndProjectId(memberId, projectId);
         return ResponseEntity.ok(teamsBysMemberAndProject);
     }
+
     //팀아이디로 자식팀까지 조회
     @GetMapping(value = "/teams/{team-id}/child-team")
     public ResponseEntity<TeamIncludeChildInfoDTO> findTeamIncludeChild(@PathVariable(name = "team-id")Long teamId){
@@ -54,7 +55,14 @@ public class TeamController {
         return ResponseEntity.ok(teamIncludeChildInfoDTO);
     }
 
-    //팀아이디로 자식팀 + 속한 멤버들까지 조회
+    //팀아이디로 멤버 + 자식팀(멤버 없음) 조회
+    @GetMapping(value = "/teams/{team-id}/members/child-team")
+    public ResponseEntity<TeamWithMemberAndChildTeamInfoDTO> findTeamWithMemberAndChildTeam(@PathVariable(name = "team-id")Long teamId) {
+        TeamWithMemberAndChildTeamInfoDTO teamWithMemberAndChildTeamInfoDTO = teamService.findTeamWithMemberAndChildTeamByTeamId(teamId);
+        return ResponseEntity.ok(teamWithMemberAndChildTeamInfoDTO);
+    }
+
+    //팀아이디로 하위팀 + 출력된 팀의 멤버들까지 조회
     @GetMapping(value = "/teams/{team-id}/child-team/members")
     public ResponseEntity<TeamIncludeChildWithMemberInfoDTO> findTeamIncludeChildWithTotalMember(@PathVariable(name = "team-id")Long teamId){
         TeamIncludeChildWithMemberInfoDTO teamIncludeChildWithMemberInfoDTO = teamService.findTeamIncludeChildWithTotalMemberByTeamId(teamId);

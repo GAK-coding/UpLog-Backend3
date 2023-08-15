@@ -101,6 +101,19 @@ public class TeamDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class TeamWithMemberAndChildTeamInfoDTO{
+        private Long teamId;
+        private String projectName;
+        private String teamName;
+        private int depth;
+        private List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList;
+        private List<SimpleTeamInfoDTO> childTeamInfoDTOList;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SimpleTeamIncludeChildWithMemberInfoDTO{
         private Long teamId;
         private String teamName;

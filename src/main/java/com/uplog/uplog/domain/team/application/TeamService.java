@@ -181,16 +181,23 @@ public class TeamService {
 
         return team.toTeamIncludeChildInfoDTO(childTeamDTOList);
     }
-    //팀과 자식팀(멤버 없음)+ 현재 팀의 자식 출력
-//    @Transactional(readOnly = true)
-//    public SimpleTeamIncludeChildWithMemberInfoDTO findTeamIncludeChildMemberByTeamId(Long teamId){
-//        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-//        List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList = new ArrayList<>();
-//
-//        for(MemberTeam mt : team.getMemberTeamList()){
-//            verySimpleMemberInfoDTOList.add(mt.getMember().toVerySimpleMemberInfoDTO());
-//        }
-//    }
+    //팀과 자식팀(멤버 없음)+ 현재 팀의 멤버 출력
+    @Transactional(readOnly = true)
+    public TeamWithMemberAndChildTeamInfoDTO findTeamWithMemberAndChildTeamByTeamId(Long teamId){
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList = new ArrayList<>();
+        List<SimpleTeamInfoDTO> simpleTeamInfoDTOList = new ArrayList<>();
+
+        for(MemberTeam mt : team.getMemberTeamList()){
+            verySimpleMemberInfoDTOList.add(mt.getMember().toVerySimpleMemberInfoDTO());
+        }
+        if(!team.getChildTeamList().isEmpty()){
+            for(Team t : team.getChildTeamList()){
+                simpleTeamInfoDTOList.add(t.toSimpleTeamInfoDTO());
+            }
+        }
+        return team.toTeamWithMemberAndChildTeamInfoDTO(verySimpleMemberInfoDTOList, simpleTeamInfoDTOList);
+    }
 
     //팀과 자식 팀 + 멤버까지 조회
     //TODO 성능 고려 해보기 -> 함수로 빼도 결국엔 다중 for문을 돌게 되어있음.

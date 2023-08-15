@@ -129,4 +129,14 @@ public class Team extends BaseTime {
                 .childTeamInfoDTOList(childTeamWithMemberInfoDTOList)
                 .build();
     }
+
+    public TeamWithMemberAndChildTeamInfoDTO toTeamWithMemberAndChildTeamInfoDTO(List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList, List<SimpleTeamInfoDTO> simpleTeamInfoDTOList){
+        return TeamWithMemberAndChildTeamInfoDTO.builder()
+                .teamId(this.id)
+                .teamName(this.name)
+                .depth(this.depth)
+                .verySimpleMemberInfoDTOList(verySimpleMemberInfoDTOList)
+                .childTeamInfoDTOList(simpleTeamInfoDTOList)
+                .build();
+    }
 }
