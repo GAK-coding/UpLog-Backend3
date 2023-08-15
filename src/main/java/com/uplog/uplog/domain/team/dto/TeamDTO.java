@@ -66,6 +66,7 @@ public class TeamDTO {
     public static class SimpleTeamInfoDTO{
         private Long id;
         private String teamName;
+        private int depth;
     }
 
     @Builder

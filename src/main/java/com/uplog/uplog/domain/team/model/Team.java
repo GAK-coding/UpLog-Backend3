@@ -86,6 +86,7 @@ public class Team extends BaseTime {
         return SimpleTeamInfoDTO.builder()
                 .id(this.id)
                 .teamName(this.name)
+                .depth(this.depth)
                 .build();
     }
 }
