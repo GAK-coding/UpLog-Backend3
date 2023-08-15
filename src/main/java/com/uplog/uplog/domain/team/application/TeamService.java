@@ -159,20 +159,20 @@ public class TeamService {
 
     //팀에 속한 자식 팀까지 보고싶을 때
     //형식 고려해봐야할 듯.
-    @Transactional(readOnly = true)
-    public List<MemberPowerDTO> findMembersIncludeChildByTeamId(Long teamId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
-
-        List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
-        for (MemberTeam mt : memberTeamList) {
-            memberPowerDTOList.add(mt.toMemberPowerDTO());
-        }
-        if(!team.getChildTeamList().isEmpty()){
-
-        }
-        return memberPowerDTOList;
-    }
+//    @Transactional(readOnly = true)
+//    public List<MemberPowerDTO> findMembersIncludeChildByTeamId(Long teamId) {
+//        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+//        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
+//
+//        List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
+//        for (MemberTeam mt : memberTeamList) {
+//            memberPowerDTOList.add(mt.toMemberPowerDTO());
+//        }
+//        if(!team.getChildTeamList().isEmpty()){
+//
+//        }
+//        return memberPowerDTOList;
+//    }
 
     //팀과 자식 팀 조회
 
