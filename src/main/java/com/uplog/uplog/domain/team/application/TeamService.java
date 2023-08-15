@@ -1,6 +1,8 @@
 package com.uplog.uplog.domain.team.application;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.domain.member.dto.MemberDTO;
+import com.uplog.uplog.domain.member.dto.MemberDTO.VerySimpleMemberInfoDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.product.application.ProductMemberService;
 import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
@@ -179,8 +181,54 @@ public class TeamService {
 
         return team.toTeamIncludeChildInfoDTO(childTeamDTOList);
     }
+    //팀과 자식팀(멤버 없음)+ 현재 팀의 자식 출력
+//    @Transactional(readOnly = true)
+//    public SimpleTeamIncludeChildWithMemberInfoDTO findTeamIncludeChildMemberByTeamId(Long teamId){
+//        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+//        List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList = new ArrayList<>();
+//
+//        for(MemberTeam mt : team.getMemberTeamList()){
+//            verySimpleMemberInfoDTOList.add(mt.getMember().toVerySimpleMemberInfoDTO());
+//        }
+//    }
 
-    //팀과 자식 팀 조회
+    //팀과 자식 팀 + 멤버까지 조회
+    //TODO 성능 고려 해보기 -> 함수로 빼도 결국엔 다중 for문을 돌게 되어있음.
+    @Transactional(readOnly = true)
+    public TeamIncludeChildWithMemberInfoDTO findTeamIncludeChildWithTotalMemberByTeamId(Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList = new ArrayList<>();
+
+        //속한 멤버들 출력
+        for (MemberTeam mt : team.getMemberTeamList()) {
+            verySimpleMemberInfoDTOList.add(mt.getMember().toVerySimpleMemberInfoDTO());
+        }
+        List<SimpleTeamIncludeChildWithMemberInfoDTO> fChildList = new ArrayList<>();
+        if (!team.getChildTeamList().isEmpty()) {
+            List<VerySimpleMemberInfoDTO> fVerySimpleMemberDTOlist = new ArrayList<>();
+            for (Team t : team.getChildTeamList()) {
+                //member 추가하기
+                for (MemberTeam mt : t.getMemberTeamList()) {
+                    fVerySimpleMemberDTOlist.add(mt.getMember().toVerySimpleMemberInfoDTO());
+                }
+                //해당 팀의 두번째 뎁스 자식 그룹이 담김(존재한다면)
+                List<SimpleTeamIncludeChildWithMemberInfoDTO> sChildList = new ArrayList<>();
+                if (!t.getChildTeamList().isEmpty()) {
+                    List<VerySimpleMemberInfoDTO> sVerySimpleMemberInfoDTO = new ArrayList<>();
+                    for (Team ct : t.getChildTeamList()) {
+                        for (MemberTeam mt : ct.getMemberTeamList()) {
+                            sVerySimpleMemberInfoDTO.add(mt.getMember().toVerySimpleMemberInfoDTO());
+                        }
+                        //2번째 부터는 자식이 없음.
+                        sChildList.add(ct.toSimpleTeamIncludeChildWithMemberInfoDTO(sVerySimpleMemberInfoDTO, null));
+                    }
+                }
+                fChildList.add(t.toSimpleTeamIncludeChildWithMemberInfoDTO(fVerySimpleMemberDTOlist, sChildList));
+            }
+        }
+        return team.toTeamIncludeChildWithMemberInfoDTO(verySimpleMemberInfoDTOList,fChildList);
+
+    }
 
     //=========================update==============================================
     //새로운 멤버가 초대되었을 때

@@ -1,5 +1,7 @@
 package com.uplog.uplog.domain.team.model;
 
+import com.uplog.uplog.domain.member.dto.MemberDTO;
+import com.uplog.uplog.domain.member.dto.MemberDTO.VerySimpleMemberInfoDTO;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.task.model.Task;
@@ -89,7 +91,7 @@ public class Team extends BaseTime {
     }
     public SimpleTeamIncludeChildInfoDTO toSimpleTeamIncludeChildInfoDTO(List<SimpleTeamIncludeChildInfoDTO> childTeamInfoDTOList){
         return SimpleTeamIncludeChildInfoDTO.builder()
-                .id(this.id)
+                .teamId(this.id)
                 .teamName(this.name)
                 .depth(this.depth)
                 .childTeamInfoDTOList(childTeamInfoDTOList)
@@ -105,5 +107,26 @@ public class Team extends BaseTime {
                 .childTeamInfoDTOList(childTeamInfoDTOList)
                 .build();
 
+    }
+
+    public TeamIncludeChildWithMemberInfoDTO toTeamIncludeChildWithMemberInfoDTO(List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList, List<SimpleTeamIncludeChildWithMemberInfoDTO> childTeamWithMemberInfoDTOList){
+        return TeamIncludeChildWithMemberInfoDTO.builder()
+                .projectName(this.project.getVersion())
+                .teamId(this.id)
+                .teamName(this.name)
+                .depth(this.depth)
+                .verySimpleMemberInfoDTOList(verySimpleMemberInfoDTOList)
+                .childTeamInfoDTOList(childTeamWithMemberInfoDTOList)
+                .build();
+    }
+
+    public SimpleTeamIncludeChildWithMemberInfoDTO toSimpleTeamIncludeChildWithMemberInfoDTO(List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList, List<SimpleTeamIncludeChildWithMemberInfoDTO> childTeamWithMemberInfoDTOList){
+        return SimpleTeamIncludeChildWithMemberInfoDTO.builder()
+                .teamId(this.id)
+                .teamName(this.name)
+                .depth(this.depth)
+                .verySimpleMemberInfoDTOList(verySimpleMemberInfoDTOList)
+                .childTeamInfoDTOList(childTeamWithMemberInfoDTOList)
+                .build();
     }
 }

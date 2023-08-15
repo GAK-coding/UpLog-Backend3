@@ -1,5 +1,7 @@
 package com.uplog.uplog.domain.team.dto;
 
+import com.uplog.uplog.domain.member.dto.MemberDTO;
+import com.uplog.uplog.domain.member.dto.MemberDTO.VerySimpleMemberInfoDTO;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
@@ -76,10 +78,35 @@ public class TeamDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SimpleTeamIncludeChildInfoDTO{
-        private Long id;
+        private Long teamId;
         private String teamName;
         private int depth;
         private List<SimpleTeamIncludeChildInfoDTO> childTeamInfoDTOList;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TeamIncludeChildWithMemberInfoDTO{
+        private Long teamId;
+        private String projectName;
+        private String teamName;
+        private int depth;
+        private List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList;
+        private List<SimpleTeamIncludeChildWithMemberInfoDTO> childTeamInfoDTOList;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimpleTeamIncludeChildWithMemberInfoDTO{
+        private Long teamId;
+        private String teamName;
+        private int depth;
+        private List<VerySimpleMemberInfoDTO> verySimpleMemberInfoDTOList;
+        private List<SimpleTeamIncludeChildWithMemberInfoDTO> childTeamInfoDTOList;
     }
 
     @Builder
