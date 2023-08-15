@@ -36,7 +36,6 @@ public class PostController {
     @DeleteMapping("posts/{post-id}")
     public String deletePost(@PathVariable(name="post-id") Long id){
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        postService.deletePost(id,currentUserId);
         return postService.deletePost(id,currentUserId);
     }
 
