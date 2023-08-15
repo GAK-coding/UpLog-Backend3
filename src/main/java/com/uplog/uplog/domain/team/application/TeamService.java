@@ -216,7 +216,7 @@ public class TeamService {
 
     }
 
-
+//===================delete=======================================
     //멤버가 방출될 때.
     //이건 delete mapping 해야하기 때문에 productMember에서 해야함.
 
