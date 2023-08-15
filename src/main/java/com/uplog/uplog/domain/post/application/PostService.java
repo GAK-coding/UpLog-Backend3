@@ -109,6 +109,13 @@ public class PostService {
     public String deletePost(Long id,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundIdException::new);
 
+        //해당 게시글이 현재 메뉴의 공지글이라면 그 공지글 리셋해야함
+        if (post.getMenu().getNoticePost().getId() != null) {
+            if (post.getMenu().getNoticePost().getId().equals(id)) {
+                deleteNoticePostInPostService(post.getMenu().getId());
+            }
+        }
+
         if(post.getAuthor().getId().equals(currentUserId)){
             postRepository.delete(post);
             return "delete 완료";
