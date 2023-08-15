@@ -82,7 +82,10 @@ public class PostService {
                 postType = PostType.REQUEST_READ;
             } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
                 postType = PostType.REQUEST_REQUIREMENT;
-            } else {
+            } else if(requestType.equals(PostType.DEFAULT.name())){
+                postType=PostType.DEFAULT;
+            }
+            else {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
@@ -156,6 +159,8 @@ public class PostService {
                     updatepostType = PostType.REQUEST_READ;
                 } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
                     updatepostType = PostType.REQUEST_REQUIREMENT;
+                } else if(requestType.equals(PostType.DEFAULT.name())){
+                    updatepostType=PostType.DEFAULT;
                 } else {
                     throw new IllegalArgumentException("Invalid PostType: " + requestType);
                 }
@@ -205,6 +210,9 @@ public class PostService {
             PostType updatedPostType;
 
             switch (requestType) {
+                case "DEFAULT":
+                    updatedPostType=PostType.DEFAULT;
+                    break;
                 case "REQUEST_READ":
                     updatedPostType = PostType.REQUEST_READ;
                     break;
