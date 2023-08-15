@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,10 +48,17 @@ public class TeamController {
         return ResponseEntity.ok(teamsBysMemberAndProject);
     }
     //팀아이디로 자식팀까지 조회
-    @GetMapping(value = "/teams/{team-id}")
+    @GetMapping(value = "/teams/{team-id}/child-team")
     public ResponseEntity<TeamIncludeChildInfoDTO> findTeamIncludeChild(@PathVariable(name = "team-id")Long teamId){
         TeamIncludeChildInfoDTO teamIncludeChildInfoDTO = teamService.findTeamIncludeChildByTeamId(teamId);
         return ResponseEntity.ok(teamIncludeChildInfoDTO);
+    }
+
+    //팀아이디로 자식팀 + 속한 멤버들까지 조회
+    @GetMapping(value = "/teams/{team-id}/child-team/members")
+    public ResponseEntity<TeamIncludeChildWithMemberInfoDTO> findTeamIncludeChildWithTotalMember(@PathVariable(name = "team-id")Long teamId){
+        TeamIncludeChildWithMemberInfoDTO teamIncludeChildWithMemberInfoDTO = teamService.findTeamIncludeChildWithTotalMemberByTeamId(teamId);
+        return ResponseEntity.ok(teamIncludeChildWithMemberInfoDTO);
     }
     //================update========================
     @PatchMapping(value = "/teams/{team-id}")
