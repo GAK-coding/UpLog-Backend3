@@ -32,7 +32,8 @@ public class TeamController {
         return new ResponseEntity<>(createTeamResultDTO, HttpStatus.CREATED);
     }
     //=============read==========================
-    @GetMapping(value = "/teams/{team-id}")
+    //팀아이디로 팀에 속한 멤버들 조회
+    @GetMapping(value = "/teams/{team-id}/members")
     public ResponseEntity<List<MemberPowerDTO>> findMemberByTeamId(@PathVariable(name = "team-id")Long teamId){
         List<MemberPowerDTO> memberPowerDTOList = teamService.findMembersByTeamId(teamId);
         return ResponseEntity.ok(memberPowerDTOList);
@@ -44,6 +45,12 @@ public class TeamController {
         Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         TeamsBysMemberAndProject teamsBysMemberAndProject = teamService.findTeamsByMemberIdAndProjectId(memberId, projectId);
         return ResponseEntity.ok(teamsBysMemberAndProject);
+    }
+    //팀아이디로 자식팀까지 조회
+    @GetMapping(value = "/teams/{team-id}")
+    public ResponseEntity<TeamIncludeChildInfoDTO> findTeamIncludeChild(@PathVariable(name = "team-id")Long teamId){
+        TeamIncludeChildInfoDTO teamIncludeChildInfoDTO = teamService.findTeamIncludeChildByTeamId(teamId);
+        return ResponseEntity.ok(teamIncludeChildInfoDTO);
     }
     //================update========================
     @PatchMapping(value = "/teams/{team-id}")
