@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface MemberTeamRepository extends JpaRepository<MemberTeam, Long>, MemberTeamCustomRepository{
     List<MemberTeam> findMemberTeamsByTeamId(Long teamId);
-    Optional<MemberTeam> findMemberTeamByMemberAndTeamId(Long memberId, Long teamId);
+    Optional<MemberTeam> findMemberTeamByMemberIdAndTeamId(Long memberId, Long teamId);
     Optional<MemberTeam> findMemberTeamById(Long id);
     boolean existsMemberTeamByMemberEmailAndTeamId(String memberEmail, Long teamId);
     boolean existsMemberTeamByMemberIdAndTeamId(Long memberId, Long teamId);

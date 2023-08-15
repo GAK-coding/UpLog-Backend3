@@ -75,7 +75,7 @@ public class MemberTeamService {
 
     @Transactional
     public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest) {
-        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
         memberTeam.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberTeam.getId();
     }
