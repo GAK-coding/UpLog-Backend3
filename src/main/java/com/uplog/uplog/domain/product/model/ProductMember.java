@@ -78,6 +78,7 @@ public class ProductMember {
         return ProductMemberPowerDTO.builder()
                 .memberId(this.member.getId())
                 .memberEmail(this.member.getEmail())
+                .memberName(this.member.getName())
                 .memberNickName(this.member.getNickname())
                 .powerType(this.powerType)
                 .build();
