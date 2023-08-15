@@ -1,6 +1,10 @@
 package com.uplog.uplog.domain.product.model;
 
+import com.uplog.uplog.domain.product.dto.ProductDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.ProductInfoDTO;
+import com.uplog.uplog.domain.product.dto.ProductDTO.SimpleProductInfoDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.VerySimpleProjectInfoDTO;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
@@ -49,14 +53,23 @@ public class Product extends BaseTime {
         this.name = name;
     }
 
-    public ProductInfoDTO toProductInfoDTO(List<Long> projectListId){
+    public ProductInfoDTO toProductInfoDTO(List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList){
         return ProductInfoDTO.builder()
                 .id(this.id)
                 .name(this.name)
                 .company(this.company)
-                .projectListId(projectListId)
+                .verySimpleProjectInfoDTOList(verySimpleProjectInfoDTOList)
                 .build();
     }
+
+    public SimpleProductInfoDTO toSimpleProductInfoDTO(){
+        return SimpleProductInfoDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .company(this.company)
+                .build();
+    }
+
 
 
 

@@ -22,12 +22,14 @@ import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.DuplicatedNameException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +74,13 @@ public class ProjectService {
 
         //진행 중 프로젝트 있을 시 제한
         checkProcessProject(productId);
+
+        //프로젝트 이름 중복되면 예외처리
+        for(Project p : product.getProjectList()){
+            if(createProjectRequest.getVersion().equals(p.getVersion()))
+                throw new DuplicatedNameException("제품 내에서 프로젝트 버전이 중복됩니다.");
+        }
+
         //Member가 마스터인,리더인지 확인해야함. -> 스프링 시큐리티! -> 이건 제품에서 확인
         if(memberProduct.getPowerType() == PowerType.CLIENT || memberProduct.getPowerType()== PowerType.DEFAULT){
             throw new AuthorityException("프로젝트 생성 권한이 없습니다.");
@@ -121,14 +130,27 @@ public class ProjectService {
         return project.toProjectInfoDTO(simpleMenuInfoDTOList, projectTeamIdList);
     }
 
+    //====================read=============================
+    //프로젝트에 속한 팀 모두 출력 -> 부모, 자식 구분 안함.
     @Transactional(readOnly = true)
-    public requestProjectAllInfo readProject(Long projectId, Long memberId) {
+    public List<SimpleTeamInfoDTO> findTeamsByProjectId(Long projectId){
+        List<Team> teamList = teamRepository.findTeamsByProjectId(projectId);
+        List<SimpleTeamInfoDTO> simpleTeamInfoDTOList = new ArrayList<>();
+
+        for(Team t : teamList){
+            simpleTeamInfoDTOList.add(t.toSimpleTeamInfoDTO());
+        }
+
+        return simpleTeamInfoDTOList;
+    }
+    @Transactional(readOnly = true)
+    public requestProjectAllInfo readProject(Long memberId, Long projectId) {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundProjectException(projectId));
 
 
-        PowerType powerType = checkMemberType(memberId);
+        PowerType powerType = checkMemberType(memberId, projectId);
 
 
         requestProjectAllInfo requestProjectAllInfo = project.toRequestProjectAllInfo(powerType,
@@ -138,14 +160,28 @@ public class ProjectService {
         return requestProjectAllInfo;
     }
 
+    //제품에 해당하는 프로젝트들 찾기
     @Transactional(readOnly = true)
-    public requestProjectInfo readProjectSimple(Long projectId, Long memberId) {
+    public List<VerySimpleProjectInfoDTO> findProjectsByProductId(Long productId){
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+
+        List<Project> projectList = projectRepository.findProjectsByProductId(productId);
+        List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = new ArrayList<>();
+
+        for(Project p : projectList){
+            verySimpleProjectInfoDTOList.add(p.toVerySimpleProjectInfoDTO());
+        }
+        return verySimpleProjectInfoDTOList;
+    }
+
+    @Transactional(readOnly = true)
+    public requestProjectInfo readProjectSimple(Long memberId, Long projectId) {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundProjectException(projectId));
 
 
-        PowerType powerType = checkMemberType(memberId);
+        PowerType powerType = checkMemberType(memberId, projectId);
 
         requestProjectInfo requestProjectInfo = project.toRequestProjectInfo(powerType,
                 project.getProduct().getName(),
@@ -155,9 +191,12 @@ public class ProjectService {
 
 
     }
-
+//=================================update======================================가
     @Transactional
-    public UpdateProjectInfo updateProject(UpdateProjectStatus updateProjectStatus, Long projectId) {
+    public UpdateProjectInfo updateProject(Long memberId,UpdateProjectStatus updateProjectStatus, Long projectId) {
+        //마스터와 리더만 프로젝트를 수정할 수 있음.
+        //권한 확인
+        powerValidate(memberId, projectId);
 
         JPAQueryFactory query = new JPAQueryFactory(entityManager);
         QProject project = QProject.project;
@@ -177,40 +216,35 @@ public class ProjectService {
                 throw new DuplicateVersionNameException(proj_tmp.getVersion());
             }
         }
-
+        Team team = teamRepository.findByProjectIdAndName(projectId, project1.getVersion()).orElseThrow(NotFoundIdException::new);
+        team.updateName(updateProjectStatus.getVersion());
         project1.updateProjectStatus(updateProjectStatus);
+
 
         UpdateProjectInfo updateProjectInfo = project1.toUpdateProjectInfo();
 
         return updateProjectInfo;
     }
+    //======================method======================================
+    public PowerType checkMemberType(Long memberId, Long projectId) {
 
-    @Transactional
-    public String deleteProject(Long projectId) {
+        //JPAQueryFactory query = new JPAQueryFactory(entityManager);
+        Project project = projectRepository.findById(projectId).orElseThrow(NotFoundIdException::new);
+        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, project.getProduct().getId()).orElseThrow(NotFoundIdException::new);
+        //QMemberTeam memberTeam = QMemberTeam.memberTeam;
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundProjectException(projectId));
-        projectRepository.delete(project);
-        return "Delete Ok";
 
-    }
+//        PowerType powerType = query
+//                .select(memberTeam.powerType)
+//                .from(memberTeam)
+//                .where(memberTeam.member.id.eq(memberId))
+//                .fetchOne();
+//
+//        if (powerType == null) {
+//            throw new NotFoundPowerByMemberException(memberId);
+//        }
 
-    public PowerType checkMemberType(Long memberId) {
-
-        JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        QMemberTeam memberTeam = QMemberTeam.memberTeam;
-
-        PowerType powerType = query
-                .select(memberTeam.powerType)
-                .from(memberTeam)
-                .where(memberTeam.member.id.eq(memberId))
-                .fetchOne();
-
-        if (powerType == null) {
-            throw new NotFoundPowerByMemberException(memberId);
-        }
-
-        return powerType;
+        return productMember.getPowerType();
     }
 
 
@@ -237,9 +271,9 @@ public class ProjectService {
     }
 
     //권한 확인
-    public PowerType powerValidate(Long memberId) {
+    public PowerType powerValidate(Long memberId, Long projectId) {
 
-        PowerType powerType = checkMemberType(memberId);
+        PowerType powerType = checkMemberType(memberId, projectId);
 
         if (powerType == PowerType.DEFAULT || powerType == PowerType.CLIENT) {
 
@@ -249,5 +283,17 @@ public class ProjectService {
         return powerType;
 
     }
+    //===============================delete===========================
+    @Transactional
+    public String deleteProject(Long memberId, Long projectId) {
+        //권한 확인
+        powerValidate(memberId, projectId);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundProjectException(projectId));
+        projectRepository.delete(project);
+        return "Delete Ok";
+
+    }
+
 
 }

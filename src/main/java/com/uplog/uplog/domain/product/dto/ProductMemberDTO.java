@@ -18,7 +18,7 @@ public class ProductMemberDTO {
     @NoArgsConstructor
     public static class CreateProductMemberRequest{
         private String memberEmail;
-        private Long memberId;
+        //private Long memberId;
         private Long productId;
         private PowerType powerType;
         private String link;
@@ -42,6 +42,7 @@ public class ProductMemberDTO {
         private Long id;
         private Long memberId;
         private String memberName;
+        private String memberNickname;
         private Long productId;
     }
     @Builder
@@ -52,6 +53,7 @@ public class ProductMemberDTO {
         private Long productId;
         private String productName;
         private String memberName;
+        private String memberNickname;
         private PowerType powerType;
         private Long indexNum;
 
@@ -77,6 +79,9 @@ public class ProductMemberDTO {
     @NoArgsConstructor
     public static class ProductMemberPowerDTO{
         private String memberEmail;
+        private Long memberId;
+        private String memberName;
+        private String memberNickName;
         private PowerType powerType;
     }
 
@@ -103,6 +108,6 @@ public class ProductMemberDTO {
     public static class UpdateProductMemberPowerTypeRequest{
         private PowerType newPowerType;
         private Long memberId;
-        private Long productId;
+        //private Long productId;
     }
 }

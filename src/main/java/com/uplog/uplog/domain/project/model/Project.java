@@ -7,6 +7,7 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.project.dto.ProjectDTO.ProjectInfoDTO;
 import com.uplog.uplog.domain.project.dto.ProjectDTO.SimpleProjectInfoDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.VerySimpleProjectInfoDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
@@ -67,12 +68,20 @@ public class Project extends BaseTime {
         return ProjectInfoDTO.builder()
                 .id(this.id)
                 .version(this.version)
-                .projectTeamIdList(projectTeamIdList)
+                .teamIdList(projectTeamIdList)
                 .projectStatus(this.projectStatus)
                 .productId(this.product.getId())
                 .menuList(simpleMenuInfoDTOList)
                 .build();
 
+    }
+
+    public VerySimpleProjectInfoDTO toVerySimpleProjectInfoDTO(){
+        return VerySimpleProjectInfoDTO.builder()
+                .id(this.id)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .build();
     }
 
     public ProjectDTO.CreateProjectRequest toCreateInitChangedIssueInfo(){

@@ -33,7 +33,7 @@ public class ProductMemberService {
     public Long createProductMember(CreateProductMemberRequest createProductMemberRequest) throws Exception {
         Member member = memberRepository.findMemberByEmail(createProductMemberRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Product product = productRepository.findById(createProductMemberRequest.getProductId()).orElseThrow(NotFoundIdException::new);
-        Long index = productMemberRepository.countMemberProductsByMemberId(member.getId());
+        Long index = productMemberRepository.countProductMembersByMemberId(member.getId());
         ProductMember memberProduct = createProductMemberRequest.toProductMember(product, member, index+1);
 
         productMemberRepository.save(memberProduct);
@@ -65,8 +65,8 @@ public class ProductMemberService {
 //    }
 
     @Transactional
-    public Long updateMemberPowerType(UpdateProductMemberPowerTypeRequest updateMemberPowerTypeRequest) {
-        ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getProductId()).orElseThrow(NotFoundIdException::new);
+    public Long updateMemberPowerType(Long productId, UpdateProductMemberPowerTypeRequest updateMemberPowerTypeRequest) {
+        ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(updateMemberPowerTypeRequest.getMemberId(), productId).orElseThrow(NotFoundIdException::new);
         memberProduct.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberProduct.getId();
     }

@@ -45,7 +45,6 @@ public class MemberTeamService {
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
         memberTeamRepository.save(memberTeam);
-        //TODO Null point 확인
 //        log.info(team.getName());
 //        log.info(team.getMemberTeamList()+"null?");
 //        log.info(memberTeam+"what null");
@@ -76,7 +75,7 @@ public class MemberTeamService {
 
     @Transactional
     public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest) {
-        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
         memberTeam.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberTeam.getId();
     }

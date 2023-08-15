@@ -18,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +37,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
     private final String secret;
-    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(30).toMillis();//만료시간 30분
+    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(3000000).toMillis();//만료시간 30분
     //Duration.ofMinutes(30).toMillis()
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
 
@@ -129,7 +128,6 @@ public class TokenProvider implements InitializingBean {
         try {
 
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            logger.debug("만료 시간: "+getExpiration(token));
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             logger.info("잘못된 JWT 서명입니다.");

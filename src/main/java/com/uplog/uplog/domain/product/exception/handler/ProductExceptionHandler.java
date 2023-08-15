@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.product.exception.handler;
 
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
+import com.uplog.uplog.domain.product.exception.UpdatePowerTypeException;
 import com.uplog.uplog.global.error.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,18 @@ public class ProductExceptionHandler {
     }
 
     @ExceptionHandler(MasterException.class)
-    protected final ResponseEntity<ErrorResponse> MasterExceptionHandler(MasterException e, WebRequest webRequest){
+    protected final ResponseEntity<ErrorResponse> masterExceptionHandler(MasterException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
+    @ExceptionHandler(UpdatePowerTypeException.class)
+    protected final ResponseEntity<ErrorResponse> updatePowerTypeException(UpdatePowerTypeException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);

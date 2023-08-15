@@ -36,7 +36,6 @@ public class PostController {
     @DeleteMapping("posts/{post-id}")
     public String deletePost(@PathVariable(name="post-id") Long id){
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        postService.deletePost(id,currentUserId);
         return postService.deletePost(id,currentUserId);
     }
 
@@ -68,6 +67,15 @@ public class PostController {
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         PostInfoDTO postInfoDTO=postService.updatePostMenu(id,updatePostMenuRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
+    }
+
+    @PatchMapping("/posts/{post-id}")
+    public ResponseEntity<PostInfoDTO> updatePost(
+            @PathVariable("post-id") Long id,
+            @RequestBody UpdatePostRequest updatePostRequest) {
+        Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        PostInfoDTO updatedPost = postService.updatePostInfo(id, updatePostRequest, currentUserId);
+        return ResponseEntity.ok(updatedPost);
     }
 
     /*

@@ -3,6 +3,8 @@ package com.uplog.uplog.domain.project.api;
 import com.uplog.uplog.domain.comment.api.CommentController;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.project.application.ProjectService;
+import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.dto.TeamDTO.SimpleTeamInfoDTO;
 import com.uplog.uplog.global.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.uplog.uplog.domain.project.dto.ProjectDTO.*;
 
@@ -52,46 +56,56 @@ public class ProjectController {
     //Todo read 어떤 걸 보여줄 지 더 고민 -> projectTeamList, productId, menuList, version
     //Todo 새로고침 시 전체를 넘겨주는 상황.
 
+    //==========================Read=============================================
+
+    //제품에 속한 팀 목록 다 나옴. 부모, 자식 구분 없음.
+    @GetMapping(value = "projects/{project-id}/teams")
+    public ResponseEntity<List<SimpleTeamInfoDTO>> findTeamsByProjectId(@PathVariable(name = "project-id")Long projectId){
+        List<SimpleTeamInfoDTO> simpleTeamInfoDTOList = projectService.findTeamsByProjectId(projectId);
+        return ResponseEntity.ok(simpleTeamInfoDTOList);
+    }
+
     //전체 조회
     @GetMapping(value="/projects/{project-id}/{member-id}")
-    public ResponseEntity<requestProjectAllInfo> readProjectAllInfo(@PathVariable("project-id")Long projectId,
-                                                                    @PathVariable("member-id")Long memberId){
-
-        requestProjectAllInfo requestProjectAllInfo =projectService.readProject(projectId,memberId);
+    public ResponseEntity<requestProjectAllInfo> readProjectAllInfo(@PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        requestProjectAllInfo requestProjectAllInfo =projectService.readProject(memberId, projectId);
         return new ResponseEntity<>(requestProjectAllInfo,HttpStatus.OK);
     }
 
     //버전 클릭 시 프론트에게 클라이언트인지 아닌 지를 보내줌
 
-    @GetMapping(value="/projects/{project-id}/{member-id}/power")
-    public ResponseEntity<requestProjectInfo> readProjectInfo(@PathVariable("project-id")Long projectId,
-                                                              @PathVariable("member-id")Long memberId){
-
-        requestProjectInfo requestProjectInfo=projectService.readProjectSimple(projectId,memberId);
+    @GetMapping(value="/projects/{project-id}/power")
+    public ResponseEntity<requestProjectInfo> readProjectInfo(@PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        requestProjectInfo requestProjectInfo=projectService.readProjectSimple(memberId, projectId);
 
         return new ResponseEntity<>(requestProjectInfo,HttpStatus.OK);
     }
 
-    @PatchMapping(value="/projects/{project-id}/{member-id}")
-    public ResponseEntity<UpdateProjectInfo> updateProjectInfo(@RequestBody UpdateProjectStatus updateProjectStatus,
-                                               @PathVariable("project-id")Long projectId,
-                                               @PathVariable("member-id")Long memberId){
+    //제품으로 프로젝트 목록 불러오기
+    @GetMapping(value = "/products/{product-id}/projects")
+    public ResponseEntity<List<VerySimpleProjectInfoDTO>> findProjectsByProductId(@PathVariable(name = "product-id")Long productId){
+        List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = projectService.findProjectsByProductId(productId);
+        return ResponseEntity.ok(verySimpleProjectInfoDTOList);
+    }
+//===============================update=======================================================
+    //제품에 해당하는 팀 불러오기
 
-        //권한 확인
-        projectService.powerValidate(memberId);
-        UpdateProjectInfo updateProjectInfo=projectService.updateProject(updateProjectStatus,projectId);
+    @PatchMapping(value="/projects/{project-id}")
+    public ResponseEntity<UpdateProjectInfo> updateProjectInfo(@RequestBody UpdateProjectStatus updateProjectStatus,
+                                               @PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        UpdateProjectInfo updateProjectInfo=projectService.updateProject(memberId,updateProjectStatus,projectId);
 
         return new ResponseEntity<>(updateProjectInfo,HttpStatus.OK);
 
     }
 
     @DeleteMapping(value="/projects/{project-id}/{member-id}")
-    public String deleteProject(@PathVariable("project-id")Long projectId,
-                                @PathVariable("member-id")Long memberId){
+    public String deleteProject(@PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
 
-        //권한 확인
-        projectService.powerValidate(memberId);
-
-        return projectService.deleteProject(projectId);
+        return projectService.deleteProject(memberId, projectId);
     }
 }

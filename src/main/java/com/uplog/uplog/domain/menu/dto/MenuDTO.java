@@ -41,6 +41,7 @@ public class MenuDTO {
         private String menuName;
         private Long projectId;
         private String version;
+        private Long noticePostId;
         //private ProjectDTO.requestProjectInfo projectInfo;
         //private PostDTO.PostInfoDTO noticePost;
     }

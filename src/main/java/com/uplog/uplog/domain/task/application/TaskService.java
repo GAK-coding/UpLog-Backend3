@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.task.application;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.dto.MemberDTO;
@@ -154,9 +155,13 @@ public class TaskService {
         Map<TaskStatus, List<TaskInfoDTO>> taskInfoDTOMap = new HashMap<>();
         for (TaskStatus status : TaskStatus.values()) {
             List<Task> taskList = taskStatusMap.getOrDefault(status, new ArrayList<>());
+
+            // 해당 상태별로 인덱스 값을 정렬하여 TaskInfoDTO로 변환
             List<TaskInfoDTO> taskInfoDTOList = taskList.stream()
+                    .sorted(Comparator.comparing(Task::getTaskIndex))
                     .map(Task::toTaskInfoDTO)
                     .collect(Collectors.toList());
+
             taskInfoDTOMap.put(status, taskInfoDTOList);
         }
 
@@ -262,7 +267,8 @@ public class TaskService {
     public TaskInfoDTO updateTaskDate(Long id,UpdateTaskDateRequest updateTaskDateRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
-        task.updateTaskDate(updateTaskDateRequest.getUpdateStartTime(),updateTaskDateRequest.getUpdateEndTime());
+        task.updateTaskStartDate(updateTaskDateRequest.getUpdateStartTime());
+        task.updateTaskEndDate(updateTaskDateRequest.getUpdateEndTime());
 
         return task.toTaskInfoDTO();
     }
@@ -272,8 +278,6 @@ public class TaskService {
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
         task.updateTaskContent(updateTaskContentRequest.getUpdateContent());
-        System.out.println(task.getTaskName());
-        System.out.println(task+"dakfjals;kdfj");
         return task.toTaskInfoDTO();
     }
 
@@ -321,10 +325,19 @@ public class TaskService {
 
     //task상태 변경(이건 아무곳에서나 변경 가능해서 로직 따로 뺐음)
     @Transactional
-    public TaskInfoDTO updateTaskStatus(Long id,UpdateTaskStatusRequest UpdateTaskStatusRequest){
+    public TaskInfoDTO updateTaskStatus(Long id,UpdateTaskStatusRequest updateTaskStatusRequest){
         Task task=taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
 
-        task.updateTaskStatus(UpdateTaskStatusRequest.getTaskStatus());
+        //현재 상태 받기
+        TaskStatus currentTaskStatus=task.getTaskStatus();
+        //수정할 상태의 인덱스 최대 저장
+        Long createIndex=findMaxIndexByTaskStatus(updateTaskStatusRequest.getTaskStatus());
+
+        task.updateTaskStatus(updateTaskStatusRequest.getTaskStatus());
+        List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(currentTaskStatus);
+        reorderIndices(currentTaskStatusList);
+
+        task.updateTaskIndex(createIndex);
 
         return task.toTaskInfoDTO();
     }
@@ -342,8 +355,12 @@ public class TaskService {
             updated = true;
         }
 
-        if (updateTaskRequest.getUpdateStartTime() != null || updateTaskRequest.getUpdateEndTime() != null) {
-            task.updateTaskDate(updateTaskRequest.getUpdateStartTime(), updateTaskRequest.getUpdateEndTime());
+        if (updateTaskRequest.getUpdateStartTime() != null) {
+            task.updateTaskStartDate(updateTaskRequest.getUpdateStartTime());
+            updated = true;
+        }
+        if (updateTaskRequest.getUpdateEndTime() != null) {
+            task.updateTaskEndDate(updateTaskRequest.getUpdateEndTime());
             updated = true;
         }
 
@@ -379,7 +396,17 @@ public class TaskService {
         }
 
         if (updateTaskRequest.getUpdateTaskStatus() != null) {
+            //현재 상태 받기
+            TaskStatus currentTaskStatus=task.getTaskStatus();
+            //수정할 상태의 인덱스 최대 저장
+            Long createIndex=findMaxIndexByTaskStatus(updateTaskRequest.getUpdateTaskStatus());
+
             task.updateTaskStatus(updateTaskRequest.getUpdateTaskStatus());
+            List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(currentTaskStatus);
+            reorderIndices(currentTaskStatusList);
+
+            task.updateTaskIndex(createIndex);
+
             updated = true;
         }
 
@@ -393,49 +420,80 @@ public class TaskService {
     @Transactional
     public String deleteTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        //현재 상태 받기
+        TaskStatus currentTaskStatus=task.getTaskStatus();
         taskRepository.delete(task);
+
+        //삭제한 다음 기존 상태의 인덱스 재정렬
+        List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(currentTaskStatus);
+        reorderIndices(currentTaskStatusList);
+
+
         return "delete";
     }
 
-    @Transactional
-    public Long findMaxIndexByTaskStatus(TaskStatus taskStatus) {
-        JPAQueryFactory query = new JPAQueryFactory(entityManager);
-        QTask qTask = QTask.task;
-
-        Long maxIndex = query
-                .select(qTask.taskIndex.max().coalesce(0L).add(1L))
-                .from(qTask)
-                .where(qTask.taskStatus.eq(taskStatus))
-                .fetchOne();
-
-        return (maxIndex != null) ? maxIndex : 1L; // maxIndex가 null일 경우 1을 반환
+    @Transactional(readOnly = true)
+    public List<TaskInfoDTO> sortTaskByStatus(TaskStatus taskStatus){
+        List<Task> taskByStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(taskStatus);
+        List<TaskInfoDTO> taskInfoDTOList=new ArrayList<>();
+        for(Task t:taskByStatusList){
+            taskInfoDTOList.add(t.toTaskInfoDTO());
+        }
+        return taskInfoDTOList;
     }
 
     @Transactional
-    public void updateTaskOrder(List<Long> taskIds, TaskStatus status) {
-        // 해당 상태에서의 최대 인덱스 조회
-        Long maxIndex = findMaxIndexByTaskStatus(status);
+    public void updateTaskIndex(TaskStatus taskStatus, UpdateTaskIndexRequest updateTaskIndexRequest){
 
-        // 중복을 방지하기 위해 이미 존재하는 인덱스 값을 저장하는 Set
-        Set<Long> usedIndexes = new HashSet<>();
+        //상태 변경+인덱스 변경할때 상태변경 먼저 하고 기존 상태는 하나 빠지는거니까 재정렬함
+        if(updateTaskIndexRequest.getBeforeTaskStatus()!=null && updateTaskIndexRequest.getMovedTaskId()!=null){
+            Task task=taskRepository.findById(updateTaskIndexRequest.getMovedTaskId()).orElseThrow(NotFoundTaskByIdException::new);
+            //상태 변경 전 변경하고자하는 상태의 최대 인덱스 찾기
+            Long createIndex=findMaxIndexByTaskStatus(taskStatus);
+            //상태변경
+            task.updateTaskStatus(taskStatus);
+            task.updateTaskIndex(createIndex);
 
-        // 선택된 테스크들의 인덱스를 조정
-        for (Long taskId : taskIds) {
-            Task task = taskRepository.findById(taskId).orElseThrow(NotFoundTaskByIdException::new);
+            //변경 전 상태 받기
+            TaskStatus beforeTaskStatus=updateTaskIndexRequest.getBeforeTaskStatus();
 
-            // 이미 사용 중인 인덱스인 경우, 현재 최대 인덱스에 1을 더한 값을 사용
-            if (usedIndexes.contains(task.getTaskIndex())) {
-                task.updateTaskIndex(maxIndex + 1);
-                maxIndex++;
-            } else {
-                // 중복이 아니라면 현재 인덱스로 설정하고, 사용 중인 인덱스 목록에 추가
-                task.updateTaskIndex(task.getTaskIndex());
-                usedIndexes.add(task.getTaskIndex());
-            }
+            //변경 후 하나 빠진거니까 변경전 상태 재정렬
+            List<Task> currentTaskStatusList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(beforeTaskStatus);
+            reorderIndices(currentTaskStatusList);
+
         }
 
-        // 변경된 순서의 Task들을 저장
-        taskRepository.saveAll(taskRepository.findAllById(taskIds));
+        List<Task> taskList=taskRepository.findTaskByTaskStatusOrderByTaskIndex(taskStatus);
+
+        int i=0;
+        for(Task t:taskList){
+//            System.out.println(t.getId()+"를"+i+"번째"+updateTaskIndexRequest.getUpdateTaskIndexList().get(i));
+            t.updateTaskIndex(updateTaskIndexRequest.getUpdateTaskIndexList().get(i));
+            i++;
+        }
+    }
+
+
+    @Transactional
+    public Long findMaxIndexByTaskStatus(TaskStatus taskStatus) {
+        List<Task> tasks = taskRepository.findTaskByTaskStatusOrderByTaskIndex(taskStatus);
+
+        if (tasks.isEmpty()) {
+            return 0L;
+        } else {
+            Long maxIndex = tasks.get(tasks.size() - 1).getTaskIndex();
+            return maxIndex + 1L;
+        }
+
+    }
+
+    //순서 재정렬
+    public void reorderIndices(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            task.updateTaskIndex((long) i);
+
+        }
     }
 
 }

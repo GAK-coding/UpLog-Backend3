@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.team.dto;
 
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class TeamDTO {
         //TODO 이부분은 좀 더 고려해봐야할듯.
         private List<Long> memberIdList;
         private String name;
-        private Long projectId;
+        //private Long projectId;
         private Long parentTeamId;
         private String link;
 
@@ -53,6 +54,36 @@ public class TeamDTO {
         private List<MemberTeam> memberTeamList;
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimpleTeamInfoDTO{
+        private Long id;
+        private String teamName;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CreateTeamResultDTO{
+        private Long id;
+        private List<Long> DuplicatedMemberList;
+    }
+
+    //프로젝트와 멤버아이디로 member가 속한 팀 찾아서 뱉어주는 디티오
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TeamsBysMemberAndProject{
+        private String memberName;
+        private String memberNickname;
+        private String projectName;
+        private List<TeamAndPowerTypeDTO> teamAndPowerTypeDTOList;
     }
 
 }
