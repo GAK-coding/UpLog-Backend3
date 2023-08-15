@@ -5,6 +5,7 @@ import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.menu.application.MenuService;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dao.PostRepository;
@@ -44,6 +45,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final TeamRepository teamRepository;
+    private final MenuService menuService;
 
     /*
     Create
@@ -229,6 +231,11 @@ public class PostService {
         if (updatePostRequest.getUpdateMenuId() != null) {
             Menu menu = menuRepository.findById(updatePostRequest.getUpdateMenuId())
                     .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
+
+            //메뉴를 업데이트 하려는데 해당 게시글이 현재 메뉴의 공지글이라면 그 공지글 리셋해야함
+            if(menu.getNoticePost().getId().equals(id)){
+                menuService.deleteNoticePost(menu.getId());
+            }
             post.updatePostMenu(menu);
         }
 
