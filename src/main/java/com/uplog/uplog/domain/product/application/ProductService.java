@@ -70,7 +70,7 @@ public class ProductService {
     //기업만 제품을 생성할 수 있음.
     @Transactional
     public Long createProduct(Long memberId, CreateProductRequest createProductRequest) throws Exception {
-       // Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+        // Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
         log.info("가");
         //기업인 사람만 제품을 생성할 수 있음.
@@ -125,7 +125,7 @@ public class ProductService {
 
         List<ProductMember> masterL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.MASTER);
         List<ProductMember> leaderL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.LEADER);
-        List<ProductMember>clientL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.CLIENT);
+        List<ProductMember> clientL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.CLIENT);
         List<ProductMember> workerL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.DEFAULT);
 
         //마스터
@@ -159,11 +159,11 @@ public class ProductService {
 
     //멤버아이디로 제품 목록 리스트 뽑기
     @Transactional(readOnly = true)
-    public List<SimpleProductInfoDTO> findProductByMemberId(Long memberId){
+    public List<SimpleProductInfoDTO> findProductByMemberId(Long memberId) {
         List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberId(memberId);
         List<SimpleProductInfoDTO> simpleProductInfoDTOList = new ArrayList<>();
 
-        for(ProductMember pm : productMemberList){
+        for (ProductMember pm : productMemberList) {
             simpleProductInfoDTOList.add(pm.getProduct().toSimpleProductInfoDTO());
         }
         return simpleProductInfoDTOList;
@@ -171,10 +171,10 @@ public class ProductService {
 
     //제품에 속한 사람들 출력
     @Transactional(readOnly = true)
-    public List<ProductMemberPowerDTO> findMembersByProductId(Long productId){
+    public List<ProductMemberPowerDTO> findMembersByProductId(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         List<ProductMemberPowerDTO> productMemberPowerDTOList = new ArrayList<>();
-        for(ProductMember pm : product.getProductMemberList()){
+        for (ProductMember pm : product.getProductMemberList()) {
             productMemberPowerDTOList.add(pm.toProductMemberPowerDTO());
         }
         return productMemberPowerDTOList;
@@ -186,7 +186,7 @@ public class ProductService {
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
         List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = new ArrayList<>();
         List<Project> projectList = projectRepository.findProjectsByProductId(id);
-        for(Project p : projectList){
+        for (Project p : projectList) {
             verySimpleProjectInfoDTOList.add(p.toVerySimpleProjectInfoDTO());
         }
 
@@ -195,17 +195,17 @@ public class ProductService {
 
     //프로덕트 아이디로 간단한 프로덕트 정보 넘겨주기
     @Transactional(readOnly = true)
-    public SimpleProductInfoDTO findSimpleProductById(Long id){
+    public SimpleProductInfoDTO findSimpleProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
         return product.toSimpleProductInfoDTO();
     }
 
     //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
     @Transactional(readOnly = true)
-    public List<ProductInfoDTO> findProductsByCompany(String company){
+    public List<ProductInfoDTO> findProductsByCompany(String company) {
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
         List<Product> productList = productRepository.findProductsByCompany(company);
-        for(Product p : productList){
+        for (Product p : productList) {
             productInfoDTOList.add(p.toProductInfoDTO(null));
         }
         return productInfoDTOList;
@@ -213,10 +213,10 @@ public class ProductService {
 
     //기업 아이디로 제품 찾기
     @Transactional(readOnly = true)
-    public List<ProductInfoDTO> findProductsByCompanyId(Long companyId){
+    public List<ProductInfoDTO> findProductsByCompanyId(Long companyId) {
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
         List<Product> productList = productRepository.findProductsByCompanyId(companyId);
-        for(Product p : productList){
+        for (Product p : productList) {
             productInfoDTOList.add(p.toProductInfoDTO(null));
         }
         return productInfoDTOList;
@@ -233,12 +233,12 @@ public class ProductService {
         List<String> duplicatedMemberList = new ArrayList<>();
 
         //초대는 마스터와 리더만 할 수 있음.
-        if(memberProduct.getPowerType()==PowerType.CLIENT||memberProduct.getPowerType()==PowerType.DEFAULT){
+        if (memberProduct.getPowerType() == PowerType.CLIENT || memberProduct.getPowerType() == PowerType.DEFAULT) {
             throw new AuthorityException("제품 수정은 마스터와 리더만 가능합니다.");
         }
 
         //마스터 권한으로 초대시, 제한 -> 마스터는 한명임.
-        if(updateProductRequest.getPowerType()==PowerType.MASTER){
+        if (updateProductRequest.getPowerType() == PowerType.MASTER) {
             throw new MasterException();
         }
 
@@ -246,7 +246,7 @@ public class ProductService {
         //TODO 관련 로직 나중에 성능을 위한 고도화 작업 할 것.
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
-            if(!product.getProjectList().isEmpty()) {
+            if (!product.getProjectList().isEmpty()) {
                 Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow();
                 List<Menu> menuList = menuRepository.findByProjectId(project.getId());
                 for (Menu m : menuList) {
@@ -264,7 +264,7 @@ public class ProductService {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
                 if (memberRepository.existsByEmail(s)) {
                     //팀 멤버 내에 초대된 사람인지 중복 확인
-                    if(!productMemberRepository.existsProductMembersByMemberEmailAndProductId( s,product.getId())) {
+                    if (!productMemberRepository.existsProductMembersByMemberEmailAndProductId(s, product.getId())) {
                         CreateProductMemberRequest createMemberProductRequest = CreateProductMemberRequest.builder()
                                 .memberEmail(s)
                                 .productId(productId)
@@ -275,8 +275,8 @@ public class ProductService {
                         //제품에 초대되면 프로젝트에도 추가되어야함.
                         //제일 루트 팀에 초대되어야함.
                         //진행중인 팀을 찾아야함. ->
-                        for(Project p : product.getProjectList()) {
-                            if(p.getProjectStatus() == ProjectStatus.PROGRESS_IN){
+                        for (Project p : product.getProjectList()) {
+                            if (p.getProjectStatus() == ProjectStatus.PROGRESS_IN) {
                                 Team team = teamRepository.findByProjectIdAndName(p.getId(), p.getVersion()).orElseThrow(NotFoundIdException::new);
                                 CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
                                         .memberEmail(s)
@@ -288,8 +288,7 @@ public class ProductService {
 
                         }
 
-                    }
-                    else{
+                    } else {
                         duplicatedMemberList.add(s);
                     }
                 } else {
@@ -309,10 +308,10 @@ public class ProductService {
 
     //index순서대로 정렬하기 -> 드래그 드랍 반영
     @Transactional(readOnly = true)
-    public List<ProductMemberInfoDTO> sortProductsByMember(Long memberId){
+    public List<ProductMemberInfoDTO> sortProductsByMember(Long memberId) {
         List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
         List<ProductMemberInfoDTO> simpleProductMemberInfoDTOList = new ArrayList<>();
-        for(ProductMember mp : productMemberList){
+        for (ProductMember mp : productMemberList) {
             simpleProductMemberInfoDTOList.add(mp.toProductMemberInfoDTO());
         }
         return simpleProductMemberInfoDTOList;
@@ -323,11 +322,11 @@ public class ProductService {
     //updateIndexRequest에는 0번부터 프로젝트의 객체 아이디가 순서대로 들어가있음.
     @Transactional
     public void updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest) {
-        for(int i = 0 ; i < updateIndexRequest.getUpdateIndexList().size() ; i++ ){
+        for (int i = 0; i < updateIndexRequest.getUpdateIndexList().size(); i++) {
             ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new);
-            log.info(productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new)+"d");
-            log.info(updateIndexRequest.getUpdateIndexList().get(i)+"d");
-            log.info(memberId+"d");
+            log.info(productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new) + "d");
+            log.info(updateIndexRequest.getUpdateIndexList().get(i) + "d");
+            log.info(memberId + "d");
             productMember.updateIndex(new Long(i));
         }
     }
@@ -335,36 +334,35 @@ public class ProductService {
     //멤버 권한 바꾸기
     //마스터로 바뀌면 프로젝트에는 리더로 바뀌게됨.
     @Transactional
-    public void updateMemberPowerType(Long memberId, Long productId, UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest){
+    public void updateMemberPowerType(Long memberId, Long productId, UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest) {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
         ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
         ProductMember changeMember = productMemberRepository.findProductMemberByMemberIdAndProductId(updateProductMemberPowerTypeRequest.getMemberId(), productId).orElseThrow(NotFoundIdException::new);
         List<ProductMember> master = productMemberRepository.findProductMembersByProductIdAndPowerType(productId, PowerType.MASTER);
         //권한은 마스터와 리더만 바꿀 수 있음.
-        if(productMember.getPowerType()==PowerType.CLIENT || productMember.getPowerType() == PowerType.DEFAULT){
+        if (productMember.getPowerType() == PowerType.CLIENT || productMember.getPowerType() == PowerType.DEFAULT) {
             throw new AuthorityException("권한 설정은 마스터와 리더만 가능합니다.");
         }
         //마스터 권한을 바꿀 수 없음.
-        if(updateProductMemberPowerTypeRequest.getMemberId().equals(master.get(0).getId())){
+        if (updateProductMemberPowerTypeRequest.getMemberId().equals(master.get(0).getId())) {
             throw new AuthorityException("마스터의 권한은 바꿀 수 없습니다.");
         }
         //마스터로 권한을 변경하는 것을 불가능.
-        if(updateProductMemberPowerTypeRequest.getNewPowerType()==PowerType.MASTER){
+        if (updateProductMemberPowerTypeRequest.getNewPowerType() == PowerType.MASTER) {
             throw new UpdatePowerTypeException("마스터 권한은 한 명만 가능하며, 권한 설정이 불가능합니다.");
         }
         changeMember.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
         //제품에서 권한이 바뀌면, 프로젝트 권한도 자동스럽게 바뀌어야한다.
         //즉, 멤버팀의 권한이 바껴야함. -> 프로젝트 -> 제품에서 프로젝트 가져오기.
         //현재 프로젝트 찾기
-        Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
-        //프로젝트에 멤버가 속한 memberTeam 찾기
-        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(updateProductMemberPowerTypeRequest.getMemberId(), project.getId());
-        for(MemberTeam mt : memberTeamList){
-            mt.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
+        if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+            Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+            //프로젝트에 멤버가 속한 memberTeam 찾기
+            List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(updateProductMemberPowerTypeRequest.getMemberId(), project.getId());
+            for (MemberTeam mt : memberTeamList) {
+                mt.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
+            }
         }
+
     }
-
-
-    //마스터, 리더들이 제품에 멤버 추가할때
-
-
 }

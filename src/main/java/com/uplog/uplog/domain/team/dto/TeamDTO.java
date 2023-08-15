@@ -2,6 +2,8 @@ package com.uplog.uplog.domain.team.dto;
 
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.SimpleMemberPowerInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
@@ -32,13 +34,14 @@ public class TeamDTO {
         private Long parentTeamId;
         private String link;
 
-        public Team toEntity(Project project, Team parentTeam){
+        public Team toEntity(Project project, Team parentTeam, int depth){
             return Team.builder()
                     //.product(product)
                     .memberTeamList(new ArrayList<>())
                     .project(project)
                     .name(this.name)
                     .parentTeam(parentTeam)
+                    .depth(depth)
                     .build();
 
         }
@@ -63,6 +66,7 @@ public class TeamDTO {
     public static class SimpleTeamInfoDTO{
         private Long id;
         private String teamName;
+        private int depth;
     }
 
     @Builder
@@ -72,6 +76,24 @@ public class TeamDTO {
     public static class CreateTeamResultDTO{
         private Long id;
         private List<Long> DuplicatedMemberList;
+    }
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AddMemberToTeamRequest{
+        private List<Long> addMemberIdList;
+        private String link;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AddMemberTeamResultDTO{
+        private Long id;
+        private List<Long> DuplicatedMemberList;
+        List<MemberPowerDTO> MemberPowerDTO;
     }
 
     //프로젝트와 멤버아이디로 member가 속한 팀 찾아서 뱉어주는 디티오

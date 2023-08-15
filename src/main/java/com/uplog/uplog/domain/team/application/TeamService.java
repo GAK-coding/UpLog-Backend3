@@ -11,17 +11,17 @@ import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamResultDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.TeamsBysMemberAndProject;
+import com.uplog.uplog.domain.team.dto.TeamDTO.*;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.SimpleMemberPowerInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.DepthException;
 import com.uplog.uplog.global.exception.DuplicatedNameException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailService;
@@ -68,7 +68,11 @@ public class TeamService {
         if (createTeamRequest.getParentTeamId() != null) {
             List<Long> duplicatedMemberIdList = new ArrayList<>();
             Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(NotFoundIdException::new);
-            Team team = createTeamRequest.toEntity(project, parentTeam);
+            //팀의 최대 depth는 2임. 부모가 2가 되면 안됨
+            if(parentTeam.getDepth()==2){
+                throw new DepthException("팀의 최대 depth를 초과했습니다.");
+            }
+            Team team = createTeamRequest.toEntity(project, parentTeam,parentTeam.getDepth()+1);
             teamRepository.save(team);
 
             //PowerType알아내기 --> 어떻게 알아내지  -> memberProduct에서 찾자. team을 이름으로 찾고 team이랑 멤버 아이디로 해도 되는데 그럼 중복된 이름이 걸릴 수 있음.
@@ -90,9 +94,10 @@ public class TeamService {
                     .DuplicatedMemberList(duplicatedMemberIdList)
                     .build();
         } else {
+            //부모를 입력 안해줬을 경우, 루트 밑으로 들어가니까 뎁스는 당연히 1
             List<Long> duplicatedMemberIdList = new ArrayList<>();
             Team parentTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(NotFoundIdException::new);
-            Team team = createTeamRequest.toEntity(project, parentTeam);
+            Team team = createTeamRequest.toEntity(project, parentTeam,1);
             teamRepository.save(team);
 
             for (Long memberId : createTeamRequest.getMemberIdList()) {
@@ -154,28 +159,66 @@ public class TeamService {
 
     //팀에 속한 자식 팀까지 보고싶을 때
     //형식 고려해봐야할 듯.
-    @Transactional(readOnly = true)
-    public List<MemberPowerDTO> findMembersIncludeChildByTeamId(Long teamId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
-
-        List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
-        for (MemberTeam mt : memberTeamList) {
-            memberPowerDTOList.add(mt.toMemberPowerDTO());
-        }
-        if(!team.getChildTeamList().isEmpty()){
-
-        }
-        return memberPowerDTOList;
-    }
+//    @Transactional(readOnly = true)
+//    public List<MemberPowerDTO> findMembersIncludeChildByTeamId(Long teamId) {
+//        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+//        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
+//
+//        List<MemberPowerDTO> memberPowerDTOList = new ArrayList<>();
+//        for (MemberTeam mt : memberTeamList) {
+//            memberPowerDTOList.add(mt.toMemberPowerDTO());
+//        }
+//        if(!team.getChildTeamList().isEmpty()){
+//
+//        }
+//        return memberPowerDTOList;
+//    }
 
     //팀과 자식 팀 조회
 
     //=========================update==============================================
-    //멤버가 초대되었을 때.
+    //새로운 멤버가 초대되었을 때
+    @Transactional
+    public AddMemberTeamResultDTO addMemberToTeam(Long memberId, Long teamId, AddMemberToTeamRequest addMemberToTeamRequest) throws Exception {
+        List<Long> duplicatedMemberIdList = new ArrayList<>();
 
+        //팀의 존재 여부 확인
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        //현재 멤버가 프로젝트에 속한 사람인지 봐야함 아니라면, 초대 권한이 없음.
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, teamId)){
+            throw new AuthorityException("팀에 멤버를 초대할 수 있는 권한이 없습니다.");
+        }
 
+        Team rootTeam = teamRepository.findTeamByProjectIdAndDepth(team.getProject().getId(), 0).get(0);
+
+        for(Long nMemberId : addMemberToTeamRequest.getAddMemberIdList()){
+            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(memberId,rootTeam.getId()).orElseThrow(NotFoundIdException::new);
+            if(memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(nMemberId, teamId)){
+                duplicatedMemberIdList.add(nMemberId);
+                continue;
+            }
+            CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+                    .memberId(nMemberId)
+                    .teamId(teamId)
+                    .powerType(memberTeam.getPowerType())
+                    .link(addMemberToTeamRequest.getLink())
+                    .build();
+            memberTeamService.createMemberTeam(createMemberTeamRequest);
+        }
+
+        List<MemberPowerDTO> memberPowerDTOList = findMembersByTeamId(teamId);
+
+        return AddMemberTeamResultDTO.builder()
+                .id(teamId)
+                .MemberPowerDTO(memberPowerDTOList)
+                .DuplicatedMemberList(duplicatedMemberIdList)
+                .build();
+
+    }
+
+//===================delete=======================================
     //멤버가 방출될 때.
+    //이건 delete mapping 해야하기 때문에 productMember에서 해야함.
 
 
     //리더가 권한을 위임하고 나갈 경우.

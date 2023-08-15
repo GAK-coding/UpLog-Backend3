@@ -71,5 +71,8 @@ public class ProductMemberService {
         return memberProduct.getId();
     }
 
+    //==================================delete==============================
+    //방출하면 데이터가 다 사라져야해서 컬럼으로 인자를 두고 바꾸는게 좋을 것 같다.
+
 
 }

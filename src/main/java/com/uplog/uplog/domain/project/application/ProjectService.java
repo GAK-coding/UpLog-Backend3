@@ -100,6 +100,7 @@ public class ProjectService {
                 .project(project)
                 .parentTeam(null)
                 .name(createProjectRequest.getVersion())
+                .depth(0)
                 .build();
         teamRepository.save(team);
         log.info(team.getId()+"id");
