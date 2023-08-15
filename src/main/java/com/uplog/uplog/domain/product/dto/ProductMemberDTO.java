@@ -108,6 +108,6 @@ public class ProductMemberDTO {
     public static class UpdateProductMemberPowerTypeRequest{
         private PowerType newPowerType;
         private Long memberId;
-        private Long productId;
+        //private Long productId;
     }
 }

@@ -65,8 +65,8 @@ public class ProductMemberService {
 //    }
 
     @Transactional
-    public Long updateMemberPowerType(UpdateProductMemberPowerTypeRequest updateMemberPowerTypeRequest) {
-        ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getProductId()).orElseThrow(NotFoundIdException::new);
+    public Long updateMemberPowerType(Long productId, UpdateProductMemberPowerTypeRequest updateMemberPowerTypeRequest) {
+        ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(updateMemberPowerTypeRequest.getMemberId(), productId).orElseThrow(NotFoundIdException::new);
         memberProduct.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberProduct.getId();
     }
