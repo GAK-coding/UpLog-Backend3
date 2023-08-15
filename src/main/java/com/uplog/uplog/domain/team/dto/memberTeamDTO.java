@@ -52,6 +52,16 @@ public class memberTeamDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class SimpleMemberPowerInfoDTO{
+        private String memberName;
+        private String memberNickname;
+        private PowerType powerType;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class MemberPowerDTO{
         private Long memberId;
         private String memberEmail;
