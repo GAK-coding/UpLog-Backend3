@@ -15,6 +15,7 @@ import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.*;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
 import com.uplog.uplog.domain.product.exception.MasterException;
+import com.uplog.uplog.domain.product.exception.UpdatePowerTypeException;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
@@ -315,21 +316,6 @@ public class ProductService {
         return simpleProductMemberInfoDTOList;
     }
 
-    //멤버 권한 바꾸기
-    //마스터로 바뀌면 프로젝트에는 리더로 바뀌게됨.
-    @Transactional
-    public void updateMemberPowerType(Long memberId, Long productId, UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest){
-        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
-        productMember.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
-        //제품에서 권한이 바뀌면, 프로젝트 권한도 자동스럽게 바뀌어야한다.
-        //즉, 멤버팀의 권한이 바껴야함. -> 프로젝트 -> 제품에서 프로젝트 가져오기.
-        //현재 프로젝트 찾기
-        Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
-        //프로젝트에 멤버가 속한 팀찾기
-
-
-    }
-
     //for drag/drop
     //제일 처음 원래 순서대로 목록을 부름
     //updateIndexRequest에는 0번부터 프로젝트의 객체 아이디가 순서대로 들어가있음.
@@ -341,6 +327,37 @@ public class ProductService {
             log.info(updateIndexRequest.getUpdateIndexList().get(i)+"d");
             log.info(memberId+"d");
             productMember.updateIndex(new Long(i));
+        }
+    }
+
+    //멤버 권한 바꾸기
+    //마스터로 바뀌면 프로젝트에는 리더로 바뀌게됨.
+    @Transactional
+    public void updateMemberPowerType(Long memberId, Long productId, UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest){
+        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+        ProductMember changeMember = productMemberRepository.findProductMemberByMemberIdAndProductId(updateProductMemberPowerTypeRequest.getMemberId(), productId).orElseThrow(NotFoundIdException::new);
+        List<ProductMember> master = productMemberRepository.findProductMembersByProductIdAndPowerType(productId, PowerType.MASTER);
+        //권한은 마스터와 리더만 바꿀 수 있음.
+        if(productMember.getPowerType()==PowerType.CLIENT || productMember.getPowerType() == PowerType.DEFAULT){
+            throw new AuthorityException("권한 설정은 마스터와 리더만 가능합니다.");
+        }
+        //마스터 권한을 바꿀 수 없음.
+        if(updateProductMemberPowerTypeRequest.getMemberId().equals(master.get(0).getId())){
+            throw new AuthorityException("마스터의 권한은 바꿀 수 없습니다.");
+        }
+        //마스터로 권한을 변경하는 것을 불가능.
+        if(updateProductMemberPowerTypeRequest.getNewPowerType()==PowerType.MASTER){
+            throw new UpdatePowerTypeException("마스터 권한은 한 명만 가능하며, 권한 설정이 불가능합니다.");
+        }
+        changeMember.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
+        //제품에서 권한이 바뀌면, 프로젝트 권한도 자동스럽게 바뀌어야한다.
+        //즉, 멤버팀의 권한이 바껴야함. -> 프로젝트 -> 제품에서 프로젝트 가져오기.
+        //현재 프로젝트 찾기
+        Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+        //프로젝트에 멤버가 속한 memberTeam 찾기
+        List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(updateProductMemberPowerTypeRequest.getMemberId(), project.getId());
+        for(MemberTeam mt : memberTeamList){
+            mt.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
         }
     }
 

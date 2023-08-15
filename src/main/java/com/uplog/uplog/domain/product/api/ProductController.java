@@ -7,6 +7,7 @@ import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.UpdateProductMemberPowerTypeRequest;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,13 @@ public class ProductController {
         productService.updateIndex(memberId, updateIndexRequest);
         List<ProductMemberInfoDTO> productMemberInfoDTOList = productService.sortProductsByMember(memberId);
         return ResponseEntity.ok(productMemberInfoDTOList);
+    }
+
+    //권한 변경
+    @PatchMapping(value = "/products/{product-id}/power-type")
+    public void updatePowerType(@PathVariable(name = "product-id")Long productId, @RequestBody @Validated UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        productService.updateMemberPowerType(memberId, productId, updateProductMemberPowerTypeRequest);
     }
 
 }
