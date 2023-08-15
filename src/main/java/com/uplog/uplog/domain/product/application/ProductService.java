@@ -72,7 +72,6 @@ public class ProductService {
     public Long createProduct(Long memberId, CreateProductRequest createProductRequest) throws Exception {
         // Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
-        log.info("가");
         //기업인 사람만 제품을 생성할 수 있음.
         if (member.getPosition() == Position.COMPANY) {
             List<Product> productList = productRepository.findProductsByCompany(member.getName());
@@ -84,7 +83,6 @@ public class ProductService {
             }
             Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
             productRepository.save(product);
-            log.info("나");
             //기업에 들어갈 시에는 클라이언트로 들어감.
             CreateProductMemberRequest createProductMemberRequest2 = CreateProductMemberRequest.builder()
                     .memberEmail(member.getEmail())
@@ -93,7 +91,16 @@ public class ProductService {
                     .powerType(PowerType.CLIENT)
                     .build();
             productMemberService.createProductMember(createProductMemberRequest2);
-            log.info("다");
+
+            if(createProductRequest.getClientEmail()!=null) {
+                CreateProductMemberRequest createProductMemberRequest3 = CreateProductMemberRequest.builder()
+                        .memberEmail(createProductRequest.getClientEmail())
+                        .productId(product.getId())
+                        .link(createProductRequest.getLink())
+                        .powerType(PowerType.CLIENT)
+                        .build();
+                productMemberService.createProductMember(createProductMemberRequest3);
+            }
 
             //마스터 생성
             CreateProductMemberRequest createProductMemberRequest = CreateProductMemberRequest.builder()
@@ -103,7 +110,6 @@ public class ProductService {
                     .powerType(PowerType.MASTER)
                     .build();
             productMemberService.createProductMember(createProductMemberRequest);
-            log.info("라");
 
 
             return product.getId();

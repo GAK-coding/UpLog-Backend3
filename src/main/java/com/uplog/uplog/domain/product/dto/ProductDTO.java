@@ -23,6 +23,7 @@ public class ProductDTO {
         private String name;
         //private Team team;x
         private String masterEmail;
+        private String clientEmail;
         private String link;
        // private int mailType; -> 백에서 처리해도 될 것 같음.
 
