@@ -241,11 +241,12 @@ public class ProductService {
         if(updateProductRequest.getPowerType()==PowerType.MASTER){
             throw new MasterException();
         }
-        product.updateName(updateProductRequest.getNewName());
+
         //제품 이름이 변경되면, 포스트에 있는 이름도 변경해야함.
         //TODO 관련 로직 나중에 성능을 위한 고도화 작업 할 것.
         if (updateProductRequest.getNewName() != null) {
-            if(product.getProjectList()!= null) {
+            product.updateName(updateProductRequest.getNewName());
+            if(!product.getProjectList().isEmpty()) {
                 Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow();
                 List<Menu> menuList = menuRepository.findByProjectId(project.getId());
                 for (Menu m : menuList) {
