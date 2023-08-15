@@ -67,20 +67,18 @@ public class ProjectController {
 
     //전체 조회
     @GetMapping(value="/projects/{project-id}/{member-id}")
-    public ResponseEntity<requestProjectAllInfo> readProjectAllInfo(@PathVariable("project-id")Long projectId,
-                                                                    @PathVariable("member-id")Long memberId){
-
-        requestProjectAllInfo requestProjectAllInfo =projectService.readProject(projectId,memberId);
+    public ResponseEntity<requestProjectAllInfo> readProjectAllInfo(@PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        requestProjectAllInfo requestProjectAllInfo =projectService.readProject(memberId, projectId);
         return new ResponseEntity<>(requestProjectAllInfo,HttpStatus.OK);
     }
 
     //버전 클릭 시 프론트에게 클라이언트인지 아닌 지를 보내줌
 
-    @GetMapping(value="/projects/{project-id}/{member-id}/power")
-    public ResponseEntity<requestProjectInfo> readProjectInfo(@PathVariable("project-id")Long projectId,
-                                                              @PathVariable("member-id")Long memberId){
-
-        requestProjectInfo requestProjectInfo=projectService.readProjectSimple(projectId,memberId);
+    @GetMapping(value="/projects/{project-id}/power")
+    public ResponseEntity<requestProjectInfo> readProjectInfo(@PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        requestProjectInfo requestProjectInfo=projectService.readProjectSimple(memberId, projectId);
 
         return new ResponseEntity<>(requestProjectInfo,HttpStatus.OK);
     }
@@ -94,26 +92,20 @@ public class ProjectController {
 //===============================update=======================================================
     //제품에 해당하는 팀 불러오기
 
-    @PatchMapping(value="/projects/{project-id}/{member-id}")
+    @PatchMapping(value="/projects/{project-id}")
     public ResponseEntity<UpdateProjectInfo> updateProjectInfo(@RequestBody UpdateProjectStatus updateProjectStatus,
-                                               @PathVariable("project-id")Long projectId,
-                                               @PathVariable("member-id")Long memberId){
-
-        //권한 확인
-        projectService.powerValidate(memberId);
-        UpdateProjectInfo updateProjectInfo=projectService.updateProject(updateProjectStatus,projectId);
+                                               @PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        UpdateProjectInfo updateProjectInfo=projectService.updateProject(memberId,updateProjectStatus,projectId);
 
         return new ResponseEntity<>(updateProjectInfo,HttpStatus.OK);
 
     }
 
     @DeleteMapping(value="/projects/{project-id}/{member-id}")
-    public String deleteProject(@PathVariable("project-id")Long projectId,
-                                @PathVariable("member-id")Long memberId){
+    public String deleteProject(@PathVariable("project-id")Long projectId){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
 
-        //권한 확인
-        projectService.powerValidate(memberId);
-
-        return projectService.deleteProject(projectId);
+        return projectService.deleteProject(memberId, projectId);
     }
 }
