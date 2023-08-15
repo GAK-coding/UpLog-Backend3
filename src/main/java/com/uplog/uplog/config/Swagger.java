@@ -127,6 +127,16 @@ public class Swagger {
     }
 
     @Bean
+    public GroupedOpenApi storageOpenApi(){
+        String[] paths = {"/storages/**"};
+
+        return GroupedOpenApi.builder()
+                .group("storages")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi teamOpenApi(){
         String[] paths = {"/teams/**"};
 

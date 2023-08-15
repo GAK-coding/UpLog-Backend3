@@ -95,9 +95,11 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<SimpleCommentInfo> findCommentByPostId(Long postId){
 
-        // TODO: post 만들어지면 post로 바꿔야함.
-        List<Comment> commentList=commentRepository.findByAuthorId(postId);
 
+        Post post=postRepository.findById(postId)
+                .orElseThrow(NotFoundIdException::new);
+
+        List<Comment> commentList=post.getCommentList();
         if(commentList==null||commentList.isEmpty()){
             throw new NotFoundCommentByPostException(postId);
         }

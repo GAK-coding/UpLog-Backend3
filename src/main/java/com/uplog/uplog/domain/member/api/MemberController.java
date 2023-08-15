@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +58,6 @@ public class MemberController {
         MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
-
 
     //로그인
     //security 로직 추가
