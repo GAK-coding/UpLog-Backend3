@@ -75,7 +75,7 @@ public class Member extends MemberBase{
                 .build();
     }
 
-    public VerySimpleMemberInfoDTO verySimpleMemberInfoDTO(){
+    public VerySimpleMemberInfoDTO toVerySimpleMemberInfoDTO(){
         return VerySimpleMemberInfoDTO.builder()
                 .id(this.getId())
                 .image(this.image)
