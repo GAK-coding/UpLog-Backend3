@@ -72,6 +72,7 @@ public class ProductService {
     public Long createProduct(Long memberId, CreateProductRequest createProductRequest) throws Exception {
        // Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
+        log.info("가");
         //기업인 사람만 제품을 생성할 수 있음.
         if (member.getPosition() == Position.COMPANY) {
             List<Product> productList = productRepository.findProductsByCompany(member.getName());
@@ -83,7 +84,7 @@ public class ProductService {
             }
             Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
             productRepository.save(product);
-
+            log.info("나");
             //기업에 들어갈 시에는 클라이언트로 들어감.
             CreateProductMemberRequest createProductMemberRequest2 = CreateProductMemberRequest.builder()
                     .memberEmail(member.getEmail())
@@ -92,6 +93,7 @@ public class ProductService {
                     .powerType(PowerType.CLIENT)
                     .build();
             productMemberService.createProductMember(createProductMemberRequest2);
+            log.info("다");
 
             //마스터 생성
             CreateProductMemberRequest createProductMemberRequest = CreateProductMemberRequest.builder()
@@ -101,14 +103,13 @@ public class ProductService {
                     .powerType(PowerType.MASTER)
                     .build();
             productMemberService.createProductMember(createProductMemberRequest);
-
+            log.info("라");
 
 
             return product.getId();
         } else {
             throw new AuthorityException("제품 생성 권한이 없습니다.");
         }
-
     }
 
 
@@ -244,14 +245,16 @@ public class ProductService {
         //제품 이름이 변경되면, 포스트에 있는 이름도 변경해야함.
         //TODO 관련 로직 나중에 성능을 위한 고도화 작업 할 것.
         if (updateProductRequest.getNewName() != null) {
-            product.updateName(updateProductRequest.getNewName());
+            if(product.getProjectList()!= null) {
+                product.updateName(updateProductRequest.getNewName());
 
-            Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow();
-            List<Menu> menuList = menuRepository.findByProjectId(project.getId());
-            for(Menu m : menuList){
-                List<Post> postList = postRepository.findByMenuId(m.getId());
-                for(Post p : postList){
-                    p.updatePostProductName(updateProductRequest.getNewName());
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow();
+                List<Menu> menuList = menuRepository.findByProjectId(project.getId());
+                for (Menu m : menuList) {
+                    List<Post> postList = postRepository.findByMenuId(m.getId());
+                    for (Post p : postList) {
+                        p.updatePostProductName(updateProductRequest.getNewName());
+                    }
                 }
             }
 
