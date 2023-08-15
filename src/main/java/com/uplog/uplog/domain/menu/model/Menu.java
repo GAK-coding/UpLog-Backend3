@@ -41,15 +41,19 @@ public class Menu extends BaseTime {
 
     private String menuName;
 
-    public MenuInfoDTO toMenuInfoDTO(){
-        return MenuInfoDTO.builder()
+    public MenuInfoDTO toMenuInfoDTO() {
+        MenuInfoDTO.MenuInfoDTOBuilder builder = MenuInfoDTO.builder()
                 .id(this.getId())
                 .menuName(this.getMenuName())
                 .projectId(this.getProject().getId())
-                .version(this.getProject().getVersion())
-                //.projectInfo(this.getProject().toRequestProjectInfo())
-                //.noticePost(this.getNoticePost().toPostInfoDTO())
-                .build();
+                .version(this.getProject().getVersion());
+
+        if (this.getNoticePost() != null) {
+            builder.noticePostId(this.getNoticePost().getId());
+            // .noticePost(this.getNoticePost().toPostInfoDTO())
+        }
+
+        return builder.build();
     }
 
     public SimpleMenuInfoDTO toSimpleMenuInfoDTO(){

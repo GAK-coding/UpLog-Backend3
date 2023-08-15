@@ -144,6 +144,15 @@ public class MenuService {
         return menu.toMenuInfoDTO();
     }
 
+    @Transactional
+    public MenuInfoDTO deleteNoticePost(Long menuId){
+        Menu menu=menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+        menu.updateNoticePost(null);
+        return menu.toMenuInfoDTO();
+    }
+
+
+
     /*
     READ
      */
