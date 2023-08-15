@@ -66,6 +66,12 @@ public class MenuController {
         return ResponseEntity.ok(menuInfoDTO);
     }
 
+    @DeleteMapping("/menus/{menu-id}/reset-notice")
+    public ResponseEntity<MenuInfoDTO> deleteNoticePost(@PathVariable(name="menu-id")  Long menuId) {
+        MenuInfoDTO result = menuService.deleteNoticePost(menuId);
+        return ResponseEntity.ok(result);
+    }
+
 
     /*
     READ

@@ -5,7 +5,9 @@ import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.menu.application.MenuService;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
+import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.dto.PostDTO.*;
@@ -44,6 +46,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final TeamRepository teamRepository;
+//    private final MenuService menuService;
 
     /*
     Create
@@ -82,7 +85,10 @@ public class PostService {
                 postType = PostType.REQUEST_READ;
             } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
                 postType = PostType.REQUEST_REQUIREMENT;
-            } else {
+            } else if(requestType.equals(PostType.DEFAULT.name())){
+                postType=PostType.DEFAULT;
+            }
+            else {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
@@ -102,6 +108,13 @@ public class PostService {
     @Transactional
     public String deletePost(Long id,Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundIdException::new);
+
+        //해당 게시글이 현재 메뉴의 공지글이라면 그 공지글 리셋해야함
+        if (post.getMenu().getNoticePost().getId() != null) {
+            if (post.getMenu().getNoticePost().getId().equals(id)) {
+                deleteNoticePostInPostService(post.getMenu().getId());
+            }
+        }
 
         if(post.getAuthor().getId().equals(currentUserId)){
             postRepository.delete(post);
@@ -156,6 +169,8 @@ public class PostService {
                     updatepostType = PostType.REQUEST_READ;
                 } else if (requestType.equals(PostType.REQUEST_REQUIREMENT.name())) {
                     updatepostType = PostType.REQUEST_REQUIREMENT;
+                } else if(requestType.equals(PostType.DEFAULT.name())){
+                    updatepostType=PostType.DEFAULT;
                 } else {
                     throw new IllegalArgumentException("Invalid PostType: " + requestType);
                 }
@@ -174,10 +189,18 @@ public class PostService {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         Menu menu = menuRepository.findById(updatePostMenuRequest.getUpdateMenuId())
                 .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
+
         if(post.getAuthor().getId().equals(currentUserId)){
+            //메뉴를 업데이트 하려는데 해당 게시글이 현재 메뉴의 공지글이라면 그 공지글 리셋해야함
+            if (post.getMenu().getNoticePost().getId() != null) {
+                if (post.getMenu().getNoticePost().getId().equals(id)) {
+                    deleteNoticePostInPostService(post.getMenu().getId());
+                }
+            }
             post.updatePostMenu(menu);
             return toPostInfoDTO(post);
         }
+
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
         }
@@ -205,6 +228,9 @@ public class PostService {
             PostType updatedPostType;
 
             switch (requestType) {
+                case "DEFAULT":
+                    updatedPostType=PostType.DEFAULT;
+                    break;
                 case "REQUEST_READ":
                     updatedPostType = PostType.REQUEST_READ;
                     break;
@@ -221,10 +247,30 @@ public class PostService {
         if (updatePostRequest.getUpdateMenuId() != null) {
             Menu menu = menuRepository.findById(updatePostRequest.getUpdateMenuId())
                     .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
+
+            //메뉴를 업데이트 하려는데 해당 게시글이 현재 메뉴의 공지글이라면 그 공지글 리셋해야함
+            if (post.getMenu().getNoticePost().getId() != null) {
+                if (post.getMenu().getNoticePost().getId().equals(id)) {
+                    deleteNoticePostInPostService(post.getMenu().getId());
+                }
+            }
+
+
             post.updatePostMenu(menu);
         }
 
         return toPostInfoDTO(post);
+    }
+
+    //일단 임시
+    @Transactional
+    public MenuDTO.MenuInfoDTO deleteNoticePostInPostService(Long menuId){
+        Menu menu=menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+
+        if (menu.getNoticePost() != null) {
+            menu.updateNoticePost(null);
+        }
+        return menu.toMenuInfoDTO();
     }
 
 
