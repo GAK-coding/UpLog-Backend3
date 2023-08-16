@@ -82,19 +82,15 @@ public class AuthorizedMethod {
         }
 
         //현재 프로젝트 팀 내에 존재하는 멤버인지 확인
-        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId())){
-            throw new AuthorityException("프로젝트에 속하지 않은 멤버입니다");
-        }
         //클라이언트가 아닌 멤버(클라이언트면 예외)
-        PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
-
-        if(powerType==null){
-            throw new NotFoundPowerByMemberException(memberId);
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId())){
+            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 포스트 작성 권한이 없습니다.");
         }
-
-        if(powerType==PowerType.CLIENT){
-
-            throw new MemberAuthorizedException(memberId);
+        else{
+            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId()).orElseThrow(NotFoundIdException::new);
+            if(memberTeam.getPowerType() == PowerType.CLIENT){
+                throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
+            }
         }
 
     }
