@@ -40,7 +40,6 @@ public class CommentController {
             @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     })
 
-
      /*
         CREATE
      */
