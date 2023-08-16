@@ -88,17 +88,17 @@ public class PostService {
 
 
         //TODO 프로젝트팀 넘겨주기
-        //authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
+        authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
 
-        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(id, rootTeam.getId())){
-            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 포스트 작성 권한이 없습니다.");
-        }
-        else{
-            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(id, rootTeam.getId()).orElseThrow(NotFoundIdException::new);
-            if(memberTeam.getPowerType() == PowerType.CLIENT){
-                throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
-            }
-        }
+//        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(id, rootTeam.getId())){
+//            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 포스트 작성 권한이 없습니다.");
+//        }
+//        else{
+//            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(id, rootTeam.getId()).orElseThrow(NotFoundIdException::new);
+//            if(memberTeam.getPowerType() == PowerType.CLIENT){
+//                throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
+//            }
+//        }
 
 
 
