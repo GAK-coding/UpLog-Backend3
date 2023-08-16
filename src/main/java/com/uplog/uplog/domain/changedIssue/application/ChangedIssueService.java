@@ -35,6 +35,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
 @Service
@@ -85,6 +87,14 @@ public class ChangedIssueService {
         IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
 
         return IssueInfoDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public IssueInfoByProjectDTO findIssueByProjectId(Long projectId){
+
+        List<ChangedIssue> issueList=changedIssueRepository.findByProjectId(projectId)
+
+
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.
