@@ -17,6 +17,10 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.tag.dao.PostTagRepository;
+import com.uplog.uplog.domain.tag.dao.TagRepository;
+import com.uplog.uplog.domain.tag.model.PostTag;
+import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.model.Team;
@@ -46,6 +50,8 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final TeamRepository teamRepository;
+    private final TagRepository tagRepository;
+    private final PostTagRepository postTagRepository;
 //    private final MenuService menuService;
 
     /*
@@ -93,9 +99,28 @@ public class PostService {
             }
         }
 
-        //TODO 해당 프로젝트사람들이면
+
+        // 포스트 생성
         Post post = createPostRequest.toEntity(author, menu, product, project, postType);
         postRepository.save(post);
+
+        List<String> tagContents = createPostRequest.getTagContents(); // 태그 내용 리스트 받아오기
+        for (String tagContent : tagContents) {
+            Tag existingTag = tagRepository.findByContent(tagContent); // 이미 존재하는 태그인지 확인
+            if (existingTag == null) {
+                // 존재하지 않는 경우 새로운 태그 생성
+                Tag newTag = new Tag(tagContent);
+                tagRepository.save(newTag);
+                // 포스트태그 생성 및 연결
+                PostTag postTag = new PostTag(post, newTag);
+                postTagRepository.save(postTag);
+            } else {
+                // 이미 존재하는 태그인 경우 포스트태그 생성 및 연결
+                PostTag postTag = new PostTag(post, existingTag);
+                postTagRepository.save(postTag);
+            }
+        }
+
 
         return toPostInfoDTO(post);
 
