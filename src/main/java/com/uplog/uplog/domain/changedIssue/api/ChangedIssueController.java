@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
 @RestController
@@ -69,6 +71,14 @@ public class ChangedIssueController {
         IssueInfoDTO IssueInfoDTO =changedIssueService.findByIssueId(issueId);
 
         return new ResponseEntity<>(IssueInfoDTO,HttpStatus.OK);
+    }
+
+    @GetMapping(value="/changedIssues/{project-id}/issue")
+    public ResponseEntity<List<IssueInfoByProjectDTO>> findChangedIssueByProjectId(@PathVariable("project-id")Long projectId){
+
+       List<IssueInfoByProjectDTO> issueInfoByProjectDTOList=changedIssueService.findIssueByProjectId(projectId);
+
+        return new ResponseEntity<>(issueInfoByProjectDTOList,HttpStatus.OK);
     }
 
 
