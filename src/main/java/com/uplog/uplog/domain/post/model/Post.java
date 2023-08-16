@@ -5,6 +5,7 @@ import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.tag.model.PostTag;
+import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,7 +42,7 @@ public class Post extends BaseTime {
     private PostType postType;
 
     @OneToMany
-    @JoinColumn(name = "postTag_id")
+    @JoinColumn(name = "post")
     private List<PostTag> postTagList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -102,5 +103,18 @@ public class Post extends BaseTime {
     public void updatePostType(PostType updatepostType){this.postType=updatepostType;}
     public  void updatePostProductName(String updateProductName){this.productName=updateProductName;}
     public void updatePostVersion(String updateVersion){this.version=updateVersion;}
+    public void addTag(Tag tag) {
+        if (postTagList == null) {
+            postTagList = new ArrayList<>();
+        }
+        PostTag postTag = new PostTag(this, tag);
+        postTagList.add(postTag);
+    }
+//    public void addPostTag(PostTag postTag) {
+//        if (postTag != null) {
+//            this.postTagList.add(postTag);
+//            postTag.getPost().getPostTagList().add(postTag);
+//        }
+//    }
 
 }
