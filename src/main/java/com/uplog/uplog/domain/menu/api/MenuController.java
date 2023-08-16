@@ -116,16 +116,16 @@ public class MenuController {
     }
 
     //페이지네이션
-    @GetMapping("/menus/{menu-id}/posts/pages")
-    public ResponseEntity<PagingPostDTO> findMenuPosts(
-            @PathVariable(name = "menu-id") Long menuId,
-            @RequestParam(defaultValue = "0") int page, // 기본 페이지 번호는 0부터 시작
-            @RequestParam(defaultValue = "10") int size)// 기본 페이지 당 포스트 수는 10개
-    {
-        Pageable pageable = PageRequest.of(page, size);
-        PagingPostDTO pagingPostDTO = (PagingPostDTO) menuService.findPostsByMenuIdWithPagination(menuId, pageable);
-        return ResponseEntity.ok(pagingPostDTO);
-    }
+//    @GetMapping("/menus/{menu-id}/posts/pages")
+//    public ResponseEntity<PagingPostDTO> findMenuPosts(
+//            @PathVariable(name = "menu-id") Long menuId,
+//            @RequestParam(defaultValue = "0") int page, // 기본 페이지 번호는 0부터 시작
+//            @RequestParam(defaultValue = "10") int size)// 기본 페이지 당 포스트 수는 10개
+//    {
+//        Pageable pageable = PageRequest.of(page, size);
+//        PagingPostDTO pagingPostDTO = (PagingPostDTO) menuService.findPostsByMenuIdWithPagination(menuId, pageable);
+//        return ResponseEntity.ok(pagingPostDTO);
+//    }
 //    @GetMapping("/menus/{menu-id}/posts")
 //    public ResponseEntity<List<PostDTO.PostInfoDTO>> findPostsByMenuId(@PathVariable("menu-id") Long menuId) {
 //        List<PostDTO.PostInfoDTO> postInfoDTOList = menuService.findPostsByMenuId(menuId);
