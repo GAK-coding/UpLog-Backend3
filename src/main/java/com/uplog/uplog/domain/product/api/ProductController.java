@@ -1,10 +1,12 @@
 package com.uplog.uplog.domain.product.api;
 
 import com.uplog.uplog.domain.member.dao.MemberRepository;
+import com.uplog.uplog.domain.product.application.ProductMemberService;
 import com.uplog.uplog.domain.product.application.ProductService;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.dto.ProductDTO.*;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.DeleteProductMemberRequest;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberInfoDTO;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.ProductMemberPowerDTO;
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.UpdateProductMemberPowerTypeRequest;
@@ -24,6 +26,8 @@ import java.util.List;
 @Slf4j
 public class ProductController {
     private final ProductService productService;
+    private final ProductMemberService productMemberService;
+
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
@@ -103,5 +107,18 @@ public class ProductController {
         Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
         productService.updateMemberPowerType(memberId, productId, updateProductMemberPowerTypeRequest);
     }
+
+    //===================멤버 방출========================
+    //member방출은 ProductMemberService에서 작업
+    @PatchMapping(value = "products/{product-id}/delete")
+    public ResponseEntity<List<ProductMemberPowerDTO>> deleteMemberProduct(@PathVariable(name = "product-id")Long productId, @RequestBody @Validated DeleteProductMemberRequest deleteProductMemberRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        productService.deleteProductMember(memberId, productId, deleteProductMemberRequest);
+        List<ProductMemberPowerDTO> productMemberPowerDTOList = productService.findMembersByProductId(productId);
+
+        return ResponseEntity.ok(productMemberPowerDTOList);
+    }
+
+
 
 }

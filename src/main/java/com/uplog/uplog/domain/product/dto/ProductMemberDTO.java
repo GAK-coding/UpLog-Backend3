@@ -44,6 +44,7 @@ public class ProductMemberDTO {
         private String memberName;
         private String memberNickname;
         private Long productId;
+        private boolean delStatus;
     }
     @Builder
     @Getter
@@ -56,6 +57,7 @@ public class ProductMemberDTO {
         private String memberNickname;
         private PowerType powerType;
         private Long indexNum;
+        private boolean delStatus;
 
     }
 //    @Builder
@@ -83,6 +85,7 @@ public class ProductMemberDTO {
         private String memberName;
         private String memberNickName;
         private PowerType powerType;
+        private boolean delStatus;
     }
 
     @Builder
@@ -105,9 +108,18 @@ public class ProductMemberDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UpdateProductMemberPowerTypeRequest{
+    public static class UpdateProductMemberPowerTypeRequest {
         private PowerType newPowerType;
         private Long memberId;
         //private Long productId;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DeleteProductMemberRequest{
+        private Long deleteMemberId;
+        private Long delegatedMemberId;
     }
 }

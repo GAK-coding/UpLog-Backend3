@@ -10,7 +10,14 @@ import com.uplog.uplog.domain.product.dto.ProductMemberDTO.CreateProductMemberRe
 import com.uplog.uplog.domain.product.dto.ProductMemberDTO.UpdateProductMemberPowerTypeRequest;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.product.model.ProductMember;
+import com.uplog.uplog.domain.project.dao.ProjectRepository;
+import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.project.model.ProjectStatus;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
+import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.mail.MailDTO;
 import com.uplog.uplog.global.mail.MailService;
@@ -19,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,6 +35,8 @@ public class ProductMemberService {
     private final MemberRepository memberRepository;
     private final ProductMemberRepository productMemberRepository;
     private final ProductRepository productRepository;
+    private final ProjectRepository projectRepository;
+    private final MemberTeamRepository memberTeamRepository;
 
     private final MailService mailService;
 
@@ -70,9 +81,5 @@ public class ProductMemberService {
         memberProduct.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberProduct.getId();
     }
-
-    //==================================delete==============================
-    //방출하면 데이터가 다 사라져야해서 컬럼으로 인자를 두고 바꾸는게 좋을 것 같다.
-
 
 }
