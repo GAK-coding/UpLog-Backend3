@@ -95,7 +95,6 @@ public class PostService {
         }
         else{
             MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(id, rootTeam.getId()).orElseThrow(NotFoundIdException::new);
-        log.info(memberTeam.getMember().getId()+"bbong");
             if(memberTeam.getPowerType() == PowerType.CLIENT){
                 throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
             }
