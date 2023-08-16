@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.changedIssue.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueByProjectException;
 import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueException;
 import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
@@ -35,6 +36,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
@@ -90,9 +92,22 @@ public class ChangedIssueService {
     }
 
     @Transactional(readOnly = true)
-    public IssueInfoByProjectDTO findIssueByProjectId(Long projectId){
+    public List<IssueInfoByProjectDTO> findIssueByProjectId(Long projectId){
 
-        List<ChangedIssue> issueList=changedIssueRepository.findByProjectId(projectId)
+        List<ChangedIssue> issueList=changedIssueRepository.findByProjectId(projectId);
+
+        if (issueList.isEmpty())
+            throw new NotFoundIssueByProjectException(projectId);
+        else if(issueList==null)
+            throw new NotFoundIssueByProjectException(projectId);
+        List<IssueInfoByProjectDTO> issueInfoByProjectDTOList=new ArrayList<>();;
+        for(ChangedIssue temp:issueList){
+
+            issueInfoByProjectDTOList.add(temp.toIssueInfoByProjectDTO());
+
+        }
+
+        return issueInfoByProjectDTOList;
 
 
     }

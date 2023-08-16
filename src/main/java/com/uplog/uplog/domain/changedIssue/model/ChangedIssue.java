@@ -68,6 +68,16 @@ public class ChangedIssue extends BaseTime {
 
     }
 
+    public ChangedIssueDTO.IssueInfoByProjectDTO toIssueInfoByProjectDTO(){
+        return ChangedIssueDTO.IssueInfoByProjectDTO.builder()
+                .id(this.id)
+                .issueStatus(this.issueStatus)
+                .content(this.content)
+                .createdTime(this.getCreatedTime())
+                .modifiedTime(this.getModifiedTime())
+                .build();
+    }
+
     public void updateChangedIssue(ChangedIssueDTO.UpdateChangedIssueRequest UpdateChangedIssueRequest){
 
         this.title=(UpdateChangedIssueRequest.getTitle()!=null)? UpdateChangedIssueRequest.getTitle():this.title;
