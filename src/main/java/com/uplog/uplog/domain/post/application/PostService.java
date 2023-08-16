@@ -85,7 +85,7 @@ public class PostService {
         //현재 진행중인 프로젝트가 아니면 예외
         authorizedMethod.checkProjectProgress(project.getId());
         //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
-        log.info("나");
+
 
         //TODO 프로젝트팀 넘겨주기
         //authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
@@ -100,7 +100,7 @@ public class PostService {
                 throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
             }
         }
-        log.info("다");
+
 
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
@@ -120,7 +120,7 @@ public class PostService {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
-        log.info("라");
+
 
         // 포스트 생성
         Post post = createPostRequest.toEntity(author, menu, product, project, postType);
@@ -129,8 +129,7 @@ public class PostService {
 
         List<String> tagContents = createPostRequest.getTagContents(); // 태그 내용 리스트 받아오기
         List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
-        log.info("마");
-       // post.updatePostTagList(postTags);
+
         for (String tagContent : tagContents) {
             if (!tagRepository.existsByContent(tagContent)) {
                 // 존재하지 않는 경우 새로운 태그 생성
@@ -152,7 +151,6 @@ public class PostService {
 
             }
         }
-        log.info("바");
         return post.toPostInfoDTO(postTags);
 
     }
