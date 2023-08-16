@@ -33,20 +33,24 @@ public class AuthorizedMethod {
 
 
     //memberId로 권한 확인->리더인지 마스터인지
-    public PowerType powerValidateByMemberId(Long memberId ){
+    public void powerValidateByMemberId(Long memberId,Team projectRootTeam){
 
-        PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
+        //PowerType powerType=changedIssueRepository.findMemberPowerTypeByMemberId(memberId);
 
-        if(powerType==null){
-            throw new NotFoundPowerByMemberException(memberId);
+//        if(powerType==null){
+//            throw new NotFoundPowerByMemberException(memberId);
+//        }
+
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId())){
+            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 변경이력 작성 권한이 없습니다.");
+        }
+        else{
+            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(memberId, projectRootTeam.getId()).orElseThrow(NotFoundIdException::new);
+            if(memberTeam.getPowerType() == PowerType.CLIENT || memberTeam.getPowerType() == PowerType.DEFAULT){
+                throw new AuthorityException("변경이력 작성 권한이 없는 멤버입니다.");
+            }
         }
 
-        if(powerType==PowerType.DEFAULT || powerType==PowerType.CLIENT){
-
-            throw new MemberAuthorizedException(memberId);
-        }
-
-        return powerType;
 
     }
 //    //memberId로 권한 확인->클라이언트면 예외처리
