@@ -75,4 +75,16 @@ public class ChangedIssueDTO {
         private LocalDateTime modifiedTime;
 
     }
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IssueInfoByProjectDTO {
+        private Long id;
+        private String content;
+        private IssueStatus issueStatus;
+        private LocalDateTime createdTime;
+        private LocalDateTime modifiedTime;
+
+    }
 }

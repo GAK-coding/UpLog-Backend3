@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.changedIssue.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueByProjectException;
 import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueException;
 import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
@@ -34,6 +35,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
@@ -85,6 +89,27 @@ public class ChangedIssueService {
         IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
 
         return IssueInfoDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public List<IssueInfoByProjectDTO> findIssueByProjectId(Long projectId){
+
+        List<ChangedIssue> issueList=changedIssueRepository.findByProjectId(projectId);
+
+        if (issueList.isEmpty())
+            throw new NotFoundIssueByProjectException(projectId);
+        else if(issueList==null)
+            throw new NotFoundIssueByProjectException(projectId);
+        List<IssueInfoByProjectDTO> issueInfoByProjectDTOList=new ArrayList<>();;
+        for(ChangedIssue temp:issueList){
+
+            issueInfoByProjectDTOList.add(temp.toIssueInfoByProjectDTO());
+
+        }
+
+        return issueInfoByProjectDTOList;
+
+
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.
