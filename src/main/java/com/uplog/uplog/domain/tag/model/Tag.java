@@ -24,4 +24,8 @@ public class Tag extends BaseTime {
 
     private String content;
 
+    public Tag(String tagContent){
+        this.content=tagContent;
+    }
+
 }
