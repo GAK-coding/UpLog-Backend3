@@ -131,6 +131,7 @@ public class ChangedIssueService {
         //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
         if(changedIssue.getAuthor().getId().equals(memberId)){
             changedIssue.updateChangedIssue(UpdateChangedIssueRequest);
+            changedIssue.onUpdate();
             return changedIssue.toSimpleIssueInfoDTO();
         }
         else{
