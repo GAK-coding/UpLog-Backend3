@@ -9,6 +9,8 @@ import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.post.model.PostType;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.tag.dto.TagDTO;
+import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,8 +45,8 @@ public class PostDTO {
                     .menu(menu)
                     .title(this.title)
                     .content(this.content)
+                    .postTagList(new ArrayList<>())
                     .postType(postType)
-                    //.postTagList(new ArrayList<>())
                     .productName(product.getName())
                     .version(project.getVersion())
                     .build();
@@ -127,7 +129,7 @@ public class PostDTO {
         private String projectName;
         private PostType postType;
         private String content;
-        private List<PostTag> postTags;
+        private List<TagInfoDTO> postTags;
         private LocalDateTime createTime;
         private int likeCount;
         private int commentCount;

@@ -4,6 +4,8 @@ import com.uplog.uplog.domain.comment.model.Comment;
 import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.tag.dto.TagDTO;
+import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.global.BaseTime;
@@ -120,5 +122,21 @@ public class Post extends BaseTime {
 //            postTag.getPost().getPostTagList().add(postTag);
 //        }
 //    }
+
+    public PostInfoDTO toPostInfoDTO(List<TagInfoDTO> postTagList){
+        return  PostInfoDTO.builder()
+                .id(this.id)
+                .title(this.title)
+                .authorInfoDTO(this.author.powerMemberInfoDTO())
+                .menuId(this.menu.getId())
+                .menuName(this.menu.getMenuName())
+                .productName(this.productName)
+                .projectName(this.version)
+                .postType(this.postType)
+                .content(this.content)
+                .postTags(postTagList)
+                .createTime(this.getCreateTime())
+                .build();
+    }
 
 }

@@ -20,10 +20,15 @@ import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.tag.application.TagService;
 import com.uplog.uplog.domain.tag.dao.PostTagRepository;
 import com.uplog.uplog.domain.tag.dao.TagRepository;
+import com.uplog.uplog.domain.tag.dto.TagDTO;
+import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
+import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
@@ -42,6 +47,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
+    private final MemberTeamRepository memberTeamRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
@@ -69,7 +75,7 @@ public class PostService {
 
         Project project = projectRepository.findById(createPostRequest.getProjectId())
                 .orElseThrow(() -> new NotFoundIdException("해당 프로젝트는 존재하지 않습니다."));
-
+        log.info("가");
 
         Product product = productRepository.findById(createPostRequest.getProductId())
                 .orElseThrow(() -> new NotFoundIdException("해당 제품은 존재하지 않습니다."));
@@ -79,9 +85,23 @@ public class PostService {
         //현재 진행중인 프로젝트가 아니면 예외
         authorizedMethod.checkProjectProgress(project.getId());
         //현재 프로젝트 팀 내에 존재하는 멤버,기업이 아닌 회원,클라이언트가 아닌 멤버 확인
+        log.info("나");
 
         //TODO 프로젝트팀 넘겨주기
-        authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
+        //authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
+
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(id, rootTeam.getId())){
+            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 포스트 작성 권한이 없습니다.");
+        }
+        else{
+            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(id, rootTeam.getId()).orElseThrow(NotFoundIdException::new);
+        log.info(memberTeam.getMember().getId()+"bbong");
+            if(memberTeam.getPowerType() == PowerType.CLIENT){
+                throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
+            }
+        }
+        log.info("다");
+
 
         // Post post = createPostRequest.toEntity(author, menu, product, project);
         PostType postType = PostType.DEFAULT; // 기본값으로 설정
@@ -100,7 +120,7 @@ public class PostService {
                 throw new IllegalArgumentException("Invalid PostType: " + requestType);
             }
         }
-
+        log.info("라");
 
         // 포스트 생성
         Post post = createPostRequest.toEntity(author, menu, product, project, postType);
@@ -108,51 +128,32 @@ public class PostService {
         System.out.println(post.getPostTagList()+"ddddddd");
 
         List<String> tagContents = createPostRequest.getTagContents(); // 태그 내용 리스트 받아오기
-        List<PostTag> postTags = new ArrayList<>(); // PostTag 리스트 생성
-        post.updatePostTagList(postTags);
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        log.info("마");
+       // post.updatePostTagList(postTags);
         for (String tagContent : tagContents) {
-            Tag existingTag = tagRepository.findByContent(tagContent); // 이미 존재하는 태그인지 확인
-            if (existingTag == null) {
+            if (!tagRepository.existsByContent(tagContent)) {
                 // 존재하지 않는 경우 새로운 태그 생성
-                Tag newTag = new Tag(tagContent);
-                tagRepository.save(newTag);
-                // 포스트태그 생성 및 연결
-                //PostTag postTag = new PostTag(post, newTag);
-                //postTagRepository.save(postTag);
-                PostTag postTag=tagService.createPostTag(post.getId(),newTag.getId());
-                //post.addPostTag(postTag);
-                postTags.add(postTag);
+                Long tagId = tagService.createTag(post.getId(), TagDTO.CreateTagRequest.builder().content(tagContent).build());
+                Tag tag = tagRepository.findById(tagId).orElseThrow(NotFoundIdException::new);
+                postTags.add(tag.toTagInfoDTO());
             } else {
+                Tag tag = tagRepository.findByContent(tagContent);
                 // 이미 존재하는 태그인 경우 포스트태그 생성 및 연결
                 //PostTag postTag = new PostTag(post, existingTag);
                 //postTagRepository.save(postTag);
-                PostTag postTag=tagService.createPostTag(post.getId(), existingTag.getId());
-                //post.addPostTag(postTag);
-                postTags.add(postTag);
+                PostTag postTag = PostTag.builder()
+                        .post(post)
+                        .tag(tag)
+                        .build();
+                postTagRepository.save(postTag);
+                post.getPostTagList().add(postTag);
+                postTags.add(tag.toTagInfoDTO());
 
             }
         }
-        post.updatePostTagList(postTags);
-
-
-//        for (PostTag postTag : postTags) {
-//            System.out.println("PostTag ID: " + postTag.getId());
-//            System.out.println("Post ID: " + postTag.getPost().getId());
-//            System.out.println("Tag ID: " + postTag.getTag().getId());
-//            System.out.println("---------------------------");
-//        }
-//        if (post.getPostTagList() == null) {
-//
-//            post.getPostTagList().addAll(postTags);
-//        }
-        //post.updatePostTagList(postTags);
-
-        //postRepository.save(post);
-
-
-
-
-        return toPostInfoDTO(post);
+        log.info("바");
+        return post.toPostInfoDTO(postTags);
 
     }
 
@@ -392,7 +393,7 @@ public class PostService {
                 .projectName(post.getVersion())
                 .postType(post.getPostType())
                 .content(post.getContent())
-                .postTags(post.getPostTagList())
+                //.postTags(post.getPostTagList())
                 .createTime(post.getCreateTime())
                 .likeCount(likeCount)
                 .commentCount(commentCount)
