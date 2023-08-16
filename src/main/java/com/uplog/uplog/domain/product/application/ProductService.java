@@ -400,6 +400,12 @@ public class ProductService {
             //권한이 업데이트 되면 팀에서도 업데이트되어야함.
             if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
                 Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+                //방출당한 팀에서 모두 다 삭제 표시
+                List<MemberTeam> deletedMemberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDeleteMemberId(), project.getId());
+                for(MemberTeam dmt : deletedMemberTeamList){
+                    dmt.updateDelStatus(true);
+                }
+
                 //프로젝트에 멤버가 속한 memberTeam 찾기
                 List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDelegatedMemberId(), project.getId());
                 for (MemberTeam mt : memberTeamList) {
@@ -410,6 +416,14 @@ public class ProductService {
         }
         else{
             targetMember.updateDelStatus(true);
+            if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+                //방출당한 팀에서 모두 다 삭제 표시
+                List<MemberTeam> deletedMemberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDeleteMemberId(), project.getId());
+                for (MemberTeam dmt : deletedMemberTeamList) {
+                    dmt.updateDelStatus(true);
+                }
+            }
         }
     }
 

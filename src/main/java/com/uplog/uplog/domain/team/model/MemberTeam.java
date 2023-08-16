@@ -37,6 +37,9 @@ public class MemberTeam {
     @Enumerated(EnumType.STRING)
     private PowerType powerType;
 
+    private boolean delStatus;
+
+    public void updateDelStatus(boolean delStatus){ this.delStatus = delStatus; }
     public void updatePowerType(PowerType newPowerType){ this.powerType = newPowerType; }
 
     @Builder
@@ -54,6 +57,7 @@ public class MemberTeam {
                 .memberName(this.member.getName())
                 .memberNickname(this.member.getNickname())
                 .teamId(this.team.getId())
+                .delStatus(this.delStatus)
                 .build();
     }
 
@@ -61,6 +65,7 @@ public class MemberTeam {
         return TeamAndPowerTypeDTO.builder()
                 .simpleTeamInfoDTO(simpleTeamInfoDTO)
                 .powerType(this.powerType)
+                .delStatus(this.delStatus)
                 .build();
     }
 
@@ -71,6 +76,7 @@ public class MemberTeam {
                 .memberName(this.member.getName())
                 .memberNickname(this.member.getNickname())
                 .powerType(this.powerType)
+                .delStatus(this.delStatus)
                 .build();
 
     }
@@ -79,3 +85,4 @@ public class MemberTeam {
 
 
 }
+
