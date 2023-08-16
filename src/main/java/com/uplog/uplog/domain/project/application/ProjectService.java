@@ -40,6 +40,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -219,6 +220,7 @@ public class ProjectService {
         }
         Team team = teamRepository.findByProjectIdAndName(projectId, project1.getVersion()).orElseThrow(NotFoundIdException::new);
         team.updateName(updateProjectStatus.getVersion());
+        project1.setEndDate(LocalDate.now());
         project1.updateProjectStatus(updateProjectStatus);
 
 
