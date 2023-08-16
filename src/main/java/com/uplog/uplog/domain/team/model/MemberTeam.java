@@ -42,6 +42,8 @@ public class MemberTeam {
     public void updateDelStatus(boolean delStatus){ this.delStatus = delStatus; }
     public void updatePowerType(PowerType newPowerType){ this.powerType = newPowerType; }
 
+    public void updateTeam(Team team){this.team = team;}
+
     @Builder
     public MemberTeam(Long id, Team team, Member member, PowerType powerType){
         this.id = id;
