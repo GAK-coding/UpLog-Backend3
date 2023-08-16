@@ -27,7 +27,7 @@ public class PostDTO {
     public static class CreatePostRequest{
         private Long menuId;
         private String postType;
-//        private List<PostTag> postTagList;
+        private List<String> tagContents;
         private String title;
         private String content;
         private Long productId;
