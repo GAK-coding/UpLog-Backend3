@@ -15,8 +15,8 @@ public class MailConfig {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
         javaMailSender.setHost("smtp.naver.com"); //smtp 서버 주소(메인 도메인 서버 주소)
-        javaMailSender.setUsername("gak_uplog"); //naver id
-        javaMailSender.setPassword("rkrdmldjqfhrm");//naver password
+        javaMailSender.setUsername("rkrxlaghkdlxld"); //naver id
+        javaMailSender.setPassword("rnjsdhgusqkqh");//naver password
 
         javaMailSender.setPort(465); //메일 인증서버 포트
 
@@ -36,3 +36,4 @@ public class MailConfig {
         return properties;
     }
 }
+
