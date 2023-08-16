@@ -28,7 +28,6 @@ public class Member extends MemberBase{
     private LoginType loginType;
 
 
-    //TODO 의논할 것 -> product list대신 얘를 갖고 있는것 어떤지
     @OneToMany(mappedBy = "member")
     private List<MemberTeam> memberTeamList = new ArrayList<>();
 
@@ -60,7 +59,6 @@ public class Member extends MemberBase{
                 .email(this.getEmail())
                 .name(this.getName())
                 .nickname(this.getNickname())
-                .password(this.getPassword())
                 .position(this.getPosition())
                 .build();
     }
@@ -71,7 +69,6 @@ public class Member extends MemberBase{
                 .id(this.getId())
                 .name(this.getName())
                 .nickname(this.getNickname())
-                .password(this.getPassword())
                 .build();
     }
 

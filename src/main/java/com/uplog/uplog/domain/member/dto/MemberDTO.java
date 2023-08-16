@@ -61,7 +61,6 @@ public class MemberDTO {
         private String email;
         private String name;
         private String nickname;
-        private String password;
         private Position position;
         private String accessToken;
         private String refreshToken;
@@ -92,7 +91,6 @@ public class MemberDTO {
         private Long id;
         private String name;
         private String nickname;
-        private String password;
     }
 
     @Getter
