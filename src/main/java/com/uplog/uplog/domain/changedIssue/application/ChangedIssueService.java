@@ -61,11 +61,17 @@ public class ChangedIssueService {
     public IssueInfoDTO createIssue(CreateChangedIssueRequest CreateChangedIssueRequest,
                                     Long projectId, Long memberId){
 
-
         Project project=projectRepository.findById(projectId)
                 .orElseThrow(()->new NotFoundProjectException(projectId));
+
+        //진행중인 프로젝트에서만 생성가능
+        authorizedMethod.checkProjectProgress(projectId);
+
         Member member=memberRepository.findMemberById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
+
+        //마스터 또는 리더인지 확인
+        authorizedMethod.powerValidateByMemberId(memberId);
 
         ChangedIssue changedIssue= CreateChangedIssueRequest.toEntity(member,project);
         changedIssueRepository.save(changedIssue);
