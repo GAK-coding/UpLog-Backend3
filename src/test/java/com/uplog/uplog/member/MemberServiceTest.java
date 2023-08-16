@@ -119,8 +119,7 @@ public class MemberServiceTest {
 
         //then
         Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
-
-        Assertions.assertThat();
+        Assertions.assertThat(member.getPassword()).isEqualTo("13579973");
     }
 
     @Test
