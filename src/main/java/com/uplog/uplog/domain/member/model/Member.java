@@ -40,7 +40,7 @@ public class Member extends MemberBase{
 
     private String image;
 
-
+    public void updateImage(String image){this.image = image;}
 
 
     @Column(name="activated")
@@ -56,6 +56,7 @@ public class Member extends MemberBase{
     public MemberInfoDTO toMemberInfoDTO(){
         return MemberInfoDTO.builder()
                 .id(this.getId())
+                .image(this.image)
                 .email(this.getEmail())
                 .name(this.getName())
                 .nickname(this.getNickname())
