@@ -41,8 +41,7 @@ public class Post extends BaseTime {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    @OneToMany
-    @JoinColumn(name = "post")
+    @OneToMany(mappedBy = "post")
     private List<PostTag> postTagList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -96,6 +95,11 @@ public class Post extends BaseTime {
                 .build();
 
     }
+    public void addPostTag(PostTag postTag) {
+        postTagList.add(postTag);
+    }
+
+    public void updatePostTagList(List<PostTag> postTags){this.postTagList=postTags;}
 
     public void updatePostTitle(String updateTitle){this.title=updateTitle;}
     public void updatePostContent(String updatecontent){this.content=updatecontent;}
@@ -103,13 +107,13 @@ public class Post extends BaseTime {
     public void updatePostType(PostType updatepostType){this.postType=updatepostType;}
     public  void updatePostProductName(String updateProductName){this.productName=updateProductName;}
     public void updatePostVersion(String updateVersion){this.version=updateVersion;}
-    public void addTag(Tag tag) {
-        if (postTagList == null) {
-            postTagList = new ArrayList<>();
-        }
-        PostTag postTag = new PostTag(this, tag);
-        postTagList.add(postTag);
-    }
+//    public void addTag(Tag tag) {
+//        if (postTagList == null) {
+//            postTagList = new ArrayList<>();
+//        }
+//        PostTag postTag = new PostTag(this, tag);
+//        postTagList.add(postTag);
+//    }
 //    public void addPostTag(PostTag postTag) {
 //        if (postTag != null) {
 //            this.postTagList.add(postTag);

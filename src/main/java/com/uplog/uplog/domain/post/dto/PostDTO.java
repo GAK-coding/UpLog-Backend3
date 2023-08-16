@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostDTO {
@@ -43,6 +44,7 @@ public class PostDTO {
                     .title(this.title)
                     .content(this.content)
                     .postType(postType)
+                    //.postTagList(new ArrayList<>())
                     .productName(product.getName())
                     .version(project.getVersion())
                     .build();
@@ -125,6 +127,7 @@ public class PostDTO {
         private String projectName;
         private PostType postType;
         private String content;
+        private List<PostTag> postTags;
         private LocalDateTime createTime;
         private int likeCount;
         private int commentCount;

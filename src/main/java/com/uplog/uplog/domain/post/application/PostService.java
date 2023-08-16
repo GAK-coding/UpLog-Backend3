@@ -17,6 +17,7 @@ import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.tag.application.TagService;
 import com.uplog.uplog.domain.tag.dao.PostTagRepository;
 import com.uplog.uplog.domain.tag.dao.TagRepository;
 import com.uplog.uplog.domain.tag.model.PostTag;
@@ -52,6 +53,7 @@ public class PostService {
     private final TeamRepository teamRepository;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
+    private final TagService tagService;
 //    private final MenuService menuService;
 
     /*
@@ -103,8 +105,11 @@ public class PostService {
         // 포스트 생성
         Post post = createPostRequest.toEntity(author, menu, product, project, postType);
         postRepository.save(post);
+        System.out.println(post.getPostTagList()+"ddddddd");
 
         List<String> tagContents = createPostRequest.getTagContents(); // 태그 내용 리스트 받아오기
+        List<PostTag> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        post.updatePostTagList(postTags);
         for (String tagContent : tagContents) {
             Tag existingTag = tagRepository.findByContent(tagContent); // 이미 존재하는 태그인지 확인
             if (existingTag == null) {
@@ -112,14 +117,39 @@ public class PostService {
                 Tag newTag = new Tag(tagContent);
                 tagRepository.save(newTag);
                 // 포스트태그 생성 및 연결
-                PostTag postTag = new PostTag(post, newTag);
-                postTagRepository.save(postTag);
+                //PostTag postTag = new PostTag(post, newTag);
+                //postTagRepository.save(postTag);
+                PostTag postTag=tagService.createPostTag(post.getId(),newTag.getId());
+                //post.addPostTag(postTag);
+                postTags.add(postTag);
             } else {
                 // 이미 존재하는 태그인 경우 포스트태그 생성 및 연결
-                PostTag postTag = new PostTag(post, existingTag);
-                postTagRepository.save(postTag);
+                //PostTag postTag = new PostTag(post, existingTag);
+                //postTagRepository.save(postTag);
+                PostTag postTag=tagService.createPostTag(post.getId(), existingTag.getId());
+                //post.addPostTag(postTag);
+                postTags.add(postTag);
+
             }
         }
+        post.updatePostTagList(postTags);
+
+
+//        for (PostTag postTag : postTags) {
+//            System.out.println("PostTag ID: " + postTag.getId());
+//            System.out.println("Post ID: " + postTag.getPost().getId());
+//            System.out.println("Tag ID: " + postTag.getTag().getId());
+//            System.out.println("---------------------------");
+//        }
+//        if (post.getPostTagList() == null) {
+//
+//            post.getPostTagList().addAll(postTags);
+//        }
+        //post.updatePostTagList(postTags);
+
+        //postRepository.save(post);
+
+
 
 
         return toPostInfoDTO(post);
@@ -362,6 +392,7 @@ public class PostService {
                 .projectName(post.getVersion())
                 .postType(post.getPostType())
                 .content(post.getContent())
+                .postTags(post.getPostTagList())
                 .createTime(post.getCreateTime())
                 .likeCount(likeCount)
                 .commentCount(commentCount)
