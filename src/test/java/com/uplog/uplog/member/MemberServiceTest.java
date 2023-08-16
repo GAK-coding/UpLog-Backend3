@@ -64,43 +64,43 @@ public class MemberServiceTest {
         });
     }
 
-    @Test
-    @DisplayName("member 수정 성공 테스트 : 멤버 이름 변경")
-    public void successChangeNameTest(){
-        //given
-        CreateMemberRequest createMemberRequest = createMemberRequest();
-        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
-
-        //when
-        UpdateNameRequest updateNameRequest = UpdateNameRequest.builder()
-                .newName("김감자")
-                .build();
-        memberService.updateMemberName(memberInfoDTO.getId(), updateNameRequest);
-
-
-        //then
-        Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
-        Assertions.assertThat(member.getName()).isEqualTo("김감자");
-    }
-
-    @Test
-    @DisplayName("member 수정 성공 테스트 : 멤버 닉네임 변경")
-    public void successChangeNicknameTest(){
-        //given
-        CreateMemberRequest createMemberRequest = createMemberRequest();
-        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
-
-        //when
-        UpdateNicknameRequest updateNicknameRequest = UpdateNicknameRequest.builder()
-                .newNickname("옹심이")
-                .build();
-        memberService.updateMemberNickname(memberInfoDTO.getId(), updateNicknameRequest);
-
-
-        //then
-        Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
-        Assertions.assertThat(member.getNickname()).isEqualTo("옹심이");
-    }
+//    @Test
+//    @DisplayName("member 수정 성공 테스트 : 멤버 이름 변경")
+//    public void successChangeNameTest(){
+//        //given
+//        CreateMemberRequest createMemberRequest = createMemberRequest();
+//        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
+//
+//        //when
+//        UpdateNameRequest updateNameRequest = UpdateNameRequest.builder()
+//                .newName("김감자")
+//                .build();
+//        memberService.updateMemberName(memberInfoDTO.getId(), updateNameRequest);
+//
+//
+//        //then
+//        Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
+//        Assertions.assertThat(member.getName()).isEqualTo("김감자");
+//    }
+//
+//    @Test
+//    @DisplayName("member 수정 성공 테스트 : 멤버 닉네임 변경")
+//    public void successChangeNicknameTest(){
+//        //given
+//        CreateMemberRequest createMemberRequest = createMemberRequest();
+//        MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
+//
+//        //when
+//        UpdateNicknameRequest updateNicknameRequest = UpdateNicknameRequest.builder()
+//                .newNickname("옹심이")
+//                .build();
+//        memberService.updateMemberNickname(memberInfoDTO.getId(), updateNicknameRequest);
+//
+//
+//        //then
+//        Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
+//        Assertions.assertThat(member.getNickname()).isEqualTo("옹심이");
+//    }
 
     @Test
     @DisplayName("member 수정 성공 테스트 : 비밀번호 변경")

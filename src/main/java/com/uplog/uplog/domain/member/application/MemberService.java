@@ -233,20 +233,21 @@ public class MemberService {
 
 
     //==========================Member Update====================================================
-    //TODO postman으로 변경사항 잘 반영되어 들어오는지 확인할것!!!!!!! + transaction공부
+    //멤버 변경 한번에 합침
     //이름 변경
     @Transactional
-    public SimpleMemberInfoDTO updateMemberName(Long id,UpdateNameRequest updateNameRequest){
+    public VerySimpleMemberInfoDTO updateMember(Long id,UpdateMemberRequest updateMemberRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        member.updateName(updateNameRequest.getNewName());
-        return member.simpleMemberInfoDTO();
-    }
-    //닉네임 변경
-    @Transactional
-    public SimpleMemberInfoDTO updateMemberNickname(Long id,UpdateNicknameRequest updateNicknameRequest){
-        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        member.updateNickname(updateNicknameRequest.getNewNickname());
-        return member.simpleMemberInfoDTO();
+        if(updateMemberRequest.getNewName()!=null) {
+            member.updateName(updateMemberRequest.getNewName());
+        }
+        if(updateMemberRequest.getNewNickname()!=null) {
+            member.updateNickname(updateMemberRequest.getNewNickname());
+        }
+        if(updateMemberRequest.getImage()!=null) {
+            member.updateImage(updateMemberRequest.getImage());
+        }
+        return member.toVerySimpleMemberInfoDTO();
     }
     //비밀번호 변경
     @Transactional
