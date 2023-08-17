@@ -72,6 +72,7 @@ public class ProductMember {
     public ProductMemberInfoDTO toProductMemberInfoDTO() {
         return ProductMemberInfoDTO.builder()
                 .productId(this.product.getId())
+                .productImage(this.product.getImage())
                 .productName(this.getProduct().getName())
                 .memberName(this.member.getName())
                 .memberNickname(this.member.getNickname())

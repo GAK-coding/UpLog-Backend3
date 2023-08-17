@@ -86,6 +86,7 @@ public class Project extends BaseTime {
                 .id(this.id)
                 .version(this.version)
                 .projectStatus(this.projectStatus)
+                .endDate(this.endDate)
                 .build();
     }
 

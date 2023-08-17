@@ -52,6 +52,7 @@ public class ProductMemberDTO {
     @NoArgsConstructor
     public static class ProductMemberInfoDTO{
         private Long productId;
+        private String productImage;
         private String productName;
         private String memberName;
         private String memberNickname;
