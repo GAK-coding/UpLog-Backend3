@@ -86,6 +86,7 @@ public class Member extends MemberBase{
         return PowerMemberInfoDTO.builder()
                 .id(this.getId())
                 .name(this.getName())
+                .image(this.image)
                 .nickname(this.getNickname())
                 .position(this.getPosition())
                 .build();
