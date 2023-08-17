@@ -26,7 +26,7 @@ public class StorageService {
 
     // 카카오 아이클라우드 스토리지 업로드 API 엔드포인트
     private static final String KAKAO_UPLOAD_URL = "https://objectstorage.kr-gov-central-1.kakaoicloud-kr-gov.com/v1/{account}/{bucket_name}/{object_key}";
-    private final String authToken="gAAAAABk3h12DchyaFDz_OlLxCnOlhFd18n-h3qXxH6E0dfJkaLyhp-gC2Qhrg-AAa5y4c13f23m2hbR0tb5W3E6VawtMV4eKP3qbO4-kMc9egOXkZD2n2W14m0IWfxmTeU9QhARhyeQ8OdlDRMvIMBp64kvTVYub1PZzCQ7bh-5gUJh4UsbuEBmwVG3h5Izl9PIYQ45vJkK";
+    private final String authToken="gAAAAABk3iQ6ssU-5qxnQaooinZZwctS-g8pX30yye23R8yFff0HO-Wn3IqYi-Nk3D9whEp4gQjQhApsuHqO_rvwU6VjJcmvLQeVbVrf7zM3RYRJob589kfvQ-mg5_dfWG8eOd4aVX06xcDhUnNq7ES_U2oWO5WzAdzb7IHyrJziNTHsPF5aD80STSsBtFhk7pI44aokjT8R";
 
     // 카카오 클라우드 API에 업로드 요청 보내기
     public StorageDTO uploadFileToKakaoCloudStorage(String account, String bucketName, String objectKey, MultipartFile multipartFile) throws IOException, URISyntaxException {
