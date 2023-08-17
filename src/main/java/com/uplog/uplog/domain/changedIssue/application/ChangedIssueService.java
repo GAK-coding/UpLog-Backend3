@@ -79,7 +79,7 @@ public class ChangedIssueService {
         ChangedIssue changedIssue= CreateChangedIssueRequest.toEntity(member,project);
         changedIssueRepository.save(changedIssue);
 
-        IssueInfoDTO IssueData=changedIssue.toIssueInfoDTO();
+        IssueInfoDTO IssueData=changedIssue.toIssueInfoDTO(member.getImage());
 
         return IssueData;
 
