@@ -71,6 +71,7 @@ public class ChangedIssueDTO {
         private Long id;
         private Long projectId;
         private String title;
+        private String image;
         private String content;
         private IssueStatus issueStatus;
         private LocalDateTime createdTime;
@@ -85,6 +86,7 @@ public class ChangedIssueDTO {
         private Long id;
         private String content;
         private String title;
+        private String image;
         private IssueStatus issueStatus;
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;

@@ -29,6 +29,7 @@ import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -91,10 +92,14 @@ public class ChangedIssueService {
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QChangedIssue changedIssue=QChangedIssue.changedIssue;
 
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
+
         ChangedIssue changedIssue1=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundIssueException(issueId));
 
-        IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
+        IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO(member.getImage());
 
         return IssueInfoDTO;
     }
@@ -103,6 +108,11 @@ public class ChangedIssueService {
     public List<IssueInfoByProjectDTO> findIssueByProjectId(Long projectId){
 
         List<ChangedIssue> issueList=changedIssueRepository.findByProjectId(projectId);
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
+
 
         if (issueList.isEmpty())
             throw new NotFoundIssueByProjectException(projectId);
@@ -111,7 +121,7 @@ public class ChangedIssueService {
         List<IssueInfoByProjectDTO> issueInfoByProjectDTOList=new ArrayList<>();;
         for(ChangedIssue temp:issueList){
 
-            issueInfoByProjectDTOList.add(temp.toIssueInfoByProjectDTO());
+            issueInfoByProjectDTOList.add(temp.toIssueInfoByProjectDTO(member.getImage()));
 
         }
 

@@ -64,11 +64,12 @@ public class ChangedIssue extends BaseTime {
                 .build();
     }
 
-    public ChangedIssueDTO.IssueInfoDTO toIssueInfoDTO(){
+    public ChangedIssueDTO.IssueInfoDTO toIssueInfoDTO(String image){
         return ChangedIssueDTO.IssueInfoDTO.builder()
                 .id(this.id)
                 .projectId(this.project.getId())
                 .title(this.title)
+                .image(image)
                 .content(this.content)
                 .issueStatus(this.issueStatus)
                 .createdTime(this.getCreatedTime())
@@ -77,10 +78,11 @@ public class ChangedIssue extends BaseTime {
 
     }
 
-    public ChangedIssueDTO.IssueInfoByProjectDTO toIssueInfoByProjectDTO(){
+    public ChangedIssueDTO.IssueInfoByProjectDTO toIssueInfoByProjectDTO(String image){
         return ChangedIssueDTO.IssueInfoByProjectDTO.builder()
                 .id(this.id)
                 .title(this.title)
+                .image(image)
                 .issueStatus(this.issueStatus)
                 .content(this.content)
                 .createdTime(this.getCreatedTime())
