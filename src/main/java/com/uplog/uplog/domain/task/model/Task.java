@@ -3,7 +3,7 @@ package com.uplog.uplog.domain.task.model;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
 import com.uplog.uplog.domain.task.dto.TaskDTO.*;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,9 +32,8 @@ public class Task extends BaseTime {
     private Member targetMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "projectTeam_id")
-    private ProjectTeam projectTeam;
-
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
@@ -45,8 +44,10 @@ public class Task extends BaseTime {
 
     private String taskDetail;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalDate startTime;
+    private LocalDate endTime;
+
+    private Long taskIndex; //drag and drop
 
 
 
@@ -67,6 +68,7 @@ public class Task extends BaseTime {
 //    }
 
     public TaskInfoDTO toTaskInfoDTO(){
+        Long parentTeamIdValue = (this.getTeam().getParentTeam() != null) ? this.getTeam().getParentTeam().getId() : null;
         return TaskInfoDTO.builder()
                 .id(this.getId())
                 .taskName(this.getTaskName())
@@ -74,11 +76,13 @@ public class Task extends BaseTime {
                 .taskDetail(this.taskDetail)
                 .menuId(this.getMenu().getId())
                 .menuName(this.getMenu().getMenuName())
-                .projectTeamId(this.getProjectTeam().getId())
-                .projectTeamName(this.getProjectTeam().getName())
+                .teamId(this.getTeam().getId())
+                .teamName(this.getTeam().getName())
+                .parentTeamId(parentTeamIdValue)
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
+                .taskIndex(this.taskIndex)
                 .build();
     }
 
@@ -98,16 +102,20 @@ public class Task extends BaseTime {
 //    }
 
     public void updateTaskName(String updateName){this.taskName=updateName;}
-    public void updateTaskDate(LocalDateTime updateStartTime, LocalDateTime updateEndTime){this.startTime=updateStartTime; this.endTime=updateEndTime;}
+    public void updateTaskStartDate(LocalDate updateStartTime){this.startTime=updateStartTime;}
+    public void updateTaskEndDate(LocalDate updateEndTime){this.endTime=updateEndTime;}
+
     public void updateTaskContent(String updateContent){this.taskDetail=updateContent;}
 
     public void updateTaskmember(Member targetMember){this.targetMember=targetMember;}
-    public void updateTaskTeam(ProjectTeam team){this.projectTeam=team;}
+    public void updateTaskTeam(Team team){this.team=team;}
     public void updateTaskMenu(Menu menu){this.menu=menu;}
 
     public void updateTaskStatus(TaskStatus taskStatus){
         this.taskStatus=taskStatus;
     }
+
+    public void updateTaskIndex(Long updateTaskIndex){this.taskIndex=updateTaskIndex;}
 
 
 //    public updateTaskStatusDTO toUpdateTaskStatusDTO (UpdateTaskStatusRequest updateTaskStatusRequest){

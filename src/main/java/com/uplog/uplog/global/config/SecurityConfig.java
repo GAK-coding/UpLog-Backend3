@@ -6,6 +6,7 @@ import com.uplog.uplog.global.jwt.JwtSecurityConfig;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,15 +30,17 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
+    private final RedisTemplate redisTemplate;
     public SecurityConfig(
             TokenProvider tokenProvider,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtAccessDeniedHandler jwtAccessDeniedHandler
+            JwtAccessDeniedHandler jwtAccessDeniedHandler,
+            RedisTemplate redisTemplate
     ){
         this.tokenProvider=tokenProvider;
         this.jwtAuthenticationEntryPoint=jwtAuthenticationEntryPoint;
         this.jwtAccessDeniedHandler=jwtAccessDeniedHandler;
+        this.redisTemplate=redisTemplate;
     }
 
     @Bean
@@ -52,22 +55,38 @@ public class SecurityConfig {
                 .antMatchers("/favicon.ico","/swagger-ui.html","/swagger-ui/**",
                         "/swagger-resources/**","/api-docs/**");
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration configuration=new CorsConfiguration();
+
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",configuration);
+        return source;
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("Fist?");
         //token 사용하는 방식이기 때문에 csrf을 disable
         http
-                .csrf().disable()
-                .cors(cors -> cors.disable());
-        ;
+                .csrf().disable();
+        //.cors(cors -> cors.disable());
+
 
         http
                 .authorizeRequests()
                 .antMatchers("/members/**").permitAll() // 해당 Request는 허용한다.
+                //.antMatchers("/storages/**").permitAll() // 해당 Request는 허용한다.
                 .antMatchers("/api/v2/**","/health","/swagger-ui.html","/swagger/**",
                         "/swagger-resources/**","/webjars/**","/api-docs/**",
                         "/swagger-ui/**","/api/login").permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .cors();
 
         http
                 .exceptionHandling()
@@ -80,7 +99,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .apply(new JwtSecurityConfig(tokenProvider,redisTemplate));
 
         http
                 .logout()

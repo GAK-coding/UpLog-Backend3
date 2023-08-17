@@ -72,10 +72,10 @@ public class MemberServiceTest {
         MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        UpdateNameRequest updateNameRequest = UpdateNameRequest.builder()
+        UpdateMemberRequest updateNameRequest = UpdateMemberRequest.builder()
                 .newName("김감자")
                 .build();
-        memberService.updateMemberName(memberInfoDTO.getId(), updateNameRequest);
+        memberService.updateMember(memberInfoDTO.getId(), updateNameRequest);
 
 
         //then
@@ -91,10 +91,10 @@ public class MemberServiceTest {
         MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
 
         //when
-        UpdateNicknameRequest updateNicknameRequest = UpdateNicknameRequest.builder()
+        UpdateMemberRequest updateNicknameRequest = UpdateMemberRequest.builder()
                 .newNickname("옹심이")
                 .build();
-        memberService.updateMemberNickname(memberInfoDTO.getId(), updateNicknameRequest);
+        memberService.updateMember(memberInfoDTO.getId(), updateNicknameRequest);
 
 
         //then

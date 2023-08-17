@@ -9,6 +9,8 @@ import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.domain.post.model.PostType;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.tag.dto.TagDTO;
+import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostDTO {
@@ -27,7 +30,7 @@ public class PostDTO {
     public static class CreatePostRequest{
         private Long menuId;
         private String postType;
-//        private List<PostTag> postTagList;
+        private List<String> tagContents;
         private String title;
         private String content;
         private Long productId;
@@ -42,6 +45,7 @@ public class PostDTO {
                     .menu(menu)
                     .title(this.title)
                     .content(this.content)
+                    .postTagList(new ArrayList<>())
                     .postType(postType)
                     .productName(product.getName())
                     .version(project.getVersion())
@@ -59,58 +63,7 @@ public class PostDTO {
 
     }
 
-    /*
-    이건 임시용
-     */
 
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class CreatePostRequest{
-//        //private Long menuId;
-//        private String postType;
-//        //        private List<PostTag> postTagList;
-//        private String title;
-//        private String content;
-//        //private Long porductId;
-//        //private Long projectId;
-//
-//
-//// TODO POSTTYPE 관련해서 좀 더 수정해야함
-//
-//        public Post toEntity(Member member, PostType postType){
-//            return Post.builder()
-//                    .author(member)
-//                    //.menu(menu)
-//                    .title(this.title)
-//                    .content(content)
-//                    .postType(postType)
-//                    //.productName(product.getName())
-//                    //.version(project.getVersion());
-//                    .build();
-//        }
-//
-//    }
-
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class PostInfoDTO1{
-//        private Long id;
-//        private String title;
-//        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
-//        //private Long menuId;
-//        //private String menuName;
-//        //private String productName;
-//        //private String projectName;
-//        //private String version;
-//        private PostType postType;
-//        private String content;
-//        private LocalDateTime createTime;
-//
-//    }
     @Getter
     @Builder
     @NoArgsConstructor
@@ -125,9 +78,39 @@ public class PostDTO {
         private String projectName;
         private PostType postType;
         private String content;
+        private List<TagInfoDTO> postTags;
+        private LocalDateTime createTime;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostDetailInfoDTO{
+        private Long id;
+        private String title;
+        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
+        private Long menuId;
+        private String menuName;
+        private String productName;
+        private String projectName;
+        private PostType postType;
+        private String content;
+        private List<TagInfoDTO> postTags;
         private LocalDateTime createTime;
         private int likeCount;
         private int commentCount;
+    }
+
+
+    //좋아요 위해서 만듬.
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SimplePostInfoDTO{
+        private Long id;
+        private String postTitle;
     }
 
     @Getter
@@ -135,7 +118,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostTitleRequest{
-        private Long id;
+        //private Long id;
         private String updateTitle;
     }
 
@@ -144,7 +127,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostContentRequest{
-        private Long id;
+        //private Long id;
         private String updateContent;
     }
 
@@ -153,7 +136,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostTypeRequest{
-        private Long id;
+        //private Long id;
         private String updatePostType;
     }
 
@@ -162,7 +145,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostMenuRequest{
-        private Long id;
+        //private Long id;
         private Long updateMenuId;
     }
 
@@ -173,7 +156,7 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostProductRequest{
-        private Long id;
+        //private Long id;
         private String updateProductName;
     }
 
@@ -182,7 +165,19 @@ public class PostDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdatePostVersionRequest{
-        private Long id;
+        //private Long id;
         private String updateVersion;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdatePostRequest{
+        private String updatePostTitle;
+        private String updatePostContent;
+        private String updatePostType;
+        private Long updateMenuId;
+
     }
 }

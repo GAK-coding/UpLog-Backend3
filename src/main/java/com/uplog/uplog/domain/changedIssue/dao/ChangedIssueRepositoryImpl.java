@@ -5,6 +5,7 @@ import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.project.model.QProject;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,12 +13,13 @@ import javax.persistence.PersistenceContext;
 import static com.uplog.uplog.domain.project.model.QProject.project;
 import static com.uplog.uplog.domain.team.model.QMemberTeam.memberTeam;
 
+@RequiredArgsConstructor
 public class ChangedIssueRepositoryImpl implements ChangedIssueRepositoryCustom{
 
     private final JPAQueryFactory query;
-    public ChangedIssueRepositoryImpl(EntityManager entityManager){
-        this.query=new JPAQueryFactory(entityManager);
-    }
+//    public ChangedIssueRepositoryImpl(EntityManager entityManager){
+//        this.query=new JPAQueryFactory(entityManager);
+//    }
 
 
 

@@ -125,4 +125,34 @@ public class Swagger {
                 .pathsToMatch(paths)
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi storageOpenApi(){
+        String[] paths = {"/storages/**"};
+
+        return GroupedOpenApi.builder()
+                .group("storages")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi teamOpenApi(){
+        String[] paths = {"/teams/**"};
+
+        return GroupedOpenApi.builder()
+                .group("teams")
+                .pathsToMatch(paths)
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi likeOpenApi(){
+        String[] paths = {"/likes/**"};
+
+        return GroupedOpenApi.builder()
+                .group("likes")
+                .pathsToMatch(paths)
+                .build();
+    }
 }

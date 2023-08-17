@@ -1,39 +1,46 @@
 package com.uplog.uplog.domain.product.application;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
-import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.menu.dao.MenuRepository;
+import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.post.dao.PostRepository;
+import com.uplog.uplog.domain.post.model.Post;
+import com.uplog.uplog.domain.product.dao.ProductMemberRepository;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
-import com.uplog.uplog.domain.product.dto.ProductDTO;
-import com.uplog.uplog.domain.product.dto.ProductDTO.CreateProductRequest;
-import com.uplog.uplog.domain.product.dto.ProductDTO.ProductInfoDTO;
-import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateProductRequest;
-import com.uplog.uplog.domain.product.dto.ProductDTO.UpdateResultDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
+import com.uplog.uplog.domain.product.dto.ProductDTO.*;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO.*;
 import com.uplog.uplog.domain.product.exception.DuplicatedProductNameException;
+import com.uplog.uplog.domain.product.exception.MasterException;
+import com.uplog.uplog.domain.product.exception.UpdatePowerTypeException;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.product.model.ProductMember;
+import com.uplog.uplog.domain.project.dao.ProjectRepository;
+import com.uplog.uplog.domain.project.dto.ProjectDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.VerySimpleProjectInfoDTO;
+import com.uplog.uplog.domain.project.model.Project;
+import com.uplog.uplog.domain.project.model.ProjectStatus;
+import com.uplog.uplog.domain.project.model.QProject;
 import com.uplog.uplog.domain.team.application.MemberTeamService;
-import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
-import com.uplog.uplog.domain.team.dto.TeamDTO;
-import com.uplog.uplog.domain.team.dto.TeamDTO.CreateTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
-import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerListDTO;
-import com.uplog.uplog.domain.team.model.MemberTeam;
-import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.domain.team.dto.memberTeamDTO.UpdateMemberPowerTypeRequest;
+import com.uplog.uplog.domain.team.model.*;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
-import com.uplog.uplog.global.mail.MailDTO;
-import com.uplog.uplog.global.mail.MailDTO.EmailRequest;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,22 +52,27 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
+    private final ProductMemberRepository productMemberRepository;
     private final MemberTeamRepository memberTeamRepository;
+    private final ProjectRepository projectRepository;
+    private final PostRepository postRepository;
+    private final MenuRepository menuRepository;
 
-    private final TeamService teamService;
+
     private final MemberTeamService memberTeamService;
     private final MailService mailService;
+    private final ProductMemberService productMemberService;
 
     //========================================Create=============================================
-    //TODO 의논할 것 - 제품이 생성될 때 멤버 아이디 가져오기 -> 그래야 기업을 판단할 수 있고 따로 멤버를 알아야하나? 컬럼으로 넣어줄건데
     //처음에만 멤버를 받았다가 이름으로 company채우기. -> pathVariable로 하기
     //기업 내에서 제품 이름은 하나만 있어야함.
     //기업이 처음 제품 생성할때
     //기업만 제품을 생성할 수 있음.
     @Transactional
     public Long createProduct(Long memberId, CreateProductRequest createProductRequest) throws Exception {
-        Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+        // Member master = memberRepository.findMemberByEmail(createProductRequest.getMasterEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NotFoundIdException::new);
+        //기업인 사람만 제품을 생성할 수 있음.
         if (member.getPosition() == Position.COMPANY) {
             List<Product> productList = productRepository.findProductsByCompany(member.getName());
             for (Product p : productList) {
@@ -69,68 +81,77 @@ public class ProductService {
                     throw new DuplicatedProductNameException("제품 이름이 중복됩니다.");
                 }
             }
-            //팀 생성 후 프로덕트 생성
-            CreateTeamRequest saveTeamRequest = CreateTeamRequest.builder()
-                    .teamName(createProductRequest.getName())
-                    .memberEmail(createProductRequest.getMasterEmail())
-                    .link(createProductRequest.getLink())
-                    .mailType(2)
-                    .build();
-            Long teamId = teamService.saveTeam(saveTeamRequest);
-
-            //이게 없으면 널값이 들어감.
-//            log.info(teamId.toString());
-//            Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-//            product.addTeamToProduct(team);
-
-
-            //return product.toProductInfoDTO(null);
-            Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
-            Product product = createProductRequest.toProductEntity(member.getName(), team);
+            Product product = createProductRequest.toProductEntity(member.getName(), member.getId(), createProductRequest.getImage());
             productRepository.save(product);
+            //기업에 들어갈 시에는 클라이언트로 들어감.
+            CreateProductMemberRequest createProductMemberRequest2 = CreateProductMemberRequest.builder()
+                    .memberEmail(member.getEmail())
+                    .productId(product.getId())
+                    .link(createProductRequest.getLink())
+                    .powerType(PowerType.CLIENT)
+                    .build();
+            productMemberService.createProductMember(createProductMemberRequest2);
+
+            if(createProductRequest.getClientEmail()!=null) {
+                CreateProductMemberRequest createProductMemberRequest3 = CreateProductMemberRequest.builder()
+                        .memberEmail(createProductRequest.getClientEmail())
+                        .productId(product.getId())
+                        .link(createProductRequest.getLink())
+                        .powerType(PowerType.CLIENT)
+                        .build();
+                productMemberService.createProductMember(createProductMemberRequest3);
+            }
+
+            //마스터 생성
+            CreateProductMemberRequest createProductMemberRequest = CreateProductMemberRequest.builder()
+                    .memberEmail(createProductRequest.getMasterEmail())
+                    .productId(product.getId())
+                    .link(createProductRequest.getLink())
+                    .powerType(PowerType.MASTER)
+                    .build();
+            productMemberService.createProductMember(createProductMemberRequest);
+
 
             return product.getId();
         } else {
             throw new AuthorityException("제품 생성 권한이 없습니다.");
         }
-
     }
 
 
     //=====================================Read================================================
     //프로덕트 내에 멤버 리스트 출력
     @Transactional(readOnly = true)
-    public MemberPowerListDTO findMemberPowerList(Long productId) {
+    public ProductMemberPowerListDTO findMemberPowerList(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
-        Team team = teamRepository.findById(product.getTeam().getId()).orElseThrow(NotFoundIdException::new);
         List<String> leaderList = new ArrayList<>();
         List<String> clientList = new ArrayList<>();
         List<String> workerList = new ArrayList<>();
         String master = "";
 
-        List<MemberTeam> masterL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.MASTER);
-        List<MemberTeam> leaderL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.LEADER);
-        List<MemberTeam> clientL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.CLIENT);
-        List<MemberTeam> workerL = memberTeamRepository.findMemberTeamsByTeamIdAndPowerType(team.getId(), PowerType.DEFAULT);
+        List<ProductMember> masterL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.MASTER);
+        List<ProductMember> leaderL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.LEADER);
+        List<ProductMember> clientL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.CLIENT);
+        List<ProductMember> workerL = productMemberRepository.findProductMembersByProductIdAndPowerType(product.getId(), PowerType.DEFAULT);
 
         //마스터
-        for (MemberTeam m : masterL) {
+        for (ProductMember m : masterL) {
             master = m.getMember().getEmail();
         }
         //리더 리스트
-        for (MemberTeam l : leaderL) {
+        for (ProductMember l : leaderL) {
             leaderList.add(l.getMember().getEmail());
         }
         //작업자 리스트
-        for (MemberTeam w : workerL) {
+        for (ProductMember w : workerL) {
             workerList.add(w.getMember().getEmail());
         }
         //의뢰인 리스트
-        for (MemberTeam c : clientL) {
+        for (ProductMember c : clientL) {
             clientList.add(c.getMember().getEmail());
         }
-        return MemberPowerListDTO.builder()
-                .poductId(productId)
+        return ProductMemberPowerListDTO.builder()
+                .productId(productId)
                 .productName(product.getName())
                 .master(master)
                 .leaderCnt(leaderList.size())
@@ -142,59 +163,141 @@ public class ProductService {
                 .build();
     }
 
+    //멤버아이디로 제품 목록 리스트 뽑기
+    @Transactional(readOnly = true)
+    public List<SimpleProductInfoDTO> findProductByMemberId(Long memberId) {
+        List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberId(memberId);
+        List<SimpleProductInfoDTO> simpleProductInfoDTOList = new ArrayList<>();
 
+        for (ProductMember pm : productMemberList) {
+            simpleProductInfoDTOList.add(pm.getProduct().toSimpleProductInfoDTO());
+        }
+        return simpleProductInfoDTOList;
+    }
 
-    //TODO 프로젝트 만들어지면 null 말고 arrayList로 넘기기
+    //제품에 속한 사람들 출력
+    @Transactional(readOnly = true)
+    public List<ProductMemberPowerDTO> findMembersByProductId(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        List<ProductMemberPowerDTO> productMemberPowerDTOList = new ArrayList<>();
+        for (ProductMember pm : product.getProductMemberList()) {
+            productMemberPowerDTOList.add(pm.toProductMemberPowerDTO());
+        }
+        return productMemberPowerDTOList;
+    }
+
+    //프로덕트 아이디로 프로덕트 찾기
     @Transactional(readOnly = true)
     public ProductInfoDTO findProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList = new ArrayList<>();
+        List<Project> projectList = projectRepository.findProjectsByProductId(id);
+        for (Project p : projectList) {
+            verySimpleProjectInfoDTOList.add(p.toVerySimpleProjectInfoDTO());
+        }
 
-        return product.toProductInfoDTO(null);
+        return product.toProductInfoDTO(verySimpleProjectInfoDTOList);
+    }
+
+    //프로덕트 아이디로 간단한 프로덕트 정보 넘겨주기
+    @Transactional(readOnly = true)
+    public SimpleProductInfoDTO findSimpleProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(NotFoundIdException::new);
+        return product.toSimpleProductInfoDTO();
     }
 
     //기업별로 제품 목록 불러오기 -> 이름으로 찾는건 비효율적.
     @Transactional(readOnly = true)
-    public List<ProductInfoDTO> findProductsByCompany(String company){
+    public List<ProductInfoDTO> findProductsByCompany(String company) {
         List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
         List<Product> productList = productRepository.findProductsByCompany(company);
-        for(Product p : productList){
+        for (Product p : productList) {
             productInfoDTOList.add(p.toProductInfoDTO(null));
         }
         return productInfoDTOList;
     }
+
+    //기업 아이디로 제품 찾기
+    @Transactional(readOnly = true)
+    public List<ProductInfoDTO> findProductsByCompanyId(Long companyId) {
+        List<ProductInfoDTO> productInfoDTOList = new ArrayList<>();
+        List<Product> productList = productRepository.findProductsByCompanyId(companyId);
+        for (Product p : productList) {
+            productInfoDTOList.add(p.toProductInfoDTO(null));
+        }
+        return productInfoDTOList;
+    }
+
     //============================Update==================================
     //제품 수정
     @Transactional
-    public UpdateResultDTO updateProduct(Long productId, UpdateProductRequest updateProductRequest) throws Exception {
+    public UpdateResultDTO updateProduct(Long memberId, Long productId, UpdateProductRequest updateProductRequest) throws Exception {
         Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+
         List<String> failMemberList = new ArrayList<>();
         List<String> duplicatedMemberList = new ArrayList<>();
 
+        //초대는 마스터와 리더만 할 수 있음.
+        if (memberProduct.getPowerType() == PowerType.CLIENT || memberProduct.getPowerType() == PowerType.DEFAULT) {
+            throw new AuthorityException("제품 수정은 마스터와 리더만 가능합니다.");
+        }
+
+        //마스터 권한으로 초대시, 제한 -> 마스터는 한명임.
+        if (updateProductRequest.getPowerType() == PowerType.MASTER) {
+            throw new MasterException();
+        }
+
+        //제품 이름이 변경되면, 포스트에 있는 이름도 변경해야함.
+        //TODO 관련 로직 나중에 성능을 위한 고도화 작업 할 것.
         if (updateProductRequest.getNewName() != null) {
             product.updateName(updateProductRequest.getNewName());
+            if (!product.getProjectList().isEmpty()) {
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow();
+                List<Menu> menuList = menuRepository.findByProjectId(project.getId());
+                for (Menu m : menuList) {
+                    List<Post> postList = postRepository.findByMenuId(m.getId());
+                    for (Post p : postList) {
+                        p.updatePostProductName(updateProductRequest.getNewName());
+                    }
+                }
+            }
         }
+        //이미지 변경
+        if(updateProductRequest.getImage()!= null){
+            product.updateImage(updateProductRequest.getImage());
+        }
+        //제품에 멤버 초대
         if (!updateProductRequest.getMemberEmailList().isEmpty()) {
             for (String s : updateProductRequest.getMemberEmailList()) {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
                 if (memberRepository.existsByEmail(s)) {
                     //팀 멤버 내에 초대된 사람인지 중복 확인
-                    if(!memberTeamRepository.existsMemberTeamByMember_EmailAndTeamId( s,product.getTeam().getId())) {
-                        CreateMemberTeamRequest saveMemberTeamRequest = CreateMemberTeamRequest.builder()
-                                .teamId(product.getTeam().getId())
+                    if (!productMemberRepository.existsProductMembersByMemberEmailAndProductId(s, product.getId())) {
+                        CreateProductMemberRequest createMemberProductRequest = CreateProductMemberRequest.builder()
                                 .memberEmail(s)
+                                .productId(productId)
                                 .powerType(updateProductRequest.getPowerType())
-                                .mailType(2)
+                                .link(updateProductRequest.getLink())
                                 .build();
-                        memberTeamService.createMemberTeam(saveMemberTeamRequest);
-//                        EmailRequest emailRequest = EmailRequest.builder()
-//                                .email(s)
-//                                .type(2)
-//                                .link(updateProductRequest.getLink())
-//                                .powerType(updateProductRequest.getPowerType())
-//                                .build();
-//                        mailService.sendSimpleMessage(emailRequest);
-                    }
-                    else{
+                        productMemberService.createProductMember(createMemberProductRequest);
+                        //제품에 초대되면 프로젝트에도 추가되어야함.
+                        //제일 루트 팀에 초대되어야함.
+                        //진행중인 팀을 찾아야함. ->
+                        for (Project p : product.getProjectList()) {
+                            if (p.getProjectStatus() == ProjectStatus.PROGRESS_IN) {
+                                Team team = teamRepository.findByProjectIdAndName(p.getId(), p.getVersion()).orElseThrow(NotFoundIdException::new);
+                                CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
+                                        .memberEmail(s)
+                                        .teamId(team.getId())
+                                        .powerType(updateProductRequest.getPowerType() == PowerType.MASTER || updateProductRequest.getPowerType() == PowerType.LEADER ? PowerType.LEADER : updateProductRequest.getPowerType())
+                                        .build();
+                                memberTeamService.createMemberTeam(createMemberTeamRequest);
+                            }
+
+                        }
+
+                    } else {
                         duplicatedMemberList.add(s);
                     }
                 } else {
@@ -204,6 +307,7 @@ public class ProductService {
 
         }
         return UpdateResultDTO.builder()
+                .image(product.getImage())
                 .failCnt(failMemberList.size())
                 .failMemberList(failMemberList)
                 .duplicatedCnt(duplicatedMemberList.size())
@@ -212,10 +316,119 @@ public class ProductService {
 
     }
 
-    //마스터, 리더들이 제품에 멤버 추가할때
+    //index순서대로 정렬하기 -> 드래그 드랍 반영
+    @Transactional(readOnly = true)
+    public List<ProductMemberInfoDTO> sortProductsByMember(Long memberId) {
+        List<ProductMember> productMemberList = productMemberRepository.findProductMembersByMemberIdOrderByIndexNum(memberId);
+        List<ProductMemberInfoDTO> simpleProductMemberInfoDTOList = new ArrayList<>();
+        for (ProductMember mp : productMemberList) {
+            simpleProductMemberInfoDTOList.add(mp.toProductMemberInfoDTO());
+        }
+        return simpleProductMemberInfoDTOList;
+    }
 
+    //for drag/drop
+    //제일 처음 원래 순서대로 목록을 부름
+    //updateIndexRequest에는 0번부터 프로젝트의 객체 아이디가 순서대로 들어가있음.
+    @Transactional
+    public void updateIndex(Long memberId, UpdateIndexRequest updateIndexRequest) {
+        for (int i = 0; i < updateIndexRequest.getUpdateIndexList().size(); i++) {
+            ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new);
+            log.info(productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, updateIndexRequest.getUpdateIndexList().get(i)).orElseThrow(NotFoundIdException::new) + "d");
+            log.info(updateIndexRequest.getUpdateIndexList().get(i) + "d");
+            log.info(memberId + "d");
+            productMember.updateIndex(new Long(i));
+        }
+    }
 
-    //제품수정(이름,이미지,의뢰인추가->의뢰인추가는 팀에서 관리해야하는거같기도?)
+    //멤버 권한 바꾸기
+    //마스터로 바뀌면 프로젝트에는 리더로 바뀌게됨.
+    @Transactional
+    public void updateMemberPowerType(Long memberId, Long productId, UpdateProductMemberPowerTypeRequest updateProductMemberPowerTypeRequest) {
+        Product product = productRepository.findById(productId).orElseThrow(NotFoundIdException::new);
+        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+        ProductMember changeMember = productMemberRepository.findProductMemberByMemberIdAndProductId(updateProductMemberPowerTypeRequest.getMemberId(), productId).orElseThrow(NotFoundIdException::new);
+        List<ProductMember> master = productMemberRepository.findProductMembersByProductIdAndPowerType(productId, PowerType.MASTER);
+        //권한은 마스터와 리더만 바꿀 수 있음.
+        if (productMember.getPowerType() == PowerType.CLIENT || productMember.getPowerType() == PowerType.DEFAULT) {
+            throw new AuthorityException("권한 설정은 마스터와 리더만 가능합니다.");
+        }
+        //마스터 권한을 바꿀 수 없음.
+        if (updateProductMemberPowerTypeRequest.getMemberId().equals(master.get(0).getId())) {
+            throw new AuthorityException("마스터의 권한은 바꿀 수 없습니다.");
+        }
+        //마스터로 권한을 변경하는 것을 불가능.
+        if (updateProductMemberPowerTypeRequest.getNewPowerType() == PowerType.MASTER) {
+            throw new UpdatePowerTypeException("마스터 권한은 한 명만 가능하며, 권한 설정이 불가능합니다.");
+        }
+        changeMember.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
+        //제품에서 권한이 바뀌면, 프로젝트 권한도 자동스럽게 바뀌어야한다.
+        //즉, 멤버팀의 권한이 바껴야함. -> 프로젝트 -> 제품에서 프로젝트 가져오기.
+        //현재 프로젝트 찾기
+        if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+            Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+            //프로젝트에 멤버가 속한 memberTeam 찾기
+            List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(updateProductMemberPowerTypeRequest.getMemberId(), project.getId());
+            for (MemberTeam mt : memberTeamList) {
+                mt.updatePowerType(updateProductMemberPowerTypeRequest.getNewPowerType());
+            }
+        }
 
+    }
+
+    //==================================delete==============================
+    //방출하면 데이터가 다 사라져야해서 컬럼으로 인자를 두고 바꾸는게 좋을 것 같다.
+    //마스터는 방출하지 못함.
+    //리더를 방출 할 경우, 위임할 사람으로 권한 업데이트
+    @Transactional
+    public void deleteProductMember(Long memberId, Long productId, DeleteProductMemberRequest deleteProductMemberRequest){
+        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+
+        if(productMember.getPowerType() == PowerType.CLIENT || productMember.getPowerType() == PowerType.DEFAULT){
+            throw new AuthorityException("멤버 방출 권한이 없습니다.");
+        }
+
+        //방출하는 대상 확인
+        ProductMember targetMember = productMemberRepository.findProductMemberByMemberIdAndProductId(deleteProductMemberRequest.getDeleteMemberId(), productId).orElseThrow(NotFoundIdException::new);
+        //마스터는 방출하지 못함.
+        if(targetMember.getPowerType() == PowerType.MASTER){
+            throw new AuthorityException("마스터는 방출할 수 있는 권한이 없습니다.");
+        }
+        //리더를 방출한다면 권한 위임
+        if(targetMember.getPowerType() == PowerType.LEADER){
+            targetMember.updateDelStatus(true);
+
+            ProductMember delegatedMember = productMemberRepository.findProductMemberByMemberIdAndProductId(deleteProductMemberRequest.getDelegatedMemberId(), productId).orElseThrow(NotFoundIdException::new);
+            delegatedMember.updatePowerType(PowerType.LEADER);
+            //현재 진행중인 프로젝트 찾기
+            //권한이 업데이트 되면 팀에서도 업데이트되어야함.
+            if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+                //방출당한 팀에서 모두 다 삭제 표시
+                List<MemberTeam> deletedMemberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDeleteMemberId(), project.getId());
+                for(MemberTeam dmt : deletedMemberTeamList){
+                    dmt.updateDelStatus(true);
+                }
+
+                //프로젝트에 멤버가 속한 memberTeam 찾기
+                List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDelegatedMemberId(), project.getId());
+                for (MemberTeam mt : memberTeamList) {
+                    mt.updatePowerType(PowerType.LEADER);
+                }
+            }
+
+        }
+        else{
+            targetMember.updateDelStatus(true);
+            if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+                //방출당한 팀에서 모두 다 삭제 표시
+                List<MemberTeam> deletedMemberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDeleteMemberId(), project.getId());
+                for (MemberTeam dmt : deletedMemberTeamList) {
+                    dmt.updateDelStatus(true);
+                }
+            }
+        }
+    }
 
 }

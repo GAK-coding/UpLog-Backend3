@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +59,6 @@ public class MemberController {
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.CREATED);
     }
 
-
     //로그인
     //security 로직 추가
     @PostMapping(value = "/members/login")
@@ -67,25 +67,10 @@ public class MemberController {
         UsernamePasswordAuthenticationToken authenticationToken=
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
 
+
         Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-
-        UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
-
-
-
-
-        if (!this.passwordEncoder.matches((String)authenticationToken.getCredentials(), userDetails.getPassword())) {
-            System.out.println("errorororoorr ");
-            //throw new BadCredentialsException("password is not matched");
-        }
-        else{
-            System.out.println("okokokok ");
-        }
-        //String password=(String)authentication.getCredentials();
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         TokenDTO tokenDTO =tokenProvider.createToken(authentication);
 
         HttpHeaders httpHeaders=new HttpHeaders();
@@ -96,12 +81,11 @@ public class MemberController {
         return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
     }
 
-    @GetMapping("/members/logout")
+    @PostMapping("/members/logout")
     public String logoutPage(HttpServletRequest request, HttpServletResponse response,
                              @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
-        System.out.println("logout1: "+SecurityContextHolder.getContext().getAuthentication()+" "+SecurityUtil.getCurrentUsername());
+
         new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        System.out.println("logout2: "+SecurityContextHolder.getContext().getAuthentication()+" "+SecurityUtil.getCurrentUsername());
         SecurityContextHolder.clearContext();
         memberService.logout(tokenRequestDTO);
 
@@ -118,7 +102,6 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Member> getMyUserInfo(){
         Optional<String> d= SecurityUtil.getCurrentUsername();
-        System.out.println("sd"+d);
         return ResponseEntity.ok(memberService.getMyUserWithAuthorities().get());
     }
     // 토큰 Role admin
@@ -130,9 +113,10 @@ public class MemberController {
 
 
     //=============================read======================================
-    @GetMapping(value = "/members/{member-id}")
-    public ResponseEntity<MemberInfoDTO> findMemberById(@PathVariable(name = "member-id") Long id){
-        MemberInfoDTO memberInfoDTO = memberService.findMemberById(id);
+    @GetMapping(value = "/members")
+    public ResponseEntity<MemberInfoDTO> findMemberById(){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        MemberInfoDTO memberInfoDTO = memberService.findMemberById(memberId);
         return new ResponseEntity<>(memberInfoDTO, HttpStatus.OK);
     }
 
@@ -144,41 +128,39 @@ public class MemberController {
     }
 
     //member 전체 조회
-    @GetMapping(value = "/members")
+    @GetMapping(value = "/members/all")
     public ResponseEntity<FindMembersDTO> findTotalMember(){
         FindMembersDTO findMembersDTO = memberService.findAllMembers();
         return new ResponseEntity<>(findMembersDTO, HttpStatus.OK);
     }
 
     //============================update===================================
-    @PatchMapping(value = "/members/{member-id}/name")
-    public ResponseEntity<SimpleMemberInfoDTO> updateMemberName(@PathVariable(name="member-id") Long id, @RequestBody @Validated UpdateNameRequest updateNameRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberName(id, updateNameRequest);
-        return ResponseEntity.ok(simpleMemberInfoDTO);
-        }
+    @PatchMapping(value = "/members/information")
+    public ResponseEntity<VerySimpleMemberInfoDTO> updateMemberName(@RequestBody @Validated UpdateMemberRequest updateMemberRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        VerySimpleMemberInfoDTO verySimpleMemberInfoDTO = memberService.updateMember(memberId, updateMemberRequest);
+        return ResponseEntity.ok(verySimpleMemberInfoDTO);
+    }
 
-    @PatchMapping(value = "members/{member-id}/nickname")
-    public ResponseEntity<SimpleMemberInfoDTO> updateMemberNickname(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdateNicknameRequest updateNicknameRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberNickname(id, updateNicknameRequest);
+    @PatchMapping(value = "members/password")
+    public ResponseEntity<SimpleMemberInfoDTO> udpateMemberPassword(@RequestBody @Validated UpdatePasswordRequest updatePasswordRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberPassword(memberId, updatePasswordRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
     }
 
-    @PatchMapping(value = "members/{member-id}/password")
-    public ResponseEntity<SimpleMemberInfoDTO> udpateMemberPassword(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdatePasswordRequest updatePasswordRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberPassword(id, updatePasswordRequest);
-        return ResponseEntity.ok(simpleMemberInfoDTO);
-    }
-
-    @PatchMapping(value = "members/{member-id}/position")
-    public ResponseEntity<SimpleMemberInfoDTO> updateMemberPosition(@PathVariable(name = "member-id") Long id, @RequestBody @Validated UpdatePositionRequest updatePositionRequest){
-        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberPostion(id, updatePositionRequest);
+    @PatchMapping(value = "members/position")
+    public ResponseEntity<SimpleMemberInfoDTO> updateMemberPosition(@RequestBody @Validated UpdatePositionRequest updatePositionRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        SimpleMemberInfoDTO simpleMemberInfoDTO = memberService.updateMemberPostion(memberId, updatePositionRequest);
         return ResponseEntity.ok(simpleMemberInfoDTO);
     }
 
     //========================delete==================
-    @DeleteMapping(value = "members/{member-id}")
-    public ResponseEntity<String> deleteMember(@PathVariable(name = "member-id") Long id, @RequestBody @Validated DeleteMemberRequest deleteMemberRequest){
-        String m = memberService.deleteMember(id, deleteMemberRequest);
+    @DeleteMapping(value = "members")
+    public ResponseEntity<String> deleteMember(@RequestBody @Validated DeleteMemberRequest deleteMemberRequest){
+        Long memberId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        String m = memberService.deleteMember(memberId, deleteMemberRequest);
         return ResponseEntity.ok(m);
     }
 

@@ -7,10 +7,9 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.project.dto.ProjectDTO.ProjectInfoDTO;
 import com.uplog.uplog.domain.project.dto.ProjectDTO.SimpleProjectInfoDTO;
-import com.uplog.uplog.domain.team.dto.ProjectTeamDTO;
-import com.uplog.uplog.domain.team.dto.ProjectTeamDTO.SimpleProjectTeamInfoDTO;
+import com.uplog.uplog.domain.project.dto.ProjectDTO.VerySimpleProjectInfoDTO;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class Project extends BaseTime {
     private Long id;
 
     @OneToMany(mappedBy = "project")
-    private List<ProjectTeam> projectTeamList = new ArrayList<>();
+    private List<Team> teamList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -46,10 +46,13 @@ public class Project extends BaseTime {
     @Enumerated(EnumType.STRING)
     private ProjectStatus projectStatus;
 
-    @Builder
-    public Project(List<ProjectTeam> projectTeamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
+    private LocalDate endDate;
 
-        this.projectTeamList=projectTeamList;
+    public void setEndDate(LocalDate endDate){ this.endDate = endDate; }
+
+    @Builder
+    public Project(List<Team> teamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
+        this.teamList=teamList;
         this.product=product;
         this.menuList=menuList;
         this.version=version;
@@ -70,12 +73,21 @@ public class Project extends BaseTime {
         return ProjectInfoDTO.builder()
                 .id(this.id)
                 .version(this.version)
-                .projectTeamIdList(projectTeamIdList)
+                .teamIdList(projectTeamIdList)
                 .projectStatus(this.projectStatus)
                 .productId(this.product.getId())
                 .menuList(simpleMenuInfoDTOList)
                 .build();
 
+    }
+
+    public VerySimpleProjectInfoDTO toVerySimpleProjectInfoDTO(){
+        return VerySimpleProjectInfoDTO.builder()
+                .id(this.id)
+                .version(this.version)
+                .projectStatus(this.projectStatus)
+                .endDate(this.endDate)
+                .build();
     }
 
     public ProjectDTO.CreateProjectRequest toCreateInitChangedIssueInfo(){
@@ -88,6 +100,7 @@ public class Project extends BaseTime {
         return ProjectDTO.UpdateProjectInfo.builder()
                 .id(this.id)
                 .version(this.version)
+                .endDate(this.endDate)
                 .projectStatus(this.projectStatus)
                 .build();
     }
@@ -95,7 +108,7 @@ public class Project extends BaseTime {
     public ProjectDTO.requestProjectAllInfo toRequestProjectAllInfo(PowerType powerType, String productName, String company){
         return ProjectDTO.requestProjectAllInfo.builder()
                 .projectId(this.id)
-                .projectTeamList(this.projectTeamList)
+                //.teamList(this.teamList)
                 .menuList(this.menuList)
                 .version(this.version)
                 .projectStatus(this.projectStatus)

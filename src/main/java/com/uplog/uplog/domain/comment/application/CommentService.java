@@ -13,8 +13,11 @@ import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.post.dao.PostRepository;
 import com.uplog.uplog.domain.post.model.Post;
+import com.uplog.uplog.domain.team.dao.TeamRepository;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +41,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final AuthorizedMethod authorizedMethod;
-
+    private final TeamRepository teamRepository;
      /*
         CREATE
      */
@@ -48,10 +51,12 @@ public class CommentService {
         Post post=postRepository.findById(postId).orElseThrow(NotFoundIdException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
+        Team rootTeam = teamRepository.findByProjectIdAndName(post.getMenu().getProject().getId(), post.getMenu().getProject().getVersion()).orElseThrow(NotFoundIdException::new);
+
         String currentPostMenuName=post.getMenu().getMenuName();
 
         //댓글 생성 권한 확인
-        authorizedMethod.CreateCommentValidateByMemberId(currentPostMenuName,member);
+        authorizedMethod.CreateCommentAndLikeValidateByMemberId(currentPostMenuName,member,rootTeam);
 
         SimpleCommentInfo simpleCommentInfo;
         //parentId가 null일 때 기본 정보만 저장.
@@ -62,7 +67,7 @@ public class CommentService {
 
 
             commentRepository.save(comment);
-            simpleCommentInfo=comment.toSimpleCommentInfo();
+            simpleCommentInfo=comment.toSimpleCommentInfo(member.getImage());
         }
 
         //ParentId가 존재할 때 부모 객체를 mapping && 기본 정보 저장.
@@ -74,7 +79,7 @@ public class CommentService {
 
                 commentRepository.save(comment);
 
-                simpleCommentInfo=comment.toSimpleCommentInfo();
+                simpleCommentInfo=comment.toSimpleCommentInfo(member.getImage());
 
             }
 
@@ -91,17 +96,25 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<SimpleCommentInfo> findCommentByPostId(Long postId){
 
-        // TODO: post 만들어지면 post로 바꿔야함.
-        List<Comment> commentList=commentRepository.findByAuthorId(postId);
 
+        Post post=postRepository.findById(postId)
+                .orElseThrow(NotFoundIdException::new);
+
+        List<Comment> commentList=post.getCommentList();
         if(commentList==null||commentList.isEmpty()){
             throw new NotFoundCommentByPostException(postId);
         }
 
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
+
         List<SimpleCommentInfo> commentInfos=new ArrayList<>();
 
         for(Comment comment_tmp : commentList)
-            commentInfos.add(comment_tmp.toSimpleCommentInfo());
+
+
+            commentInfos.add(comment_tmp.toSimpleCommentInfo(member.getImage()));
 
         return commentInfos;
 
@@ -121,14 +134,18 @@ public class CommentService {
                 .orElseThrow(()->new NotFoundCommentException(commentId));
 
 
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
+
         //대댓글일 시 그의 부모 댓글과 함께 조회
         if(comment.getParent()!=null){
             Comment comment_parent=commentRepository.findById(comment.getParent().getId())
                     .orElseThrow(()->new NotFoundCommentException(comment.getParent().getId()));
-            simpleCommentInfos.add(comment_parent.toSimpleCommentInfo());
+            simpleCommentInfos.add(comment_parent.toSimpleCommentInfo(member.getImage()));
 
         }
-        simpleCommentInfos.add(comment.toSimpleCommentInfo());
+        simpleCommentInfos.add(comment.toSimpleCommentInfo(member.getImage()));
 
         return simpleCommentInfos;
 
@@ -145,12 +162,14 @@ public class CommentService {
         Comment comment=commentRepository.findById(commentId)
                 .orElseThrow(()->new NotFoundCommentException(commentId));
 
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
         if(!memberValidate(comment.getAuthor().getId(),memberId)){
             throw new NotFoundIdException();
         }
 
         comment.updateCommentContent(updateCommentContent.getContent());
-        SimpleCommentInfo simpleCommentInfo =comment.toSimpleCommentInfo();
+        SimpleCommentInfo simpleCommentInfo =comment.toSimpleCommentInfo(member.getImage());
         return simpleCommentInfo;
 
     }

@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
 @RestController
@@ -71,19 +73,27 @@ public class ChangedIssueController {
         return new ResponseEntity<>(IssueInfoDTO,HttpStatus.OK);
     }
 
+    @GetMapping(value="/changedIssues/{project-id}/issue")
+    public ResponseEntity<List<IssueInfoByProjectDTO>> findChangedIssueByProjectId(@PathVariable("project-id")Long projectId){
 
-    //변경이력 추가, 생성, 수정, 클릭 시 진행 중 or 접근 권한 확인.
-    //global method
-    @GetMapping(value="/changedIssues/{project-id}/validate")
-    public String checkAuthorized(@PathVariable("project-id")Long projectId){
-        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        //현재 진행중인 프로젝트 확인
-        authorizedMethod.checkProjectProgress(projectId);
-        //마스터,리더가 맞는지 확인
-        authorizedMethod.powerValidateByMemberId(memberId);
+       List<IssueInfoByProjectDTO> issueInfoByProjectDTOList=changedIssueService.findIssueByProjectId(projectId);
 
-        return AccessProperty.ACCESS_OK.toString();
+        return new ResponseEntity<>(issueInfoByProjectDTOList,HttpStatus.OK);
     }
+
+
+//    //변경이력 추가, 생성, 수정, 클릭 시 진행 중 or 접근 권한 확인.
+//    //global method
+//    @GetMapping(value="/changedIssues/{project-id}/validate")
+//    public String checkAuthorized(@PathVariable("project-id")Long projectId){
+//        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+//        //현재 진행중인 프로젝트 확인
+//        authorizedMethod.checkProjectProgress(projectId);
+//        //마스터,리더가 맞는지 확인
+//        authorizedMethod.powerValidateByMemberId(memberId);
+//
+//        return AccessProperty.ACCESS_OK.toString();
+//    }
 
     @PatchMapping(value="/changedIssues/{issue-id}/issue")
     public ResponseEntity<SimpleIssueInfoDTO> updateChangedIssue(@RequestBody @Validated UpdateChangedIssueRequest UpdateChangedIssueRequest,

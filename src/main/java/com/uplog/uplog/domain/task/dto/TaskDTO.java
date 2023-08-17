@@ -7,7 +7,7 @@ import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.menu.model.Menu;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,21 +28,23 @@ public class TaskDTO {
     public static class CreateTaskRequest{
         private String taskName;
         private Long menuId;
-        private Long projectTeamId;
+        private Long teamId;
         private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private Long targetMemberId;
+        private LocalDate startTime;
+        private LocalDate endTime;
 
-        public Task toEntity(Member targetMember,Menu menu, ProjectTeam projectTeam) {
+        public Task toEntity(Member targetMember,Menu menu, Team team,Long createIndex) {
             return Task.builder()
                     .targetMember(targetMember)
                     .menu(menu)
                     .taskStatus(TaskStatus.PROGRESS_BEFORE)
-                    .projectTeam(projectTeam)
+                    .team(team)
                     .taskName(taskName)
                     .taskDetail(taskDetail)
                     .startTime(startTime)
                     .endTime(endTime)
+                    .taskIndex(createIndex)
                     .build();
         }
     }
@@ -82,16 +84,32 @@ public class TaskDTO {
         private Long id;
         private String taskName;
         private MemberDTO.PowerMemberInfoDTO targetMemberInfoDTO;
-        //private Long targetMemberId;
-        //private String targetmemberName;
         private Long menuId;
         private String menuName;
-        private Long projectTeamId;
-        private String projectTeamName;
+        private Long teamId;
+        private String teamName;
+        private Long parentTeamId;
         private TaskStatus taskStatus;
         private String taskDetail;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalDate startTime;
+        private LocalDate endTime;
+        private Long taskIndex;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskRequest{
+        private String updateTaskName;
+        private Long updateTargetMemberId;
+        private Long updateMenuId;
+        private Long updateTeamId;
+        private String updateTeamName;
+        private TaskStatus updateTaskStatus;
+        private String updateTaskDetail;
+        private LocalDate updateStartTime;
+        private LocalDate updateEndTime;
     }
 
 
@@ -128,8 +146,29 @@ public class TaskDTO {
     @AllArgsConstructor
     public static class UpdateTaskDateRequest{
         //private Long id;
-        private LocalDateTime updateStartTime;
-        private LocalDateTime updateEndTime;
+        private LocalDate updateStartTime;
+        private LocalDate updateEndTime;
+
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskStartDateRequest{
+        //private Long id;
+        private LocalDate updateStartTime;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateTaskEndDateRequest{
+        //private Long id;
+        private LocalDate updateEndTime;
 
     }
 
@@ -179,18 +218,25 @@ public class TaskDTO {
         private TaskStatus taskStatus;
 
     }
+//    @Getter
+//    @Builder
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class UpdateTaskIndexRequest{
+//        //private Long id;
+//        private Long updateTaskIndex;
+//
+//    }
 
-    @Getter
     @Builder
-    @NoArgsConstructor
+    @Getter
     @AllArgsConstructor
-    public static class PowerMemberInfoDTO {
-        private Long id;
-        private String name;
-        private String nickname;
-        private Position position;
+    @NoArgsConstructor
+    public static class UpdateTaskIndexRequest{
+        TaskStatus beforeTaskStatus;
+        Long movedTaskId;
+        List<Long> updateTaskIndexList;
     }
-
 //    @Getter
 //    @Builder
 //    @NoArgsConstructor

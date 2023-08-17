@@ -86,7 +86,7 @@ public class MailService {
         msg += authNum + "</strong><div><br/>"; //메일에 인증번호 넣기
         msg += "</div>";
         message.setText(msg, "utf-8","html"); //내용, charset 타입, subtype
-        message.setFrom(new InternetAddress("gak_uplog@naver.com", "UpLog")); //보내는 사람
+        message.setFrom(new InternetAddress("rkrxlaghkdlxld@naver.com", "UpLog")); //보내는 사람
 
         return message;
     }

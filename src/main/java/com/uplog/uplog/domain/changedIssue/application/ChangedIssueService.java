@@ -2,6 +2,7 @@ package com.uplog.uplog.domain.changedIssue.application;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.changedIssue.dao.ChangedIssueRepository;
+import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueByProjectException;
 import com.uplog.uplog.domain.changedIssue.exception.NotFoundIssueException;
 import com.uplog.uplog.domain.changedIssue.exception.NotFoundPowerByMemberException;
 import com.uplog.uplog.domain.changedIssue.model.AccessProperty;
@@ -26,7 +27,9 @@ import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
+import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.global.method.AuthorizedMethod;
+import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.uplog.uplog.domain.changedIssue.dto.ChangedIssueDTO.*;
 
@@ -57,16 +63,23 @@ public class ChangedIssueService {
     public IssueInfoDTO createIssue(CreateChangedIssueRequest CreateChangedIssueRequest,
                                     Long projectId, Long memberId){
 
-
         Project project=projectRepository.findById(projectId)
                 .orElseThrow(()->new NotFoundProjectException(projectId));
+        Team rootTeam = teamRepository.findByProjectIdAndName(project.getId(), project.getVersion()).orElseThrow(NotFoundIdException::new);
+
+        //진행중인 프로젝트에서만 생성가능
+        authorizedMethod.checkProjectProgress(projectId);
+
         Member member=memberRepository.findMemberById(memberId)
                 .orElseThrow(NotFoundMemberByEmailException::new);
+
+        //마스터 또는 리더인지 확인
+        authorizedMethod.powerValidateByMemberId(memberId,rootTeam);
 
         ChangedIssue changedIssue= CreateChangedIssueRequest.toEntity(member,project);
         changedIssueRepository.save(changedIssue);
 
-        IssueInfoDTO IssueData=changedIssue.toIssueInfoDTO();
+        IssueInfoDTO IssueData=changedIssue.toIssueInfoDTO(member.getImage());
 
         return IssueData;
 
@@ -79,12 +92,42 @@ public class ChangedIssueService {
         JPAQueryFactory query=new JPAQueryFactory(entityManager);
         QChangedIssue changedIssue=QChangedIssue.changedIssue;
 
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
+
         ChangedIssue changedIssue1=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundIssueException(issueId));
 
-        IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO();
+        IssueInfoDTO IssueInfoDTO =changedIssue1.toIssueInfoDTO(member.getImage());
 
         return IssueInfoDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public List<IssueInfoByProjectDTO> findIssueByProjectId(Long projectId){
+
+        List<ChangedIssue> issueList=changedIssueRepository.findByProjectId(projectId);
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
+
+
+        if (issueList.isEmpty())
+            throw new NotFoundIssueByProjectException(projectId);
+        else if(issueList==null)
+            throw new NotFoundIssueByProjectException(projectId);
+        List<IssueInfoByProjectDTO> issueInfoByProjectDTOList=new ArrayList<>();;
+        for(ChangedIssue temp:issueList){
+
+            issueInfoByProjectDTOList.add(temp.toIssueInfoByProjectDTO(member.getImage()));
+
+        }
+
+        return issueInfoByProjectDTOList;
+
+
     }
 
     //업데이트 관련 된 정보만 받아서 값이 있는 컬럼만 업데이트 시킴.
@@ -98,14 +141,18 @@ public class ChangedIssueService {
                 .orElseThrow(()->new NotFoundProjectException(issueId));
         Long currentProjectId=changedIssue.getProject().getId();
 
+        Team rootTeam = teamRepository.findByProjectIdAndName(changedIssue.getProject().getId(), changedIssue.getProject().getVersion()).orElseThrow(NotFoundIdException::new);
+
+
         //현재 진행중인 프로젝트가 맞는지 확인
         authorizedMethod.checkProjectProgress(currentProjectId);
         //마스터,리더가 맞는지 확인(밑에서 확인하지만 2중확인임)
-        authorizedMethod.powerValidateByMemberId(memberId);
+        authorizedMethod.powerValidateByMemberId(memberId,rootTeam);
 
         //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
         if(changedIssue.getAuthor().getId().equals(memberId)){
             changedIssue.updateChangedIssue(UpdateChangedIssueRequest);
+            changedIssue.onUpdate();
             return changedIssue.toSimpleIssueInfoDTO();
         }
         else{
@@ -121,11 +168,14 @@ public class ChangedIssueService {
         ChangedIssue changedIssue=changedIssueRepository.findById(issueId)
                 .orElseThrow(()->new NotFoundProjectException(issueId));
         Long currentProjectId=changedIssue.getProject().getId();
+        Team rootTeam = teamRepository.findByProjectIdAndName(currentProjectId, changedIssue.getProject().getVersion()).orElseThrow(NotFoundIdException::new);
+
+
 
         //현재 진행중인 프로젝트가 맞는지 확인
         authorizedMethod.checkProjectProgress(currentProjectId);
         //마스터,리더가 맞는지 확인(밑에서 확인하지만 2중확인임)
-        authorizedMethod.powerValidateByMemberId(memberId);
+        authorizedMethod.powerValidateByMemberId(memberId,rootTeam);
 
         //작성자와 일치하는지 확인->마스터 리더 같이 확인하는셈(작성자가 이미 리더 또는 마스터일테니까)
         if(changedIssue.getAuthor().getId().equals(memberId)){

@@ -7,12 +7,12 @@ import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
 import com.uplog.uplog.domain.team.model.PowerType;
-import com.uplog.uplog.domain.team.model.ProjectTeam;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class ProjectDTO {
 
         public Project toEntity(Product product){
             return Project.builder()
-                    .projectTeamList(new ArrayList<>())
+                    .teamList(new ArrayList<>())
                     .menuList(new ArrayList<>())
                     .version(this.version)
                     .product(product)
@@ -57,6 +57,7 @@ public class ProjectDTO {
         private Long id;
         private String version;
         private ProjectStatus projectStatus;
+        private LocalDate endDate;
 
     }
 
@@ -76,12 +77,23 @@ public class ProjectDTO {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class VerySimpleProjectInfoDTO{
+        private Long id;
+        private String version;
+        private ProjectStatus projectStatus;
+        private LocalDate endDate;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ProjectInfoDTO{
         private Long id;
         private String version;
         private Long productId;
         private List<SimpleMenuInfoDTO> menuList;
-        private List<Long> projectTeamIdList;
+        private List<Long> teamIdList;
         private ProjectStatus projectStatus;
     }
 
@@ -94,7 +106,7 @@ public class ProjectDTO {
         private String productName;
         private String company;
         private Long projectId;
-        private List<ProjectTeam> projectTeamList;
+        //private List<ProjectTeam> projectTeamList;
         private List<Menu> menuList;
         private String version;
         private ProjectStatus projectStatus;

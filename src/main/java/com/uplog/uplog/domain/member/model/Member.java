@@ -6,6 +6,7 @@ import com.uplog.uplog.domain.member.dto.MemberDTO;
 import com.uplog.uplog.domain.member.dto.MemberDTO.MemberInfoDTO;
 import com.uplog.uplog.domain.member.dto.MemberDTO.PowerMemberInfoDTO;
 import com.uplog.uplog.domain.member.dto.MemberDTO.SimpleMemberInfoDTO;
+import com.uplog.uplog.domain.member.dto.MemberDTO.VerySimpleMemberInfoDTO;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.scrap.model.Scrap;
 import com.uplog.uplog.domain.team.model.MemberTeam;
@@ -27,7 +28,6 @@ public class Member extends MemberBase{
     private LoginType loginType;
 
 
-    //TODO 의논할 것 -> product list대신 얘를 갖고 있는것 어떤지
     @OneToMany(mappedBy = "member")
     private List<MemberTeam> memberTeamList = new ArrayList<>();
 
@@ -38,7 +38,9 @@ public class Member extends MemberBase{
     @JoinColumn(name = "scrap_id")
     private Scrap scrap;
 
+    private String image;
 
+    public void updateImage(String image){this.image = image;}
 
 
     @Column(name="activated")
@@ -54,10 +56,10 @@ public class Member extends MemberBase{
     public MemberInfoDTO toMemberInfoDTO(){
         return MemberInfoDTO.builder()
                 .id(this.getId())
+                .image(this.image)
                 .email(this.getEmail())
                 .name(this.getName())
                 .nickname(this.getNickname())
-                .password(this.getPassword())
                 .position(this.getPosition())
                 .build();
     }
@@ -68,7 +70,15 @@ public class Member extends MemberBase{
                 .id(this.getId())
                 .name(this.getName())
                 .nickname(this.getNickname())
-                .password(this.getPassword())
+                .build();
+    }
+
+    public VerySimpleMemberInfoDTO toVerySimpleMemberInfoDTO(){
+        return VerySimpleMemberInfoDTO.builder()
+                .id(this.getId())
+                .image(this.image)
+                .name(this.getName())
+                .nickname(this.getNickname())
                 .build();
     }
 
@@ -76,6 +86,7 @@ public class Member extends MemberBase{
         return PowerMemberInfoDTO.builder()
                 .id(this.getId())
                 .name(this.getName())
+                .image(this.image)
                 .nickname(this.getNickname())
                 .position(this.getPosition())
                 .build();

@@ -1,5 +1,9 @@
+
+
+
 package com.uplog.uplog.domain.member.application;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 //import com.uplog.uplog.domain.member.dao.RedisDao;
 //import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
@@ -13,6 +17,14 @@ import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
 //import com.uplog.uplog.domain.member.model.RefreshToken;
+import com.uplog.uplog.domain.member.model.MemberBase;
+import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.team.model.MemberTeam;
+import com.uplog.uplog.domain.team.model.QMemberTeam;
+import com.uplog.uplog.domain.team.model.QTeam;
+import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
@@ -21,6 +33,7 @@ import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,9 +41,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +69,7 @@ public class MemberService {
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisDao redisDao;
     private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -63,7 +84,6 @@ public class MemberService {
     닉네임, 이름, 중복가능.
     이메일 보내기. 인증번호는 영어, 숫자, 특수문자를 조합한 6자리 인증번호.
     */
-
 
     //security 로직 추가
     @Transactional
@@ -97,11 +117,13 @@ public class MemberService {
         if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
             throw new ExpireRefreshTokenException();
         }
+        SecurityContextHolder.clearContext();;
         // 2. Access Token에서 ID 가져오기
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getRefreshToken());
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
 
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
-        String rtkInRedis = redisDao.getValues(authentication.getName());
+        String rtkInRedis = redisDao.getValues("RT:"+authentication.getName());
         if(rtkInRedis==null){
             throw new RuntimeException("로그아웃 된 사용자입니다.");
         }
@@ -109,11 +131,14 @@ public class MemberService {
         if (!rtkInRedis.equals(tokenRequestDto.getRefreshToken())) {
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
+
+        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
+        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
         // 5. 새로운 토큰 생성
         TokenDTO tokenDto = tokenProvider.createToken(authentication);
 
         // 6. 저장소 정보 업데이트
-        redisDao.deleteValues(authentication.getName());
+        redisDao.deleteValues("RT:"+authentication.getName());
 
         redisDao.setValues("RT:"+authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
 
@@ -161,6 +186,7 @@ public class MemberService {
         redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
 
     }
+
 
     @Transactional(readOnly = true)
     public Optional<Member> getUserWithAuthorities(String email){
@@ -211,20 +237,29 @@ public class MemberService {
 
 
     //==========================Member Update====================================================
-    //TODO postman으로 변경사항 잘 반영되어 들어오는지 확인할것!!!!!!! + transaction공부
+    //멤버 변경 한번에 합침
     //이름 변경
     @Transactional
-    public SimpleMemberInfoDTO updateMemberName(Long id,UpdateNameRequest updateNameRequest){
+    public VerySimpleMemberInfoDTO updateMember(Long id,UpdateMemberRequest updateMemberRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        member.updateName(updateNameRequest.getNewName());
-        return member.simpleMemberInfoDTO();
-    }
-    //닉네임 변경
-    @Transactional
-    public SimpleMemberInfoDTO updateMemberNickname(Long id,UpdateNicknameRequest updateNicknameRequest){
-        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        member.updateNickname(updateNicknameRequest.getNewNickname());
-        return member.simpleMemberInfoDTO();
+        if(updateMemberRequest.getNewName()!=null) {
+            member.updateName(updateMemberRequest.getNewName());
+
+            //기업인 사용자가 이름을 바꾸면 모든 제품 내에 회사이름을 바꿔줘야함.
+            if(member.getPosition()== Position.COMPANY){
+                List<Product> productList = productRepository.findProductsByCompanyId(member.getId());
+                for(Product p : productList){
+                    p.updateCompany(updateMemberRequest.getNewName());
+                }
+            }
+        }
+        if(updateMemberRequest.getNewNickname()!=null) {
+            member.updateNickname(updateMemberRequest.getNewNickname());
+        }
+        if(updateMemberRequest.getImage()!=null) {
+            member.updateImage(updateMemberRequest.getImage());
+        }
+        return member.toVerySimpleMemberInfoDTO();
     }
     //비밀번호 변경
     @Transactional
@@ -233,7 +268,7 @@ public class MemberService {
 
 
         //현재 유저 비밀번호를 가져오기 위해 UserDetails 객체를 현재 유저 이메일로 가져온다.
-        UserDetails userDetails=customUserDetailsService.loadUserByUsername(member.getName());
+        UserDetails userDetails=customUserDetailsService.loadUserByUsername(member.getEmail());
 
         //단순히 equals를 사용하면 암호화 시 매번 암호화 된 문자열이 바뀌기 때문에 아래 메소드를 사용함.
         //userDetails로 가져온 password가 암호화 되어 db에 저장되어 있는 비밀번호, 그리고 전달 받은 평문 암호(새로운 비밀번호)와 동일한 지 검증.
@@ -260,15 +295,47 @@ public class MemberService {
     @Transactional
     public String deleteMember(Long id, DeleteMemberRequest deleteMemberRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
+        //MemberBase memberBase=memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
         //TODO SpringSecurity 하고 나서 getCurrentMember 하고나서 로직 수정 필요함.
         //TODO 닉네임(이름)되어있는 것을 -> (알수없음)(이름)으로 바꾸는 과정 있어야함. -> 나중에 프론트와 상의가 필요할 수도 있음.
-        if(member.getPassword().equals(deleteMemberRequest.getPassword())){
+        //TODO memberTeam 객체 지우고 Team 객체의 memberTeamList 가져와서 해당 되는 memberTeam객체 빼준 뒤에 업데이트 해줘야할듯
+        JPAQueryFactory query=new JPAQueryFactory(entityManager);
+        QMemberTeam memberTeam=QMemberTeam.memberTeam;
+
+
+        //QTeam team=QTeam.team;
+        if(this.passwordEncoder.matches(deleteMemberRequest.getPassword(), member.getPassword())){
+
+            MemberTeam memberTeam1=query
+                    .selectFrom(memberTeam)
+                    .where(memberTeam.member.id.eq(id))
+                    .fetchOne();
+
+//            Team team1=query
+//                    .select(team)
+//                    .from(team)
+//                    .where(team.id.eq(memberTeam1.getTeam().getId()))
+//                    .fetchOne();
+
+            query.delete(memberTeam)
+                    .where(memberTeam.member.id.eq(id))
+                    .execute();
+
+            // 회원(Member)를 삭제
             memberRepository.delete(member);
+
+            //회원 탈퇴 후에도 토큰이 유효하기 때문에 jwt정보 제거 하고 로그아웃 처리해야 됨
+            SecurityContextHolder.clearContext();
+            TokenRequestDTO tokenRequestDTO=new TokenRequestDTO();
+            tokenRequestDTO.addTokenToMemberInfoDTO(deleteMemberRequest.getAccessToken(),deleteMemberRequest.getRefreshToken());
+            logout(tokenRequestDTO);
+
             return "DELETE";
         }
         else{
             throw new NotMatchPasswordException("비밀번호가 일치하지 않습니다.");
         }
+
 
 
     }

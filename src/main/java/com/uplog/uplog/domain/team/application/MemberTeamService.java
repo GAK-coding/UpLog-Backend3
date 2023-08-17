@@ -41,10 +41,10 @@ public class MemberTeamService {
     public Long createMemberTeam(CreateMemberTeamRequest createMemberTeamRequest) throws Exception {
         Member member = memberRepository.findMemberByIdOrEmail(createMemberTeamRequest.getMemberId(), createMemberTeamRequest.getMemberEmail()).orElseThrow(NotFoundMemberByEmailException::new);
         Team team = teamRepository.findById(createMemberTeamRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        log.info(team+"team");
         MemberTeam memberTeam = createMemberTeamRequest.toMemberTeam(team, member, createMemberTeamRequest.getPowerType());
 
         memberTeamRepository.save(memberTeam);
-        //TODO Null point 확인
 //        log.info(team.getName());
 //        log.info(team.getMemberTeamList()+"null?");
 //        log.info(memberTeam+"what null");
@@ -53,7 +53,7 @@ public class MemberTeamService {
         //MemberTeamInfoDTO memberTeamInfoDTO = memberTeam.toMemberTeamInfoDTO();
         EmailRequest emailRequest = EmailRequest.builder()
                 .email(member.getEmail())
-                .type(createMemberTeamRequest.getMailType())
+                .type(2)
                 .link(createMemberTeamRequest.getLink())
                 .powerType(createMemberTeamRequest.getPowerType())
                 .build();
@@ -75,7 +75,7 @@ public class MemberTeamService {
 
     @Transactional
     public Long updateMemberPowerType(UpdateMemberPowerTypeRequest updateMemberPowerTypeRequest) {
-        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
+        MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(updateMemberPowerTypeRequest.getMemberId(), updateMemberPowerTypeRequest.getTeamId()).orElseThrow(NotFoundIdException::new);
         memberTeam.updatePowerType(updateMemberPowerTypeRequest.getNewPowerType());
         return memberTeam.getId();
     }
