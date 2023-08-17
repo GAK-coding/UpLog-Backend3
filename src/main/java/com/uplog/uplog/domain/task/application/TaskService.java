@@ -118,8 +118,10 @@ public class TaskService {
                         .targetMemberInfoDTO(new MemberDTO.PowerMemberInfoDTO(
                                 task.getTargetMember().getId(),
                                 task.getTargetMember().getName(),
+                                task.getTargetMember().getImage(),
                                 task.getTargetMember().getNickname(),
                                 task.getTargetMember().getPosition()
+
                         ))
                         .menuId(menu.getId())
                         .menuName(menu.getMenuName())
