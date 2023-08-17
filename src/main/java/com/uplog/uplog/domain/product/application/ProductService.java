@@ -81,7 +81,7 @@ public class ProductService {
                     throw new DuplicatedProductNameException("제품 이름이 중복됩니다.");
                 }
             }
-            Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
+            Product product = createProductRequest.toProductEntity(member.getName(), member.getId(), createProductRequest.getImage());
             productRepository.save(product);
             //기업에 들어갈 시에는 클라이언트로 들어감.
             CreateProductMemberRequest createProductMemberRequest2 = CreateProductMemberRequest.builder()
@@ -262,9 +262,12 @@ public class ProductService {
                     }
                 }
             }
-
-
         }
+        //이미지 변경
+        if(updateProductRequest.getImage()!= null){
+            product.updateImage(updateProductRequest.getImage());
+        }
+        //제품에 멤버 초대
         if (!updateProductRequest.getMemberEmailList().isEmpty()) {
             for (String s : updateProductRequest.getMemberEmailList()) {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
@@ -304,6 +307,7 @@ public class ProductService {
 
         }
         return UpdateResultDTO.builder()
+                .image(product.getImage())
                 .failCnt(failMemberList.size())
                 .failMemberList(failMemberList)
                 .duplicatedCnt(duplicatedMemberList.size())

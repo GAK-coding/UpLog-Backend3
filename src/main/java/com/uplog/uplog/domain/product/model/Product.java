@@ -38,16 +38,21 @@ public class Product extends BaseTime {
 
     private String name;
 
+    private String image;
+
 
     public void updateCompany(String company){this.company = company;}
+
+    public void updateImage(String image){this.image = image;}
 
     public void updateName(String name){this.name = name;}
 
 
 
     @Builder
-    public Product(Long id, String company, Long companyId, String name){
+    public Product(Long id, String company, Long companyId, String name, String image){
         this.id = id;
+        this.image = image;
         this.company = company;
         this.companyId = companyId;
         this.name = name;
@@ -56,6 +61,7 @@ public class Product extends BaseTime {
     public ProductInfoDTO toProductInfoDTO(List<VerySimpleProjectInfoDTO> verySimpleProjectInfoDTOList){
         return ProductInfoDTO.builder()
                 .id(this.id)
+                .image(this.image)
                 .name(this.name)
                 .company(this.company)
                 .verySimpleProjectInfoDTOList(verySimpleProjectInfoDTOList)
@@ -65,6 +71,7 @@ public class Product extends BaseTime {
     public SimpleProductInfoDTO toSimpleProductInfoDTO(){
         return SimpleProductInfoDTO.builder()
                 .id(this.id)
+                .image(this.image)
                 .name(this.name)
                 .company(this.company)
                 .build();

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,6 +37,12 @@ public class ChangedIssue extends BaseTime {
     private String title;
     private String content;
 
+    @CreationTimestamp
+    private LocalDateTime createTime;
+
+    @CreationTimestamp
+    private LocalDateTime modifiedTime;
+
     @Builder
     public ChangedIssue(Member author, Project project, IssueStatus issueStatus, String title, String content, LocalDateTime createdTime,LocalDateTime modifiedTime){
         this.author=author;
@@ -52,6 +59,8 @@ public class ChangedIssue extends BaseTime {
                 .title(this.title)
                 .content(this.content)
                 .issueStatus(this.issueStatus)
+                .createdTime(this.getCreatedTime())
+                .modifiedTime(this.getModifiedTime())
                 .build();
     }
 
@@ -84,6 +93,10 @@ public class ChangedIssue extends BaseTime {
         this.content=(UpdateChangedIssueRequest.getContent()!=null)? UpdateChangedIssueRequest.getContent():this.content;
         this.issueStatus=(UpdateChangedIssueRequest.getIssueStatus()!=null)? UpdateChangedIssueRequest.getIssueStatus():this.issueStatus;
     }
+    public void onUpdate() {
+        modifiedTime = LocalDateTime.now();
+    }
+
 
 
 }

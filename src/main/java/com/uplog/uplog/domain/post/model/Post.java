@@ -4,7 +4,10 @@ import com.uplog.uplog.domain.comment.model.Comment;
 import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.model.Member;
 import com.uplog.uplog.domain.menu.model.Menu;
+import com.uplog.uplog.domain.tag.dto.TagDTO;
+import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
+import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.global.BaseTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,8 +43,7 @@ public class Post extends BaseTime {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    @OneToMany
-    @JoinColumn(name = "postTag_id")
+    @OneToMany(mappedBy = "post")
     private List<PostTag> postTagList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -58,35 +60,6 @@ public class Post extends BaseTime {
     private LocalDateTime createTime;
 
 
-//    public PostInfoDTO toPostInfoDTO(){
-//        return PostInfoDTO.builder()
-//                .id(this.getId())
-//                .title(this.getTitle())
-//                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
-//                .menuId(this.getMenu().getId())
-//                .menuName(this.getMenu().getMenuName())
-//                .productName(this.getProductName())
-//                .projectName(this.getVersion())
-//                .postType(this.getPostType())
-//                .content(this.getContent())
-//                .createTime(this.getCreateTime())
-//                .build();
-//    }
-
-//    public PostInfoDTO1 toPostInfoDTO1(){
-//        return PostInfoDTO1.builder()
-//                .id(this.getId())
-//                .title(this.getTitle())
-//                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
-//                //.menuId(this.getMenu().getId())
-//                //.menuName(this.getMenu().getMenuName())
-//                //.productName(this.getProductName())
-//                //.projectName(this.getVersion())
-//                .postType(this.getPostType())
-//                .content(this.getContent())
-//                .createTime(this.getCreateTime())
-//                .build();
-//    }
 
     public SimplePostInfoDTO toSimplePostInfoDTO(){
         return SimplePostInfoDTO.builder()
@@ -95,6 +68,11 @@ public class Post extends BaseTime {
                 .build();
 
     }
+    public void addPostTag(PostTag postTag) {
+        postTagList.add(postTag);
+    }
+
+    public void updatePostTagList(List<PostTag> postTags){this.postTagList=postTags;}
 
     public void updatePostTitle(String updateTitle){this.title=updateTitle;}
     public void updatePostContent(String updatecontent){this.content=updatecontent;}
@@ -102,5 +80,40 @@ public class Post extends BaseTime {
     public void updatePostType(PostType updatepostType){this.postType=updatepostType;}
     public  void updatePostProductName(String updateProductName){this.productName=updateProductName;}
     public void updatePostVersion(String updateVersion){this.version=updateVersion;}
+
+    public PostInfoDTO toPostInfoDTO(List<TagInfoDTO> postTagList){
+        return  PostInfoDTO.builder()
+                .id(this.id)
+                .title(this.title)
+                .authorInfoDTO(this.author.powerMemberInfoDTO())
+                .menuId(this.menu.getId())
+                .menuName(this.menu.getMenuName())
+                .productName(this.productName)
+                .projectName(this.version)
+                .postType(this.postType)
+                .content(this.content)
+                .postTags(postTagList)
+                .createTime(this.getCreateTime())
+                .build();
+    }
+
+    //TODO tagList 프론트와 좀 더 상의(형식)
+    public PostDetailInfoDTO toPostDetailInfoDTO(List<TagInfoDTO> tagInfoDTOList, int postLike, int commentCnt) {
+        return PostDetailInfoDTO.builder()
+                .id(this.id)
+                .title(this.title)
+                .authorInfoDTO(this.getAuthor().powerMemberInfoDTO())
+                .menuId(this.menu.getId())
+                .menuName(this.menu.getMenuName())
+                .productName(this.productName)
+                .projectName(this.version)
+                .postType(this.postType)
+                .content(this.content)
+                .postTags(tagInfoDTOList)
+                .createTime(this.getCreateTime())
+                .likeCount(postLike)
+                .commentCount(commentCnt)
+                .build();
+    }
 
 }
