@@ -340,7 +340,7 @@ public class PostService {
                     .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
             //메뉴를 업데이트 하려는데 해당 게시글이 현재 메뉴의 공지글이라면 그 공지글 리셋해야함
-            if (post.getMenu().getNoticePost().getId() != null) {
+            if (post.getMenu() != null && post.getMenu().getNoticePost() != null) {
                 if (post.getMenu().getNoticePost().getId().equals(id)) {
                     deleteNoticePostInPostService(post.getMenu().getId());
                 }
