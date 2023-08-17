@@ -41,7 +41,6 @@ public class StorageDTO {
     @AllArgsConstructor
     public static class requestDeleteDTO{
 
-        private String fieldId;
         private String url;
 
     }
