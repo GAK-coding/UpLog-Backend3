@@ -115,7 +115,7 @@ public class TaskService {
                 TaskInfoDTO taskInfoDTO = TaskInfoDTO.builder()
                         .id(task.getId())
                         .taskName(task.getTaskName())
-                        .targetMemberInfoDTO(new MemberDTO.PowerMemberInf정oDTO(
+                        .targetMemberInfoDTO(new MemberDTO.PowerMemberInfoDTO(
                                 task.getTargetMember().getId(),
                                 task.getTargetMember().getName(),
                                 task.getTargetMember().getImage(),
