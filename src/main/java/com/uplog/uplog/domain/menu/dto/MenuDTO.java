@@ -86,8 +86,8 @@ public class MenuDTO {
     @NoArgsConstructor
     public static class MenuPostsDTO {
         private MenuInfoDTO menuInfo;
-        private PostDTO.PostInfoDTO noticePost;
-        private List<PostDTO.PostInfoDTO> posts;
+        private PostDTO.PostDetailInfoDTO noticePost;
+        private List<PostDTO.PostDetailInfoDTO> posts;
     }
 
     @Getter

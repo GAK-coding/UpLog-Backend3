@@ -88,17 +88,17 @@ public class PostService {
 
 
         //TODO 프로젝트팀 넘겨주기
-        //authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
+        authorizedMethod.PostTaskValidateByMemberId(author,rootTeam);
 
-        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(id, rootTeam.getId())){
-            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 포스트 작성 권한이 없습니다.");
-        }
-        else{
-            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(id, rootTeam.getId()).orElseThrow(NotFoundIdException::new);
-            if(memberTeam.getPowerType() == PowerType.CLIENT){
-                throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
-            }
-        }
+//        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(id, rootTeam.getId())){
+//            throw new AuthorityException("프로젝트에 속하지 않은 멤버로 포스트 작성 권한이 없습니다.");
+//        }
+//        else{
+//            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(id, rootTeam.getId()).orElseThrow(NotFoundIdException::new);
+//            if(memberTeam.getPowerType() == PowerType.CLIENT){
+//                throw new AuthorityException("포스트 작성 권한이 없는 멤버입니다.");
+//            }
+//        }
 
 
 
@@ -184,11 +184,20 @@ public class PostService {
     */
     //TODO update 권한 설정해야,==으로 바꾸기
     @Transactional
-    public PostInfoDTO updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest, Long currentUserId) {
+    public PostDetailInfoDTO updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
+
+
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-            return toPostInfoDTO(post);
+            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -197,11 +206,18 @@ public class PostService {
     }
 
     @Transactional
-    public PostInfoDTO updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest, Long currentUserId) {
+    public PostDetailInfoDTO updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostContent(updatePostContentRequest.getUpdateContent());
-            return toPostInfoDTO(post);
+            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -211,8 +227,15 @@ public class PostService {
 
     //TODO Enum수정
     @Transactional
-    public PostInfoDTO updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest, Long currentUserId) {
+    public PostDetailInfoDTO updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
         PostType updatepostType = PostType.DEFAULT; // 기본값으로 설정
 
         String requestType = updatePostTypeRequest.getUpdatePostType();
@@ -230,7 +253,7 @@ public class PostService {
                 }
             }
             post.updatePostType(updatepostType);
-            return toPostInfoDTO(post);
+            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -239,8 +262,15 @@ public class PostService {
     }
 
     @Transactional
-    public PostInfoDTO updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest, Long currentUserId) {
+    public PostDetailInfoDTO updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
         Menu menu = menuRepository.findById(updatePostMenuRequest.getUpdateMenuId())
                 .orElseThrow(() -> new NotFoundIdException("해당 메뉴는 존재하지 않습니다."));
 
@@ -252,7 +282,7 @@ public class PostService {
                 }
             }
             post.updatePostMenu(menu);
-            return toPostInfoDTO(post);
+            return post.toPostDetailInfoDTO(postTags,likeCount,commentCount);
         }
 
         else{
@@ -262,8 +292,15 @@ public class PostService {
     }
 
     @Transactional
-    public PostInfoDTO updatePostInfo(Long id, UpdatePostRequest updatePostRequest, Long currentUserId) {
+    public PostDetailInfoDTO updatePostInfo(Long id, UpdatePostRequest updatePostRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
 
         if (!post.getAuthor().getId().equals(currentUserId)) {
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -313,7 +350,7 @@ public class PostService {
             post.updatePostMenu(menu);
         }
 
-        return toPostInfoDTO(post);
+        return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
     }
 
     //일단 임시
@@ -330,21 +367,26 @@ public class PostService {
 
     //TODO 이건 나중에 제품 수정할때 같이 불러야하는 서비스
     @Transactional
-    public PostInfoDTO updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest, Long currentUserId) {
+    public PostDetailInfoDTO updateProductName(Long id, UpdatePostProductRequest updatePostProductRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
         post.updatePostProductName(updatePostProductRequest.getUpdateProductName());
-        return toPostInfoDTO(post);
+        return post.toPostDetailInfoDTO(postTags, likeCount,commentCount);
 
 
     }
 
     //TODO 이건 나중에 프로젝트 수정할때 같이 불러야하는 서비스임
     @Transactional
-    public PostInfoDTO updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest, Long currentUserId) {
+    public void updateVersion(Long id, UpdatePostVersionRequest updatePostVersionRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         post.updatePostVersion(updatePostVersionRequest.getUpdateVersion());
-        return toPostInfoDTO(post);
-
     }
 
     /*
@@ -352,16 +394,31 @@ public class PostService {
      */
 
     @Transactional(readOnly = true)
-    public PostInfoDTO findById(Long Id){
+    public PostDetailInfoDTO findById(Long Id){
         Post post=postRepository.findById(Id).orElseThrow(NotFoundIdException::new);;
-        return toPostInfoDTO(post);
+        int likeCount = postLikeRepository.countByPostId(post.getId());
+        int commentCount = commentRepository.countByPostId(post.getId());
+
+        List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+        for(PostTag pt : post.getPostTagList()){
+            postTags.add(pt.getTag().toTagInfoDTO());
+        }
+        return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
     }
     @Transactional(readOnly = true)
-    public List<PostInfoDTO> findPostInfoByMenuId(Long menuId){
+    public List<PostDetailInfoDTO> findPostInfoByMenuId(Long menuId){
         List<Post> postList=postRepository.findByMenuId(menuId);
-        List<PostInfoDTO> postInfoDTOs=new ArrayList<>();
+
+        List<PostDetailInfoDTO> postInfoDTOs=new ArrayList<>();
         for(Post post:postList){
-            PostInfoDTO postInfoDTO=toPostInfoDTO(post);
+            int likeCount = postLikeRepository.countByPostId(post.getId());
+            int commentCount = commentRepository.countByPostId(post.getId());
+
+            List<TagInfoDTO> postTags = new ArrayList<>(); // PostTag 리스트 생성
+            for(PostTag pt : post.getPostTagList()){
+                postTags.add(pt.getTag().toTagInfoDTO());
+            }
+            PostDetailInfoDTO postInfoDTO=post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
             postInfoDTOs.add(postInfoDTO);
         }
         return postInfoDTOs;
@@ -376,27 +433,5 @@ public class PostService {
         // 메뉴 ID를 기반으로 페이지네이션된 포스트 목록을 가져옴
         return postRepository.findByMenuId(menuId, pageable);
     }
-
-    public PostInfoDTO toPostInfoDTO(Post post) {
-        int likeCount = postLikeRepository.countByPostId(post.getId());
-        int commentCount = commentRepository.countByPostId(post.getId());
-
-        return PostInfoDTO.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .authorInfoDTO(post.getAuthor().powerMemberInfoDTO())
-                .menuId(post.getMenu().getId())
-                .menuName(post.getMenu().getMenuName())
-                .productName(post.getProductName())
-                .projectName(post.getVersion())
-                .postType(post.getPostType())
-                .content(post.getContent())
-                //.postTags(post.getPostTagList())
-                .createTime(post.getCreateTime())
-                .likeCount(likeCount)
-                .commentCount(commentCount)
-                .build();
-    }
-
 
 }

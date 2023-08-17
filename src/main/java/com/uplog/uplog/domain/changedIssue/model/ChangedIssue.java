@@ -80,6 +80,7 @@ public class ChangedIssue extends BaseTime {
     public ChangedIssueDTO.IssueInfoByProjectDTO toIssueInfoByProjectDTO(){
         return ChangedIssueDTO.IssueInfoByProjectDTO.builder()
                 .id(this.id)
+                .title(this.title)
                 .issueStatus(this.issueStatus)
                 .content(this.content)
                 .createdTime(this.getCreatedTime())

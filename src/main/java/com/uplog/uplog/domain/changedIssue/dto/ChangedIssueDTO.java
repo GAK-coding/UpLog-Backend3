@@ -84,6 +84,7 @@ public class ChangedIssueDTO {
     public static class IssueInfoByProjectDTO {
         private Long id;
         private String content;
+        private String title;
         private IssueStatus issueStatus;
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;

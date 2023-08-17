@@ -27,12 +27,12 @@ public class StorageController {
         return storageService.uploadFileToKakaoCloudStorage(account,"small", multipartFile.getOriginalFilename(), multipartFile);
     }
 
-    //테스트 용
-//    @DeleteMapping("/storages/delete")
-//    public String deleteFile() throws URISyntaxException {
-//
-//        return storageService.deleteFileToKakaoCloudStorage("https://objectstorage.kr-gov-central-1.kakaoicloud-kr-gov.com/v1/63cec4bdfcfb4cfa90682fd84b850e5b/small/yunjung.png");
-//    }
+
+   @DeleteMapping("/storages/delete")
+    public String deleteFile(@RequestBody StorageDTO.requestDeleteDTO requestDeleteDTO) throws URISyntaxException {
+
+        return storageService.deleteFileToKakaoCloudStorage(requestDeleteDTO);
+    }
 
     //테스트 용
 //    @GetMapping("/storages/read")
