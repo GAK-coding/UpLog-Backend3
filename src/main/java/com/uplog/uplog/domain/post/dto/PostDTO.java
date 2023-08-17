@@ -63,58 +63,7 @@ public class PostDTO {
 
     }
 
-    /*
-    이건 임시용
-     */
 
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class CreatePostRequest{
-//        //private Long menuId;
-//        private String postType;
-//        //        private List<PostTag> postTagList;
-//        private String title;
-//        private String content;
-//        //private Long porductId;
-//        //private Long projectId;
-//
-//
-//// TODO POSTTYPE 관련해서 좀 더 수정해야함
-//
-//        public Post toEntity(Member member, PostType postType){
-//            return Post.builder()
-//                    .author(member)
-//                    //.menu(menu)
-//                    .title(this.title)
-//                    .content(content)
-//                    .postType(postType)
-//                    //.productName(product.getName())
-//                    //.version(project.getVersion());
-//                    .build();
-//        }
-//
-//    }
-
-//    @Getter
-//    @Builder
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    public static class PostInfoDTO1{
-//        private Long id;
-//        private String title;
-//        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
-//        //private Long menuId;
-//        //private String menuName;
-//        //private String productName;
-//        //private String projectName;
-//        //private String version;
-//        private PostType postType;
-//        private String content;
-//        private LocalDateTime createTime;
-//
-//    }
     @Getter
     @Builder
     @NoArgsConstructor
@@ -131,9 +80,28 @@ public class PostDTO {
         private String content;
         private List<TagInfoDTO> postTags;
         private LocalDateTime createTime;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostDetailInfoDTO{
+        private Long id;
+        private String title;
+        private MemberDTO.PowerMemberInfoDTO authorInfoDTO;
+        private Long menuId;
+        private String menuName;
+        private String productName;
+        private String projectName;
+        private PostType postType;
+        private String content;
+        private List<TagInfoDTO> postTags;
+        private LocalDateTime createTime;
         private int likeCount;
         private int commentCount;
     }
+
 
     //좋아요 위해서 만듬.
     @Builder
