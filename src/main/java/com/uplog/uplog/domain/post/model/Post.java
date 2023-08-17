@@ -43,7 +43,8 @@ public class Post extends BaseTime {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    @OneToMany(mappedBy = "post")
+    //TODO 고도화할때 만약 해당 포스트를 지워서 포스트태그가 없어졌을때 해당 태그가 하나도 없다면 태그도 지우게 해야함(현재는 포스트태그만 삭제돼)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostTag> postTagList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

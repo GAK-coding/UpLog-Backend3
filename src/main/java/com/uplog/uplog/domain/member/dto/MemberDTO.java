@@ -80,6 +80,7 @@ public class MemberDTO {
     public static class PowerMemberInfoDTO{
         private Long id;
         private String name;
+        private String image;
         private String nickname;
         private Position position;
     }
