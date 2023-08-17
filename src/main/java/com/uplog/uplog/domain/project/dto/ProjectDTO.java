@@ -81,6 +81,7 @@ public class ProjectDTO {
         private Long id;
         private String version;
         private ProjectStatus projectStatus;
+        private LocalDate endDate;
     }
 
     @Builder
