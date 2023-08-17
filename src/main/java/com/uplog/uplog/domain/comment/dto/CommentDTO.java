@@ -62,7 +62,7 @@ public class CommentDTO {
         private Long parentId;
         private String content;
         private String name;
-        //private String image;
+        private String image;
         private String nickName;
         private LocalDateTime createTime;
 

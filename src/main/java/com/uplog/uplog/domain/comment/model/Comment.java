@@ -53,10 +53,11 @@ public class Comment extends BaseTime {
         this.childList=childList;
         this.content=content;
     }
-    public CommentDTO.SimpleCommentInfo toSimpleCommentInfo(){
+    public CommentDTO.SimpleCommentInfo toSimpleCommentInfo(String image){
         return CommentDTO.SimpleCommentInfo.builder()
                 .content(this.content)
                 .id(this.id)
+                .image(image)
                 .nickName((this.author==null)?null:this.author.getNickname())
                 .name((this.author==null)?null:this.author.getName())
                 .memberId((this.author==null)?null:this.author.getId())
