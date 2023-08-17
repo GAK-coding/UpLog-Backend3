@@ -162,12 +162,14 @@ public class CommentService {
         Comment comment=commentRepository.findById(commentId)
                 .orElseThrow(()->new NotFoundCommentException(commentId));
 
+        Member member=memberRepository.findMemberById(memberId)
+                .orElseThrow(()->new NotFoundIdException());
         if(!memberValidate(comment.getAuthor().getId(),memberId)){
             throw new NotFoundIdException();
         }
 
         comment.updateCommentContent(updateCommentContent.getContent());
-        SimpleCommentInfo simpleCommentInfo =comment.toSimpleCommentInfo();
+        SimpleCommentInfo simpleCommentInfo =comment.toSimpleCommentInfo(member.getImage());
         return simpleCommentInfo;
 
     }
