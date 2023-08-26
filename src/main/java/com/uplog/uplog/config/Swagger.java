@@ -155,4 +155,14 @@ public class Swagger {
                 .pathsToMatch(paths)
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi logOpenApi(){
+        String[] paths = {"/logs/**"};
+
+        return GroupedOpenApi.builder()
+                .group("logs")
+                .pathsToMatch(paths)
+                .build();
+    }
 }

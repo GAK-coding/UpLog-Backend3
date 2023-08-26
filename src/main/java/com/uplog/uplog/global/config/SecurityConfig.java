@@ -80,6 +80,7 @@ public class SecurityConfig {
         http
                 .authorizeRequests()
                 .antMatchers("/members/**").permitAll() // 해당 Request는 허용한다.
+                .antMatchers("/logs/**").permitAll() // 해당 Request는 허용한다.
                 //.antMatchers("/storages/**").permitAll() // 해당 Request는 허용한다.
                 .antMatchers("/api/v2/**","/health","/swagger-ui.html","/swagger/**",
                         "/swagger-resources/**","/webjars/**","/api-docs/**",
