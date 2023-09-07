@@ -34,6 +34,17 @@ public class StorageDTO {
                 .bytes(multipartFile.getSize())
                 .build();
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class requestDeleteDTO{
+
+        private String url;
+
+    }
+
     public void addUrl(String url){
         this.url=url;
     }

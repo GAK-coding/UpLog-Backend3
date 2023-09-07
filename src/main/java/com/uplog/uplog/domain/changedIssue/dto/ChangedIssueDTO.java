@@ -23,8 +23,8 @@ public class ChangedIssueDTO {
         private String title;
         private String content;
         private IssueStatus issueStatus;
-        private LocalDateTime createdTime;
-        private LocalDateTime modifiedTime;
+        //private LocalDateTime createdTime;
+        //private LocalDateTime modifiedTime;
 
         public ChangedIssue toEntity(Member author, Project project){
             return ChangedIssue.builder()
@@ -58,6 +58,8 @@ public class ChangedIssueDTO {
         private String title;
         private String content;
         private IssueStatus issueStatus;
+        private LocalDateTime createdTime;
+        private LocalDateTime modifiedTime;
 
     }
 
@@ -69,6 +71,7 @@ public class ChangedIssueDTO {
         private Long id;
         private Long projectId;
         private String title;
+        private String image;
         private String content;
         private IssueStatus issueStatus;
         private LocalDateTime createdTime;
@@ -82,6 +85,8 @@ public class ChangedIssueDTO {
     public static class IssueInfoByProjectDTO {
         private Long id;
         private String content;
+        private String title;
+        private String image;
         private IssueStatus issueStatus;
         private LocalDateTime createdTime;
         private LocalDateTime modifiedTime;

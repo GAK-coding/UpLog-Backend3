@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,10 @@ public class Project extends BaseTime {
 
     @Enumerated(EnumType.STRING)
     private ProjectStatus projectStatus;
+
+    private LocalDate endDate;
+
+    public void setEndDate(LocalDate endDate){ this.endDate = endDate; }
 
     @Builder
     public Project(List<Team> teamList, Product product, List<Menu> menuList, String version, ProjectStatus projectStatus){
@@ -81,6 +86,7 @@ public class Project extends BaseTime {
                 .id(this.id)
                 .version(this.version)
                 .projectStatus(this.projectStatus)
+                .endDate(this.endDate)
                 .build();
     }
 
@@ -94,6 +100,7 @@ public class Project extends BaseTime {
         return ProjectDTO.UpdateProjectInfo.builder()
                 .id(this.id)
                 .version(this.version)
+                .endDate(this.endDate)
                 .projectStatus(this.projectStatus)
                 .build();
     }

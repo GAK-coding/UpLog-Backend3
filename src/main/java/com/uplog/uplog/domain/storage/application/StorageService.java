@@ -26,7 +26,7 @@ public class StorageService {
 
     // 카카오 아이클라우드 스토리지 업로드 API 엔드포인트
     private static final String KAKAO_UPLOAD_URL = "https://objectstorage.kr-gov-central-1.kakaoicloud-kr-gov.com/v1/{account}/{bucket_name}/{object_key}";
-    private final String authToken="gAAAAABk24mKTrSgXzRisek9RVAYrA99qF9Hq4OlrX-yA3NTtgeEgQgmeRzeQ9EOXZplMElv7KTR_mEORaPA59_wqZB5xmEI5xq8FY69Bpklmg2hTEOT0s_fNU8d2Iw6O88UWDvhanfDdefb8smIopSgPiMj0oMaQ4Sma01fclGkO4Gu47BWGuUmvByYAXHg3eDKsOysEaFs";
+    private final String authToken="gAAAAABk3iQ6ssU-5qxnQaooinZZwctS-g8pX30yye23R8yFff0HO-Wn3IqYi-Nk3D9whEp4gQjQhApsuHqO_rvwU6VjJcmvLQeVbVrf7zM3RYRJob589kfvQ-mg5_dfWG8eOd4aVX06xcDhUnNq7ES_U2oWO5WzAdzb7IHyrJziNTHsPF5aD80STSsBtFhk7pI44aokjT8R";
 
     // 카카오 클라우드 API에 업로드 요청 보내기
     public StorageDTO uploadFileToKakaoCloudStorage(String account, String bucketName, String objectKey, MultipartFile multipartFile) throws IOException, URISyntaxException {
@@ -59,10 +59,11 @@ public class StorageService {
     }
 
     //db에 저장 된 url
-    public String deleteFileToKakaoCloudStorage(String url) throws URISyntaxException {
+    public String deleteFileToKakaoCloudStorage(StorageDTO.requestDeleteDTO requestDeleteDTO) throws URISyntaxException {
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Auth-Token", authToken);
 
+        String url = requestDeleteDTO.getUrl();
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(headers, HttpMethod.DELETE, new URI(url));
         restTemplate.exchange(requestEntity, String.class);
         return "Delete Ok";

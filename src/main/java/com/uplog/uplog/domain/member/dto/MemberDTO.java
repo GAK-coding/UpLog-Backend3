@@ -58,10 +58,10 @@ public class MemberDTO {
     @AllArgsConstructor
     public static class MemberInfoDTO{
         private Long id;
+        private String image;
         private String email;
         private String name;
         private String nickname;
-        private String password;
         private Position position;
         private String accessToken;
         private String refreshToken;
@@ -80,6 +80,7 @@ public class MemberDTO {
     public static class PowerMemberInfoDTO{
         private Long id;
         private String name;
+        private String image;
         private String nickname;
         private Position position;
     }
@@ -92,7 +93,6 @@ public class MemberDTO {
         private Long id;
         private String name;
         private String nickname;
-        private String password;
     }
 
     @Getter
@@ -116,22 +116,15 @@ public class MemberDTO {
         private String newPassword;
     }
 
+    //memberUpdate DTO - 이름, 닉네임, 이미지 변경
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UpdateNameRequest{
-        //private Long id;
+    public static class UpdateMemberRequest{
         private String newName;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UpdateNicknameRequest{
-        //private long id;
         private String newNickname;
+        private String image;
     }
 
     //안쓰일것같지만 혹시 몰라서 만들어놓음.

@@ -18,6 +18,9 @@ import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
 //import com.uplog.uplog.domain.member.model.RefreshToken;
 import com.uplog.uplog.domain.member.model.MemberBase;
+import com.uplog.uplog.domain.member.model.Position;
+import com.uplog.uplog.domain.product.dao.ProductRepository;
+import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
 import com.uplog.uplog.domain.team.model.QTeam;
@@ -66,6 +69,7 @@ public class MemberService {
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisDao redisDao;
     private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -233,20 +237,29 @@ public class MemberService {
 
 
     //==========================Member Update====================================================
-    //TODO postman으로 변경사항 잘 반영되어 들어오는지 확인할것!!!!!!! + transaction공부
+    //멤버 변경 한번에 합침
     //이름 변경
     @Transactional
-    public SimpleMemberInfoDTO updateMemberName(Long id,UpdateNameRequest updateNameRequest){
+    public VerySimpleMemberInfoDTO updateMember(Long id,UpdateMemberRequest updateMemberRequest){
         Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        member.updateName(updateNameRequest.getNewName());
-        return member.simpleMemberInfoDTO();
-    }
-    //닉네임 변경
-    @Transactional
-    public SimpleMemberInfoDTO updateMemberNickname(Long id,UpdateNicknameRequest updateNicknameRequest){
-        Member member = memberRepository.findMemberById(id).orElseThrow(NotFoundIdException::new);
-        member.updateNickname(updateNicknameRequest.getNewNickname());
-        return member.simpleMemberInfoDTO();
+        if(updateMemberRequest.getNewName()!=null) {
+            member.updateName(updateMemberRequest.getNewName());
+
+            //기업인 사용자가 이름을 바꾸면 모든 제품 내에 회사이름을 바꿔줘야함.
+            if(member.getPosition()== Position.COMPANY){
+                List<Product> productList = productRepository.findProductsByCompanyId(member.getId());
+                for(Product p : productList){
+                    p.updateCompany(updateMemberRequest.getNewName());
+                }
+            }
+        }
+        if(updateMemberRequest.getNewNickname()!=null) {
+            member.updateNickname(updateMemberRequest.getNewNickname());
+        }
+        if(updateMemberRequest.getImage()!=null) {
+            member.updateImage(updateMemberRequest.getImage());
+        }
+        return member.toVerySimpleMemberInfoDTO();
     }
     //비밀번호 변경
     @Transactional

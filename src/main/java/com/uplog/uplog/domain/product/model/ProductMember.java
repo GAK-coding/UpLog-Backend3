@@ -36,9 +36,13 @@ public class ProductMember {
 
     private Long indexNum; //for drag/drop
 
+    private boolean delStatus;
+
     public void updatePowerType(PowerType powerType) {
         this.powerType = powerType;
     }
+
+    public void updateDelStatus(boolean delStatus){ this.delStatus = delStatus; }
 
     public void updateIndex(Long newIndex) {
         this.indexNum = newIndex;
@@ -51,6 +55,7 @@ public class ProductMember {
         this.member = member;
         this.powerType = powerType;
         this.indexNum = indexNum;
+        this.delStatus = false;
     }
 
     public SimpleProductMemberInfoDTO toSimpleProductMemberInfoDTO() {
@@ -60,27 +65,32 @@ public class ProductMember {
                 .memberName(this.member.getName())
                 .memberNickname(this.member.getNickname())
                 .productId(this.product.getId())
+                .delStatus(this.delStatus)
                 .build();
     }
 
     public ProductMemberInfoDTO toProductMemberInfoDTO() {
         return ProductMemberInfoDTO.builder()
                 .productId(this.product.getId())
+                .productImage(this.product.getImage())
                 .productName(this.getProduct().getName())
                 .memberName(this.member.getName())
                 .memberNickname(this.member.getNickname())
                 .powerType(this.powerType)
                 .indexNum(this.indexNum)
+                .delStatus(this.delStatus)
                 .build();
     }
 
     public ProductMemberPowerDTO toProductMemberPowerDTO(){
         return ProductMemberPowerDTO.builder()
                 .memberId(this.member.getId())
+                .image(this.member.getImage())
                 .memberEmail(this.member.getEmail())
                 .memberName(this.member.getName())
                 .memberNickName(this.member.getNickname())
                 .powerType(this.powerType)
+                .delStatus(this.delStatus)
                 .build();
     }
 }

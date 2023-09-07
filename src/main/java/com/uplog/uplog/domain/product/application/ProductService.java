@@ -81,7 +81,7 @@ public class ProductService {
                     throw new DuplicatedProductNameException("제품 이름이 중복됩니다.");
                 }
             }
-            Product product = createProductRequest.toProductEntity(member.getName(), member.getId());
+            Product product = createProductRequest.toProductEntity(member.getName(), member.getId(), createProductRequest.getImage());
             productRepository.save(product);
             //기업에 들어갈 시에는 클라이언트로 들어감.
             CreateProductMemberRequest createProductMemberRequest2 = CreateProductMemberRequest.builder()
@@ -262,9 +262,12 @@ public class ProductService {
                     }
                 }
             }
-
-
         }
+        //이미지 변경
+        if(updateProductRequest.getImage()!= null){
+            product.updateImage(updateProductRequest.getImage());
+        }
+        //제품에 멤버 초대
         if (!updateProductRequest.getMemberEmailList().isEmpty()) {
             for (String s : updateProductRequest.getMemberEmailList()) {
                 //존재하지 않는 멤버라면 리스트에 저장하고 출력
@@ -304,6 +307,7 @@ public class ProductService {
 
         }
         return UpdateResultDTO.builder()
+                .image(product.getImage())
                 .failCnt(failMemberList.size())
                 .failMemberList(failMemberList)
                 .duplicatedCnt(duplicatedMemberList.size())
@@ -371,4 +375,60 @@ public class ProductService {
         }
 
     }
+
+    //==================================delete==============================
+    //방출하면 데이터가 다 사라져야해서 컬럼으로 인자를 두고 바꾸는게 좋을 것 같다.
+    //마스터는 방출하지 못함.
+    //리더를 방출 할 경우, 위임할 사람으로 권한 업데이트
+    @Transactional
+    public void deleteProductMember(Long memberId, Long productId, DeleteProductMemberRequest deleteProductMemberRequest){
+        ProductMember productMember = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, productId).orElseThrow(NotFoundIdException::new);
+
+        if(productMember.getPowerType() == PowerType.CLIENT || productMember.getPowerType() == PowerType.DEFAULT){
+            throw new AuthorityException("멤버 방출 권한이 없습니다.");
+        }
+
+        //방출하는 대상 확인
+        ProductMember targetMember = productMemberRepository.findProductMemberByMemberIdAndProductId(deleteProductMemberRequest.getDeleteMemberId(), productId).orElseThrow(NotFoundIdException::new);
+        //마스터는 방출하지 못함.
+        if(targetMember.getPowerType() == PowerType.MASTER){
+            throw new AuthorityException("마스터는 방출할 수 있는 권한이 없습니다.");
+        }
+        //리더를 방출한다면 권한 위임
+        if(targetMember.getPowerType() == PowerType.LEADER){
+            targetMember.updateDelStatus(true);
+
+            ProductMember delegatedMember = productMemberRepository.findProductMemberByMemberIdAndProductId(deleteProductMemberRequest.getDelegatedMemberId(), productId).orElseThrow(NotFoundIdException::new);
+            delegatedMember.updatePowerType(PowerType.LEADER);
+            //현재 진행중인 프로젝트 찾기
+            //권한이 업데이트 되면 팀에서도 업데이트되어야함.
+            if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+                //방출당한 팀에서 모두 다 삭제 표시
+                List<MemberTeam> deletedMemberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDeleteMemberId(), project.getId());
+                for(MemberTeam dmt : deletedMemberTeamList){
+                    dmt.updateDelStatus(true);
+                }
+
+                //프로젝트에 멤버가 속한 memberTeam 찾기
+                List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDelegatedMemberId(), project.getId());
+                for (MemberTeam mt : memberTeamList) {
+                    mt.updatePowerType(PowerType.LEADER);
+                }
+            }
+
+        }
+        else{
+            targetMember.updateDelStatus(true);
+            if (projectRepository.existsByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN)) {
+                Project project = projectRepository.findProjectByProductIdAndProjectStatus(productId, ProjectStatus.PROGRESS_IN).orElseThrow(NotFoundIdException::new);
+                //방출당한 팀에서 모두 다 삭제 표시
+                List<MemberTeam> deletedMemberTeamList = memberTeamRepository.findMemberTeamsByMemberIdAndProjectId(deleteProductMemberRequest.getDeleteMemberId(), project.getId());
+                for (MemberTeam dmt : deletedMemberTeamList) {
+                    dmt.updateDelStatus(true);
+                }
+            }
+        }
+    }
+
 }
