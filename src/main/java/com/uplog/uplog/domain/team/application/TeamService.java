@@ -55,9 +55,9 @@ public class TeamService {
     @Transactional
     public CreateTeamResultDTO createTeam(Long currentMemberId, Long projectId, CreateTeamRequest createTeamRequest) throws Exception {
         createTeamRequest.getMemberIdList().add(currentMemberId);
-        Project project = projectRepository.findById(projectId).orElseThrow(NotFoundIdException::new);
+        Project project = projectRepository.findById(projectId).orElseThrow(()-> new NotFoundIdException("project를 찾을 수 없습니다."));
         //멤버가 현재 프로젝트에 속한사람인지 확인
-        Team rootTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(NotFoundIdException::new);
+        Team rootTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(() -> new NotFoundIdException("rootTeam을 찾을 수 없습니다."));
         if (!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(currentMemberId, rootTeam.getId())) {
             throw new AuthorityException("팀에 속하지 않은 멤버로, 팀 생성 권한이 없습니다.");
         }
@@ -70,7 +70,7 @@ public class TeamService {
         //생성 외에 부모가 널로 들어왔다면, 프로젝트 생성시에 만들어진 젠체 그룹으로 부모넣어주기
         if (createTeamRequest.getParentTeamId() != null) {
             List<Long> duplicatedMemberIdList = new ArrayList<>();
-            Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(NotFoundIdException::new);
+            Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(()-> new NotFoundIdException("parentTeam을 찾을 수 없습니다"));
             //팀의 최대 depth는 2임. 부모가 2가 되면 안됨
             if(parentTeam.getDepth()==2){
                 throw new DepthException("팀의 최대 depth를 초과했습니다.");
@@ -83,7 +83,7 @@ public class TeamService {
                 if(memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, team.getId())){
                     duplicatedMemberIdList.add(memberId);
                 }
-                ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, project.getProduct().getId()).orElseThrow(NotFoundIdException::new);
+                ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, project.getProduct().getId()).orElseThrow(()-> new NotFoundIdException("productMember 객체를 찾을 수 없습니다."));
                 CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
                         .teamId(team.getId())
                         .memberId(memberId)
@@ -99,7 +99,7 @@ public class TeamService {
         } else {
             //부모를 입력 안해줬을 경우, 루트 밑으로 들어가니까 뎁스는 당연히 1
             List<Long> duplicatedMemberIdList = new ArrayList<>();
-            Team parentTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(NotFoundIdException::new);
+            Team parentTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(()-> new NotFoundIdException("parentTeam을 찾을 수 없습니다."));
             Team team = createTeamRequest.toEntity(project, parentTeam,1);
             teamRepository.save(team);
 
@@ -107,7 +107,8 @@ public class TeamService {
                 if(memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, team.getId())){
                     duplicatedMemberIdList.add(memberId);
                 }
-                ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, project.getProduct().getId()).orElseThrow(NotFoundIdException::new);
+                ProductMember memberProduct = productMemberRepository.findProductMemberByMemberIdAndProductId(memberId, project.getProduct().getId()).orElseThrow(()->
+                    new NotFoundIdException("memberProduct 객체를 찾을 수 없습니다."));
                 CreateMemberTeamRequest createMemberTeamRequest = CreateMemberTeamRequest.builder()
                         .teamId(team.getId())
                         .memberId(memberId)
