@@ -82,7 +82,7 @@ public class Task extends BaseTime {
                 .taskStatus(this.getTaskStatus())
                 .startTime(this.getStartTime())
                 .endTime(this.getEndTime())
-                .taskIndex(this.taskIndex)
+                //.taskIndex(this.taskIndex)
                 .build();
     }
 

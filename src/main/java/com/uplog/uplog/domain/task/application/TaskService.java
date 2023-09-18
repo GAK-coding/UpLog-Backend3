@@ -119,8 +119,8 @@ public class TaskService {
                                 task.getTargetMember().getId(),
                                 task.getTargetMember().getName(),
                                 task.getTargetMember().getImage(),
-                                task.getTargetMember().getNickname(),
-                                task.getTargetMember().getPosition()
+                                task.getTargetMember().getNickname()
+                             //   task.getTargetMember().getPosition()
 
                         ))
                         .menuId(menu.getId())
