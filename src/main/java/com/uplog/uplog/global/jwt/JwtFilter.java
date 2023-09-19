@@ -43,17 +43,17 @@ public class JwtFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest);
         //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
         String requestURI = httpServletRequest.getRequestURI();
-
+        System.out.println("1");
         if(!requestURI.equals("/members/refresh")){
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-
+                System.out.println("2");
                 String isLogout = (String) redisTemplate.opsForValue().get(jwt);
 
                 if(isLogout==null) {
                     Authentication authentication = tokenProvider.getAuthentication(jwt);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
-                    System.out.println("Expire Time : "+tokenProvider.getExpiration(jwt));
+                    //System.out.println("Expire Time : "+tokenProvider.getExpiration(jwt));
                 }
 
 

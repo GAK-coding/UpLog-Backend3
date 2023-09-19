@@ -119,7 +119,7 @@ public class MemberService {
         }
         SecurityContextHolder.clearContext();;
         // 2. Access Token에서 ID 가져오기
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getRefreshToken());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
@@ -132,8 +132,8 @@ public class MemberService {
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
 
-        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
-        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
+        //Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
+        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(), "logout");
         // 5. 새로운 토큰 생성
         TokenDTO tokenDto = tokenProvider.createToken(authentication);
 
