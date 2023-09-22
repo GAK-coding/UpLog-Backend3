@@ -21,6 +21,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Arrays;
@@ -37,7 +39,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
     private final String secret;
-    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(1).toMillis();//만료시간 30분
+    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(10).toMillis();//만료시간 30분
     //Duration.ofMinutes(30).toMillis()
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
 
@@ -61,7 +63,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenDTO createToken(Authentication authentication) {
+    public HttpServletResponse createToken(HttpServletResponse response,Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -86,14 +88,26 @@ public class TokenProvider implements InitializingBean {
         System.out.println("REfresh: "+refreshToken);
         redisDao.setValues("RT:"+authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
 
+        Cookie cookie= new Cookie("Access","Bearer"+accessToken);
+        Cookie cookie1= new Cookie("Refresh","Bearer"+refreshToken);
 
 
-        return TokenDTO.builder()
-                .grantType(BEARER_TYPE)
-                .accessToken(accessToken)
-                .accessTokenExpiresIn(validity.getTime())
-                .refreshToken(refreshToken)
-                .build();
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge((int)30);
+        cookie1.setPath("/");
+        cookie1.setHttpOnly(true);
+        cookie1.setMaxAge((int)RefreshTokenValidityInMilliseconds);
+        response.addCookie(cookie);
+        response.addCookie(cookie1);
+
+        return response;
+//        return TokenDTO.builder()
+//                .grantType(BEARER_TYPE)
+//                .accessToken(accessToken)
+//                .accessTokenExpiresIn(validity.getTime())
+//                .refreshToken(refreshToken)
+//                .build();
     }
 
     public Authentication getAuthentication(String token) {

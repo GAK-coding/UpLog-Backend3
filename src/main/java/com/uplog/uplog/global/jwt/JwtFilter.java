@@ -19,8 +19,10 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class JwtFilter extends GenericFilterBean {
@@ -40,10 +42,23 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwt = resolveToken(httpServletRequest);
-        //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
         String requestURI = httpServletRequest.getRequestURI();
-        System.out.println("1");
+
+        String token="";
+        if(httpServletRequest.getCookies()==null)
+            token=null;
+        else {
+           token = Arrays.stream(httpServletRequest.getCookies())
+                    .filter(c -> c.getName().equals("Access"))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+        }
+            String jwt = resolveToken(token);
+
+        //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
+
+
         if(!requestURI.equals("/members/refresh")){
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 System.out.println("2");
@@ -67,10 +82,11 @@ public class JwtFilter extends GenericFilterBean {
 
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+    private String resolveToken(String token) {
+        //String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String bearerToken = token;
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            return bearerToken.substring(6);
         }
 
         return null;

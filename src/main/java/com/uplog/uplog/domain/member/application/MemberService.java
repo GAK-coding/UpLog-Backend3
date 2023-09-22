@@ -48,6 +48,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -112,14 +115,27 @@ public class MemberService {
      * 토큰 재발급
      */
     @Transactional
-    public TokenDTO refresh(TokenRequestDTO tokenRequestDto) {
+    public HttpServletResponse refresh(HttpServletRequest request, HttpServletResponse response,TokenRequestDTO tokenRequestDto) {
+        String Access = Arrays.stream(request.getCookies())
+                .filter(c -> c.getName().equals("Access"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+        String Refresh = Arrays.stream(request.getCookies())
+                .filter(c -> c.getName().equals("Refresh"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+        Access=Access.substring(6);
+        Refresh=Refresh.substring(6);
+        System.out.println("Access : "+Access+"  Refresh: "+Refresh);
         // 1. Refresh Token 검증 (validateToken() : 토큰 검증)
-        if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
+        if(!tokenProvider.validateToken(Refresh)) {
             throw new ExpireRefreshTokenException();
         }
         SecurityContextHolder.clearContext();;
         // 2. Access Token에서 ID 가져오기
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getRefreshToken());
+        Authentication authentication = tokenProvider.getAuthentication(Refresh);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
@@ -128,22 +144,21 @@ public class MemberService {
             throw new RuntimeException("로그아웃 된 사용자입니다.");
         }
         // 4. Refresh Token 일치 여부
-        if (!rtkInRedis.equals(tokenRequestDto.getRefreshToken())) {
+        if (!rtkInRedis.equals(Refresh)) {
             throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
         }
 
         //Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
         redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(), "logout");
         // 5. 새로운 토큰 생성
-        TokenDTO tokenDto = tokenProvider.createToken(authentication);
+        response = tokenProvider.createToken(response,authentication);
 
         // 6. 저장소 정보 업데이트
         redisDao.deleteValues("RT:"+authentication.getName());
 
-        redisDao.setValues("RT:"+authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
-
+        redisDao.setValues("RT:"+authentication.getName(),Refresh,Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
         //토큰 발급
-        return tokenDto;
+        return response;
     }
     private Authority getOrCreateAuthority(String authorityName) {
         Authority existingAuthority = entityManager.find(Authority.class, authorityName);
