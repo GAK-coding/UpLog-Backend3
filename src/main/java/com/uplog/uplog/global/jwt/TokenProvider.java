@@ -39,7 +39,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
     private final String secret;
-    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(10).toMillis();//만료시간 30분
+    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(1).toMillis();//만료시간 30분
     //Duration.ofMinutes(30).toMillis()
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
 
@@ -94,11 +94,11 @@ public class TokenProvider implements InitializingBean {
 
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setMaxAge((int)30);
+        cookie.setMaxAge((int)90000000);
 
         cookie1.setPath("/");
         cookie1.setHttpOnly(true);
-        cookie1.setMaxAge((int)RefreshTokenValidityInMilliseconds);
+        cookie1.setMaxAge((int)90000000);
         response.addCookie(cookie);
         response.addCookie(cookie1);
 

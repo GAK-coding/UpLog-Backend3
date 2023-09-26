@@ -61,7 +61,7 @@ public class JwtFilter extends GenericFilterBean {
 
         if(!requestURI.equals("/members/refresh")){
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                System.out.println("2");
+
                 String isLogout = (String) redisTemplate.opsForValue().get(jwt);
 
                 if(isLogout==null) {

@@ -70,20 +70,18 @@ public class MemberController {
     }
 
     @PostMapping("/members/logout")
-    public String logoutPage(HttpServletRequest request, HttpServletResponse response,
-                             @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
 
-        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        SecurityContextHolder.clearContext();
-        memberService.logout(tokenRequestDTO);
+
+        memberService.logout(request,response);
 
         return "logout success";
     }
     //리프레시 토큰 만료 시
     @PostMapping("/members/refresh")
-    public ResponseEntity refresh(HttpServletRequest request,HttpServletResponse response,@RequestBody TokenRequestDTO tokenRequestDto) {
+    public ResponseEntity refresh(HttpServletRequest request,HttpServletResponse response) {
         //return ResponseEntity.ok(memberService.refresh(request,response,tokenRequestDto));
-        response=memberService.refresh(request,response,tokenRequestDto);
+        response=memberService.refresh(request,response);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

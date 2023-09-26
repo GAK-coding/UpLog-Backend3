@@ -83,4 +83,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(errorResponse);
     }
 
+    @ExceptionHandler(InConsistencyRefreshTokenException.class)
+    protected final ResponseEntity<ErrorResponse> InconsistencyRefreshTokenExceptionHandler(InConsistencyRefreshTokenException e, WebRequest webRequest){
+        final ErrorResponse errorResponse = ErrorResponse.builder()
+                .httpStatus(HttpStatus.CONFLICT)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.ok(errorResponse);
+    }
+
 }
