@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -75,6 +76,7 @@ public class MemberService {
     private final ProductRepository productRepository;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
     private long seconds=10000;
@@ -172,11 +174,22 @@ public class MemberService {
     }
     //로그인
     @Transactional(readOnly = true)
-    public MemberInfoDTO login(LoginRequest loginRequest){
+    public MemberInfoDTO login(LoginRequest loginRequest, HttpServletResponse response){
         Member member = memberRepository.findMemberByEmail(loginRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
-//        if(!passwordEncoder.encode(loginRequest.getPassword()).equals(member.getPassword())){
-//            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
-//        }
+
+        if(!this.passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())){
+            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken=
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
+
+        Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        response =tokenProvider.createToken(response,authentication);
+
         return member.toMemberInfoDTO();
     }
     @Transactional

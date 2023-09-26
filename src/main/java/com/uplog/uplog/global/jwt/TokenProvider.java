@@ -95,6 +95,7 @@ public class TokenProvider implements InitializingBean {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int)30);
+
         cookie1.setPath("/");
         cookie1.setHttpOnly(true);
         cookie1.setMaxAge((int)RefreshTokenValidityInMilliseconds);

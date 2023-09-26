@@ -53,8 +53,6 @@ public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
-    private int AccessTokenValidityInMilliseconds = (int)Duration.ofMinutes(10).toSeconds();//만료시간 30분
-    private int RefreshTokenValidityInMilliseconds=(int)Duration.ofDays(14).toSeconds(); //만료시간 2주
     //=============================create=======================================
     @PostMapping(value = "/members")
     public ResponseEntity<MemberInfoDTO> createMember(@RequestBody @Validated CreateMemberRequest createMemberRequest){
@@ -65,17 +63,10 @@ public class MemberController {
     //로그인
     //security 로직 추가
     @PostMapping(value = "/members/login")
-    public ResponseEntity longin(HttpServletResponse response,@RequestBody @Validated LoginRequest loginRequest){
-        UsernamePasswordAuthenticationToken authenticationToken=
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
+    public ResponseEntity<MemberInfoDTO> longin(HttpServletResponse response,@RequestBody @Validated LoginRequest loginRequest){
 
-        Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        response =tokenProvider.createToken(response,authentication);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        MemberInfoDTO memberInfoDTO = memberService.login(loginRequest,response);
+        return new ResponseEntity<>(memberInfoDTO,HttpStatus.OK);
     }
 
     @PostMapping("/members/logout")
