@@ -1,6 +1,7 @@
 package com.uplog.uplog.domain.menu.application;
 
 import com.uplog.uplog.domain.comment.dao.CommentRepository;
+import org.springframework.data.domain.Sort;
 import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
@@ -200,7 +201,7 @@ public class MenuService {
 
     @Transactional(readOnly = true)
     public PagingTaskDTO findTasksByMenuIdWithPagination(Long menuId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Task> taskPage = taskService.findPageByMenuId(menuId, pageable);
 
         boolean nextPage = taskPage.hasNext();
