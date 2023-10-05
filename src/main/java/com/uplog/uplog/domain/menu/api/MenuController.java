@@ -1,23 +1,15 @@
 package com.uplog.uplog.domain.menu.api;
 
 import com.uplog.uplog.domain.menu.application.MenuService;
-import com.uplog.uplog.domain.menu.dto.MenuDTO;
-import com.uplog.uplog.domain.menu.model.Menu;
-import com.uplog.uplog.domain.post.dto.PostDTO;
 import com.uplog.uplog.domain.task.dto.TaskDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,8 +59,8 @@ public class MenuController {
     }
 
     @DeleteMapping("/menus/{menu-id}/reset-notice")
-    public ResponseEntity<MenuInfoDTO> deleteNoticePost(@PathVariable(name="menu-id")  Long menuId) {
-        MenuInfoDTO result = menuService.deleteNoticePost(menuId);
+    public ResponseEntity<String> deleteNoticePost(@PathVariable(name="menu-id")  Long menuId) {
+        String result = menuService.deleteNoticePost(menuId);
         return ResponseEntity.ok(result);
     }
 
@@ -84,12 +76,12 @@ public class MenuController {
 
     //메뉴별 테스크 가져오기->근데 이걸 메뉴에서 처리하는게 맞을까(==포스트도 )
     @GetMapping("/menus/{menu-id}/tasks")
-    public ResponseEntity<MenuTasksDTO> findTasksAndMenuInfoByMenuId(@PathVariable(name="menu-id") Long menuId) {
+    public ResponseEntity<List<TaskDTO.TaskInfoDTO>> findTasksAndMenuInfoByMenuId(@PathVariable(name="menu-id") Long menuId) {
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = menuService.findTasksByMenuId(menuId);
-        MenuInfoDTO menuInfoDTO = menuService.findMenuById(menuId);
+        //MenuInfoDTO menuInfoDTO = menuService.findMenuById(menuId);
 
-        MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
-        return ResponseEntity.ok(menuTasksDTO);
+        //MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
+        return ResponseEntity.ok(taskInfoDTOList);
     }
 
     //페이지네이션

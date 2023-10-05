@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -158,10 +157,10 @@ public class MenuService {
     }
 
     @Transactional
-    public MenuInfoDTO deleteNoticePost(Long menuId) {
+    public String deleteNoticePost(Long menuId) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         menu.updateNoticePost(null);
-        return menu.toMenuInfoDTO();
+        return "delete";
     }
 
 
