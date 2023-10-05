@@ -92,11 +92,12 @@ public class MenuDTO {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class PagingPostDTO {
         private boolean nextPage;
         private MenuInfoDTO menuInfo;
-        private PostDTO.PostInfoDTO noticePost;
-        private List<PostDTO.PostInfoDTO> posts;
+        private PostDTO.PostDetailInfoDTO noticePost;
+        private List<PostDTO.PostDetailInfoDTO> posts;
     }
 
     @Getter

@@ -198,6 +198,7 @@ public class MenuService {
                 .collect(Collectors.toList());
     }
 
+    //테스크 페이지네이션
     @Transactional(readOnly = true)
     public PagingTaskDTO findTasksByMenuIdWithPagination(Long menuId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
@@ -237,6 +238,46 @@ public class MenuService {
 //                .map(Post::toPostDetailInfoDTO())
 //                .collect(Collectors.toList());
     }
+    @Transactional(readOnly = true)
+    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, int page, int size) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+        Post noticePost = menu.getNoticePost();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Post> postPage = postService.findPageByMenuId(menuId, pageable);
+        boolean nextPage = postPage.hasNext();
+
+        List<PostDTO.PostDetailInfoDTO> postInfoDTOs = new ArrayList<>();
+
+        for (Post post : postPage.getContent()) {
+            int likeCount = postLikeRepository.countByPostId(post.getId());
+            int commentCount = commentRepository.countByPostId(post.getId());
+
+            List<TagDTO.TagInfoDTO> postTags = new ArrayList<>();
+            for (PostTag pt : post.getPostTagList()) {
+                postTags.add(pt.getTag().toTagInfoDTO());
+            }
+
+            postInfoDTOs.add(post.toPostDetailInfoDTO(postTags, likeCount, commentCount));
+        }
+
+        MenuInfoDTO menuInfoDTO = menu.toMenuInfoDTO();
+
+        PostDTO.PostDetailInfoDTO noticePostDTO = null;
+        if (noticePost != null) {
+            int likeCount = postLikeRepository.countByPostId(noticePost.getId());
+            int commentCount = commentRepository.countByPostId(noticePost.getId());
+
+            List<TagDTO.TagInfoDTO> postTags = new ArrayList<>();
+            for (PostTag pt : noticePost.getPostTagList()) {
+                postTags.add(pt.getTag().toTagInfoDTO());
+            }
+
+            noticePostDTO = noticePost.toPostDetailInfoDTO(postTags, likeCount, commentCount);
+        }
+
+        return new PagingPostDTO(nextPage, menuInfoDTO, noticePostDTO, postInfoDTOs);
+    }
+
 
     @Transactional(readOnly = true)
     public MenuPostsDTO findPostsInfoByMenuId(Long menuId) {
@@ -273,22 +314,6 @@ public class MenuService {
         }
     }
 
-
-//    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, Pageable pageable) {
-//        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
-//
-//        Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
-//        List<PostDTO.PostInfoDTO> postInfoDTOList = postPage.getContent().stream()
-//                .map(post -> post.toPostDetailInfoDTO())
-//                .collect(Collectors.toList());
-//
-//        Post noticePost = menu.getNoticePost();
-//        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
-//
-//        boolean nextPage = postPage.hasNext();
-//
-//        return new PagingPostDTO(nextPage, menu.toMenuInfoDTO(), noticePostDTO, postInfoDTOList);
-//    }
 
     }
 
