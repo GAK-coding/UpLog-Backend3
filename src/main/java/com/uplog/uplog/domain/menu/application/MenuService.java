@@ -79,7 +79,7 @@ public class MenuService {
     }
 
     @Transactional
-    public MenuInfoDTO createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {
+    public Long createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(NotFoundIdException::new);
 
@@ -99,7 +99,7 @@ public class MenuService {
 
         Menu menu = createMenuRequest.toEntity(project);
         menuRepository.save(menu);
-        return menu.toMenuInfoDTO();
+        return menu.toMenuInfoDTO().getId();
     }
 
     /*

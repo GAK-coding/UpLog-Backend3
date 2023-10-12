@@ -21,14 +21,14 @@ public class MenuController {
     CREATE
      */
     @PostMapping("/menus/{project-id}/default")
-    public ResponseEntity<List<SimpleMenuInfoDTO>> createDefaultMenus(@PathVariable(name="project-id") Long projectId) {
+    public ResponseEntity<String> createDefaultMenus(@PathVariable(name="project-id") Long projectId) {
         List<SimpleMenuInfoDTO> createdMenus = menuService.createDefaultMenu(projectId);
-        return ResponseEntity.ok(createdMenus);
+        return ResponseEntity.ok("success");
     }
 
     @PostMapping(value="/menus/{project-id}")
-    public ResponseEntity<MenuInfoDTO> createMenu(@PathVariable(name="project-id") Long projectId, @RequestBody CreateMenuRequest createMenuRequest){
-        MenuInfoDTO menuInfoDTO=menuService.createMenu(projectId,createMenuRequest);
+    public ResponseEntity<Long> createMenu(@PathVariable(name="project-id") Long projectId, @RequestBody CreateMenuRequest createMenuRequest){
+        Long menuInfoDTO=menuService.createMenu(projectId,createMenuRequest);
         return ResponseEntity.ok(menuInfoDTO);
     }
 
