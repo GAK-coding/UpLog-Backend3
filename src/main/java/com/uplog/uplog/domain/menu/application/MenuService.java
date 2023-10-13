@@ -213,7 +213,7 @@ public class MenuService {
         MenuInfoDTO menuInfoDTO = findMenuById(menuId);
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
 
-        return new PagingTaskDTO(nextPage, Collections.singletonList(menuTasksDTO));
+        return new PagingTaskDTO(nextPage,page, Collections.singletonList(menuTasksDTO));
     }
 
 
@@ -275,7 +275,7 @@ public class MenuService {
             noticePostDTO = noticePost.toPostDetailInfoDTO(postTags, likeCount, commentCount);
         }
 
-        return new PagingPostDTO(nextPage, menuInfoDTO, noticePostDTO, postInfoDTOs);
+        return new PagingPostDTO(nextPage, page, menuInfoDTO, noticePostDTO, postInfoDTOs);
     }
 
 

@@ -95,6 +95,7 @@ public class MenuDTO {
     @NoArgsConstructor
     public static class PagingPostDTO {
         private boolean nextPage;
+        private int currentPage;
         private MenuInfoDTO menuInfo;
         private PostDTO.PostDetailInfoDTO noticePost;
         private List<PostDTO.PostDetailInfoDTO> posts;
@@ -106,6 +107,7 @@ public class MenuDTO {
     @AllArgsConstructor
     public static class PagingTaskDTO{
         private boolean nextPage;
+        private int currentPage;
         List<MenuTasksDTO> pagingTaskData=new ArrayList<>();
     }
 
