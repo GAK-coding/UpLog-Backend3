@@ -30,6 +30,7 @@ import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
 import com.uplog.uplog.global.exception.InConsistencyRefreshTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.global.jwt.CustomHttpStatus;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -125,12 +126,17 @@ public class MemberService {
         String Refresh=tokenRequestDTO.getRefreshToken();
         System.out.println("Access : "+Access+"  Refresh: "+Refresh);
         // 1. Refresh Token 검증 (validateToken() : 토큰 검증)
-        if(!tokenProvider.validateToken(Refresh)) {
+        if(!tokenProvider.validateToken(Refresh,request,"REFRESH")) {
 
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
             SecurityContextHolder.clearContext();
+            System.out.println("REFRESH HERE1 ");
             redisTemplate.opsForValue().set(Access, "logout");
-            throw new ExpireRefreshTokenException();
+            return response;
+            //throw new ExpireRefreshTokenException();
+
+            //TODO 여기 테스트
+            //request.setAttribute("exception", CustomHttpStatus.REFRESH_EXPIRED.value());
         }
 
         // 2. Access Token에서 ID 가져오기
@@ -144,7 +150,10 @@ public class MemberService {
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
             SecurityContextHolder.clearContext();
             redisTemplate.opsForValue().set(Access, "logout");
-            throw new ExpireRefreshTokenException();
+            System.out.println("REFRESH HERE2 ");
+            request.setAttribute("exception", CustomHttpStatus.REFRESH_EXPIRED.value());
+            return response;
+            //throw new ExpireRefreshTokenException();
         }
         // 4. Refresh Token 일치 여부
         if (!rtkInRedis.equals(Refresh)) {
@@ -177,19 +186,30 @@ public class MemberService {
 
     private TokenRequestDTO getTokenFromCookie(HttpServletRequest request){
 
-        String Access = Arrays.stream(request.getCookies())
-                .filter(c -> c.getName().equals("Access"))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-        String Refresh = Arrays.stream(request.getCookies())
-                .filter(c -> c.getName().equals("Refresh"))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-        Access=Access.substring(6);
-        Refresh=Refresh.substring(6);
-
+        String Access="";
+        String Refresh="";
+        if(request.getCookies()==null)
+            throw new ExpireRefreshTokenException();
+        else {
+            Access = Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equals("Access"))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+            Refresh = Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equals("Refresh"))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+            if(Access==null){
+                throw new ExpireAccessTokenException();
+            }
+            else if(Refresh==null){
+                throw new ExpireRefreshTokenException();
+            }
+            Access = Access.substring(6);
+            Refresh = Refresh.substring(6);
+        }
         TokenRequestDTO tokenRequestDTO=new TokenRequestDTO();
         tokenRequestDTO.addTokenToMemberInfoDTO(Access,Refresh);
 
@@ -223,7 +243,7 @@ public class MemberService {
         String Access=tokenRequestDTO.getAccessToken();
         String Refresh=tokenRequestDTO.getRefreshToken();
         // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
-        if (!tokenProvider.validateToken(Access)){
+        if (!tokenProvider.validateToken(Access,request,"ACCESS")){
             throw new ExpireAccessTokenException();
         }
 

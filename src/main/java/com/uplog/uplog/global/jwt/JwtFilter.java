@@ -46,6 +46,7 @@ public class JwtFilter extends GenericFilterBean {
 
         String token="";
         if(httpServletRequest.getCookies()==null)
+            //throw new ExpireAccessTokenException();
             token=null;
         else {
            token = Arrays.stream(httpServletRequest.getCookies())
@@ -58,9 +59,9 @@ public class JwtFilter extends GenericFilterBean {
 
         //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
 
-
         if(!requestURI.equals("/members/refresh")){
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt,httpServletRequest,"ACCESS")) {
 
                 String isLogout = (String) redisTemplate.opsForValue().get(jwt);
 

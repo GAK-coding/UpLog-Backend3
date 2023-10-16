@@ -3,15 +3,11 @@ package com.uplog.uplog.global.jwt;
 //import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
-import com.uplog.uplog.domain.member.dto.TokenDTO;
-import com.uplog.uplog.global.error.ErrorResponse;
-import com.uplog.uplog.global.exception.ExpireAccessTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springdoc.api.ErrorMessage;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +18,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.time.Duration;
@@ -38,10 +35,12 @@ public class TokenProvider implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
+    private static final String Access_token="ACCESS";
+    private static final String Refresh_token="REFRESH";
     private final String secret;
     private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(1).toMillis();//만료시간 30분
     //Duration.ofMinutes(30).toMillis()
-    private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
+    private long RefreshTokenValidityInMilliseconds=Duration.ofMinutes(1).toMillis(); //만료시간 2주
 
     private final RedisDao redisDao;
 
@@ -88,19 +87,19 @@ public class TokenProvider implements InitializingBean {
         System.out.println("REfresh: "+refreshToken);
         redisDao.setValues("RT:"+authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
 
-        Cookie cookie= new Cookie("Access","Bearer"+accessToken);
-        Cookie cookie1= new Cookie("Refresh","Bearer"+refreshToken);
+        Cookie cookie_access= new Cookie("Access","Bearer"+accessToken);
+        Cookie cookie_refresh= new Cookie("Refresh","Bearer"+refreshToken);
 
 
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge((int)90000000);
+        cookie_access.setPath("/");
+        cookie_access.setHttpOnly(true);
+        cookie_access.setMaxAge((int)1200);
 
-        cookie1.setPath("/");
-        cookie1.setHttpOnly(true);
-        cookie1.setMaxAge((int)90000000);
-        response.addCookie(cookie);
-        response.addCookie(cookie1);
+        cookie_refresh.setPath("/");
+        cookie_refresh.setHttpOnly(true);
+        cookie_refresh.setMaxAge((int)1200);
+        response.addCookie(cookie_access);
+        response.addCookie(cookie_refresh);
 
         return response;
 //        return TokenDTO.builder()
@@ -139,7 +138,7 @@ public class TokenProvider implements InitializingBean {
 
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, HttpServletRequest request,String name) {
         try {
 
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -148,6 +147,15 @@ public class TokenProvider implements InitializingBean {
             logger.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             logger.info("만료된 JWT 토큰입니다.");
+            System.out.println("print: "+CustomHttpStatus.ACCESS_EXPIRED.value()+" "+CustomHttpStatus.ACCESS_EXPIRED +" ");
+            if(name.equals(Access_token)) {
+                request.setAttribute("exception", CustomHttpStatus.ACCESS_EXPIRED.value());
+            }
+            else if(name.equals(Refresh_token))
+            {
+                request.setAttribute("exception",CustomHttpStatus.REFRESH_EXPIRED.value());
+            }
+
         } catch (UnsupportedJwtException e) {
             logger.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
