@@ -118,13 +118,10 @@ public class MemberService {
 
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
             SecurityContextHolder.clearContext();
-            System.out.println("REFRESH HERE1 ");
             redisTemplate.opsForValue().set(Access, "logout");
-            return response;
-            //throw new ExpireRefreshTokenException();
+            throw new ExpireRefreshTokenException();
 
-            //TODO 여기 테스트
-            //request.setAttribute("exception", CustomHttpStatus.REFRESH_EXPIRED.value());
+
         }
 
         // 2. Access Token에서 ID 가져오기
@@ -138,10 +135,8 @@ public class MemberService {
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
             SecurityContextHolder.clearContext();
             redisTemplate.opsForValue().set(Access, "logout");
-            System.out.println("REFRESH HERE2 ");
-            request.setAttribute("exception", CustomHttpStatus.REFRESH_EXPIRED.getStatus());
-            return response;
-            //throw new ExpireRefreshTokenException();
+            //request.setAttribute("exception", CustomHttpStatus.REFRESH_EXPIRED.getStatus());
+            throw new ExpireRefreshTokenException();
         }
         // 4. Refresh Token 일치 여부
         if (!rtkInRedis.equals(Refresh)) {
@@ -231,9 +226,10 @@ public class MemberService {
         String Access=tokenRequestDTO.getAccessToken();
         String Refresh=tokenRequestDTO.getRefreshToken();
         // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
-        if (!tokenProvider.validateToken(Access,request,"ACCESS")){
-            throw new ExpireAccessTokenException();
-        }
+        // 어차피 filter에서 access만 검증 거치기 때문에 필요없을듯
+//        if (!tokenProvider.validateToken(Access,request,"ACCESS")){
+//            throw new ExpireAccessTokenException();
+//        }
 
         // Access Token에서 User email을 가져온다
         Authentication authentication = tokenProvider.getAuthentication(Access);

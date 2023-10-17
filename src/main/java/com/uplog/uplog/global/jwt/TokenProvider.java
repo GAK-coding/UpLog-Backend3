@@ -11,11 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
@@ -148,13 +151,8 @@ public class TokenProvider implements InitializingBean {
             logger.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             logger.info("만료된 JWT 토큰입니다.");
-            System.out.println("print: "+CustomHttpStatus.ACCESS_EXPIRED.getStatus()+" "+CustomHttpStatus.ACCESS_EXPIRED +" ");
             if(name.equals(Access_token)) {
                 request.setAttribute("exception", CustomHttpStatus.ACCESS_EXPIRED.getStatus());
-            }
-            else if(name.equals(Refresh_token)){
-
-                throw new ExpireRefreshTokenException();
             }
 
         } catch (UnsupportedJwtException e) {

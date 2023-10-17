@@ -35,7 +35,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
          * 토큰 만료된 경우
          */
         if(exception.equals(CustomHttpStatus.ACCESS_EXPIRED.getStatus())) {
-            setResponse(response,Access,exception);
+            setResponse(response,Access,exception,CustomHttpStatus.ACCESS_EXPIRED);
             return;
         }
 
@@ -56,14 +56,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     /**
      * 한글 출력을 위해 getWriter() 사용
      */
-    private void setResponse(HttpServletResponse response,String message,Object code) throws IOException {
+    private void setResponse(HttpServletResponse response,String message,Object exception,CustomHttpStatus customHttpStatus) throws IOException {
 
         response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(Integer.parseInt(code.toString()));
-        response.getWriter().println("{ \"message\" : \"" +message
-                + "\", \"code\" : \"" +Integer.parseInt(code.toString())
-                + "\", \"status\" : "
-                + ", \"errors\" : [ ] }");
+        response.setStatus(Integer.parseInt(exception.toString()));
+        response.getWriter().println("{ \"httpstatus\" : \"" + customHttpStatus.toString()
+                + "\", \"message\" : \""+message
+                + "\", \"status\" : "+Integer.parseInt(exception.toString())
+               );
     }
 
 }
