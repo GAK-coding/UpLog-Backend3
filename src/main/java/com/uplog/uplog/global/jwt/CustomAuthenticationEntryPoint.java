@@ -34,15 +34,15 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         /**
          * 토큰 만료된 경우
          */
-        if(exception.equals(CustomHttpStatus.ACCESS_EXPIRED.value())) {
+        if(exception.equals(CustomHttpStatus.ACCESS_EXPIRED.getStatus())) {
             setResponse(response,Access,exception);
             return;
         }
 
-        if(exception.equals(CustomHttpStatus.REFRESH_EXPIRED.value())){
-            setResponse(response,Refresh,exception);
-            return;
-        }
+//        if(exception.equals(CustomHttpStatus.REFRESH_EXPIRED.value())){
+//            setResponse(response,Refresh,exception);
+//            return;
+//        }
 
         /**
          * 토큰 시그니처가 다른 경우
