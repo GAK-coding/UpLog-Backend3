@@ -4,8 +4,6 @@ import com.uplog.uplog.domain.comment.dao.CommentRepository;
 import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.member.model.Member;
-import com.uplog.uplog.domain.member.model.Position;
-import com.uplog.uplog.domain.menu.application.MenuService;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
 import com.uplog.uplog.domain.menu.dto.MenuDTO;
 import com.uplog.uplog.domain.menu.model.Menu;
@@ -25,11 +23,8 @@ import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
-import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
-import com.uplog.uplog.domain.team.model.MemberTeam;
-import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
@@ -67,7 +62,7 @@ public class PostService {
     Create
      */
     @Transactional
-    public PostInfoDTO createPost(Long id, CreatePostRequest createPostRequest) {
+    public Long createPost(Long id, CreatePostRequest createPostRequest) {
         Member author = memberRepository.findMemberById(id)
                 .orElseThrow(() -> new NotFoundIdException("해당 멤버는 존재하지 않습니다."));
 
@@ -151,7 +146,7 @@ public class PostService {
 
             }
         }
-        return post.toPostInfoDTO(postTags);
+        return post.toPostInfoDTO(postTags).getId();
 
     }
 

@@ -3,7 +3,6 @@ package com.uplog.uplog.domain.post.api;
 import com.uplog.uplog.domain.member.dao.MemberRepository;
 import com.uplog.uplog.domain.post.application.PostService;
 import com.uplog.uplog.domain.post.dto.PostDTO.*;
-import com.uplog.uplog.domain.post.model.Post;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +22,9 @@ public class PostController {
     create
      */
     @PostMapping(value="/posts")
-    public ResponseEntity<PostInfoDTO> createPost(@RequestBody CreatePostRequest createPostRequest) {
+    public ResponseEntity<Long> createPost(@RequestBody CreatePostRequest createPostRequest) {
         Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        PostInfoDTO postInfoDTO = postService.createPost(memberId,createPostRequest);
+        Long postInfoDTO = postService.createPost(memberId,createPostRequest);
         return ResponseEntity.ok(postInfoDTO);
     }
 
