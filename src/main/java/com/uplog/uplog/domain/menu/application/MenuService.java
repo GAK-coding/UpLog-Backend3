@@ -119,7 +119,7 @@ public class MenuService {
     UPDATE
      */
     @Transactional
-    public MenuInfoDTO updateMenuName(Long id, UpdateMenuNameRequest updateMenuNameRequest) {
+    public Long updateMenuName(Long id, UpdateMenuNameRequest updateMenuNameRequest) {
         Menu menu = menuRepository.findById(id).orElseThrow(NotFoundIdException::new);
 
         String updateName = updateMenuNameRequest.getUpdatemenuName();
@@ -142,18 +142,18 @@ public class MenuService {
         }
 
         menu.updateMenuName(updateMenuNameRequest.getUpdatemenuName());
-        return menu.toMenuInfoDTO();
+        return menu.toMenuInfoDTO().getId();
     }
 
     @Transactional
-    public MenuInfoDTO updateNoticePost(Long menuId, UpdateNoticePostRequest updateNoticePostRequest) {
+    public Long updateNoticePost(Long menuId, UpdateNoticePostRequest updateNoticePostRequest) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         Post post = postRepository.findById(updateNoticePostRequest.getUpdateNoticePostId()).orElseThrow(NotFoundTaskByIdException::new);
         if (!menuId.equals(post.getMenu().getId())) {
             throw new MenuUpdateNotAllowedException("해당 포스트의 메뉴아이디와 일치하지 않아서 공지글로 등록할 수 없습니다");
         }
         menu.updateNoticePost(post);
-        return menu.toMenuInfoDTO();
+        return menu.toMenuInfoDTO().getId();
     }
 
     @Transactional

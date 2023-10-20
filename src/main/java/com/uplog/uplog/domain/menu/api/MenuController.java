@@ -46,15 +46,15 @@ public class MenuController {
     PATCH
      */
     @PatchMapping("/menus/{menu-id}/menuname")
-    public ResponseEntity<MenuInfoDTO> updateMenuName(@PathVariable(name="menu-id") Long id, @RequestBody UpdateMenuNameRequest updateMenuNameRequest){
-        MenuInfoDTO menuInfoDTO=menuService.updateMenuName(id,updateMenuNameRequest);
+    public ResponseEntity<Long> updateMenuName(@PathVariable(name="menu-id") Long id, @RequestBody UpdateMenuNameRequest updateMenuNameRequest){
+        Long menuInfoDTO=menuService.updateMenuName(id,updateMenuNameRequest);
 
         return ResponseEntity.ok(menuInfoDTO);
     }
 
     @PatchMapping("/menus/{menu-id}/notice-post")
-    public ResponseEntity<MenuInfoDTO> updateNoticePost(@PathVariable(name="menu-id") Long menuId,@RequestBody UpdateNoticePostRequest updateNoticePostRequest){
-        MenuInfoDTO menuInfoDTO=menuService.updateNoticePost(menuId,updateNoticePostRequest);
+    public ResponseEntity<Long> updateNoticePost(@PathVariable(name="menu-id") Long menuId, @RequestBody UpdateNoticePostRequest updateNoticePostRequest){
+        Long menuInfoDTO=menuService.updateNoticePost(menuId,updateNoticePostRequest);
         return ResponseEntity.ok(menuInfoDTO);
     }
 
