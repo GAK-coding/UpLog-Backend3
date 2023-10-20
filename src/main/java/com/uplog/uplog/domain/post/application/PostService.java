@@ -180,7 +180,7 @@ public class PostService {
     */
     //TODO update 권한 설정해야,==으로 바꾸기
     @Transactional
-    public PostDetailInfoDTO updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest, Long currentUserId) {
+    public Long updatePostTitle(Long id, UpdatePostTitleRequest updatePostTitleRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         int likeCount = postLikeRepository.countByPostId(post.getId());
         int commentCount = commentRepository.countByPostId(post.getId());
@@ -193,7 +193,7 @@ public class PostService {
 
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostTitle(updatePostTitleRequest.getUpdateTitle());
-            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
+            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount).getId();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -202,7 +202,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailInfoDTO updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest, Long currentUserId) {
+    public Long updatePostContent(Long id, UpdatePostContentRequest updatePostContentRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         int likeCount = postLikeRepository.countByPostId(post.getId());
         int commentCount = commentRepository.countByPostId(post.getId());
@@ -213,7 +213,7 @@ public class PostService {
         }
         if(post.getAuthor().getId().equals(currentUserId)){
             post.updatePostContent(updatePostContentRequest.getUpdateContent());
-            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
+            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount).getId();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -223,7 +223,7 @@ public class PostService {
 
     //TODO Enum수정
     @Transactional
-    public PostDetailInfoDTO updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest, Long currentUserId) {
+    public Long updatePostType(Long id, UpdatePostTypeRequest updatePostTypeRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         int likeCount = postLikeRepository.countByPostId(post.getId());
         int commentCount = commentRepository.countByPostId(post.getId());
@@ -249,7 +249,7 @@ public class PostService {
                 }
             }
             post.updatePostType(updatepostType);
-            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
+            return post.toPostDetailInfoDTO(postTags, likeCount, commentCount).getId();
         }
         else{
             throw new AuthorityException("작성자와 일치하지 않아 수정 권한이 없습니다.");
@@ -258,7 +258,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailInfoDTO updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest, Long currentUserId) {
+    public Long updatePostMenu(Long id, UpdatePostMenuRequest updatePostMenuRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         int likeCount = postLikeRepository.countByPostId(post.getId());
         int commentCount = commentRepository.countByPostId(post.getId());
@@ -278,7 +278,7 @@ public class PostService {
                 }
             }
             post.updatePostMenu(menu);
-            return post.toPostDetailInfoDTO(postTags,likeCount,commentCount);
+            return post.toPostDetailInfoDTO(postTags,likeCount,commentCount).getId();
         }
 
         else{
@@ -288,7 +288,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailInfoDTO updatePostInfo(Long id, UpdatePostRequest updatePostRequest, Long currentUserId) {
+    public Long updatePostInfo(Long id, UpdatePostRequest updatePostRequest, Long currentUserId) {
         Post post = postRepository.findById(id).orElseThrow(NotFoundTaskByIdException::new);
         int likeCount = postLikeRepository.countByPostId(post.getId());
         int commentCount = commentRepository.countByPostId(post.getId());
@@ -346,7 +346,7 @@ public class PostService {
             post.updatePostMenu(menu);
         }
 
-        return post.toPostDetailInfoDTO(postTags, likeCount, commentCount);
+        return post.toPostDetailInfoDTO(postTags, likeCount, commentCount).getId();
     }
 
     //일단 임시

@@ -42,38 +42,38 @@ public class PostController {
     update
      */
     @PatchMapping("/posts/{post-id}/title")
-    public ResponseEntity<PostDetailInfoDTO> updatePostTitle(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTitleRequest updatePostTitleRequest){
+    public ResponseEntity<Long> updatePostTitle(@PathVariable(name="post-id") Long id, @RequestBody UpdatePostTitleRequest updatePostTitleRequest){
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        PostDetailInfoDTO postInfoDTO=postService.updatePostTitle(id,updatePostTitleRequest,currentUserId);
+        Long postInfoDTO=postService.updatePostTitle(id,updatePostTitleRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post-id}/content")
-    public ResponseEntity<PostDetailInfoDTO> updatePostContent(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostContentRequest updatePostContentRequest){
+    public ResponseEntity<Long> updatePostContent(@PathVariable(name="post-id") Long id, @RequestBody UpdatePostContentRequest updatePostContentRequest){
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        PostDetailInfoDTO postInfoDTO=postService.updatePostContent(id,updatePostContentRequest,currentUserId);
+        Long postInfoDTO=postService.updatePostContent(id,updatePostContentRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post-id}/type")
-    public ResponseEntity<PostDetailInfoDTO> updatePostType(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostTypeRequest updatePostTypeRequest){
+    public ResponseEntity<Long> updatePostType(@PathVariable(name="post-id") Long id, @RequestBody UpdatePostTypeRequest updatePostTypeRequest){
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        PostDetailInfoDTO postInfoDTO=postService.updatePostType(id,updatePostTypeRequest,currentUserId);
+        Long postInfoDTO=postService.updatePostType(id,updatePostTypeRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
     @PatchMapping("/posts/{post-id}/menu")
-    public ResponseEntity<PostDetailInfoDTO> updatePostMenu(@PathVariable(name="post-id") Long id,@RequestBody UpdatePostMenuRequest updatePostMenuRequest){
+    public ResponseEntity<Long> updatePostMenu(@PathVariable(name="post-id") Long id, @RequestBody UpdatePostMenuRequest updatePostMenuRequest){
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        PostDetailInfoDTO postInfoDTO=postService.updatePostMenu(id,updatePostMenuRequest,currentUserId);
+        Long postInfoDTO=postService.updatePostMenu(id,updatePostMenuRequest,currentUserId);
         return ResponseEntity.ok(postInfoDTO);
     }
 
     @PatchMapping("/posts/{post-id}")
-    public ResponseEntity<PostDetailInfoDTO> updatePost(
+    public ResponseEntity<Long> updatePost(
             @PathVariable("post-id") Long id,
             @RequestBody UpdatePostRequest updatePostRequest) {
         Long currentUserId=SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
-        PostDetailInfoDTO updatedPost = postService.updatePostInfo(id, updatePostRequest, currentUserId);
+        Long updatedPost = postService.updatePostInfo(id, updatePostRequest, currentUserId);
         return ResponseEntity.ok(updatedPost);
     }
 
