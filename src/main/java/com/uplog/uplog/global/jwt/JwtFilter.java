@@ -43,22 +43,11 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        //String requestURI = httpServletRequest.getRequestURI();
+        String jwt = resolveToken(httpServletRequest);
+        //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
         String requestURI = httpServletRequest.getRequestURI();
 
-        String token="";
-        if(httpServletRequest.getCookies()==null)
-            //throw new ExpireAccessTokenException();
-            token=null;
-        else {
-           token = Arrays.stream(httpServletRequest.getCookies())
-                    .filter(c -> c.getName().equals("Access"))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .orElse(null);
-        }
-            String jwt = resolveToken(token);
-
-        //Authentication authentication1 = tokenProvider.getAuthentication(jwt);
 
         if(!requestURI.equals("/members/refresh")){
 
@@ -70,7 +59,6 @@ public class JwtFilter extends GenericFilterBean {
                     Authentication authentication = tokenProvider.getAuthentication(jwt);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
-                    //System.out.println("Expire Time : "+tokenProvider.getExpiration(jwt));
                 }
 
 
@@ -78,15 +66,15 @@ public class JwtFilter extends GenericFilterBean {
 
                 logger.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
             }
+
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
 
     }
 
-    private String resolveToken(String token) {
-        //String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        String bearerToken = token;
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
             return bearerToken.substring(6);
         }

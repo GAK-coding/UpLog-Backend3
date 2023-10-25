@@ -13,44 +13,56 @@ import java.io.IOException;
 @Slf4j
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private static final String Access="access_expiration";
-    private static final String Refresh="refresh_expiration";
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         Object exception = request.getAttribute("exception");
-        //ErrorCode errorCode;
-
         log.debug("log: exception: {} ", exception);
 
         /**
          * 토큰 없는 경우
          */
-//        if(exception == null) {
-//            errorCode = ErrorCode.NON_LOGIN;
-//            setResponse(response, errorCode);
-//            return;
-//        }
-
+        if(exception == null) {
+            exception=CustomHttpStatus.NON_LOGIN.getStatus();
+            setResponse(response, CustomHttpStatus.NON_LOGIN.getDescription(),exception,CustomHttpStatus.NON_LOGIN);
+            return;
+        }
         /**
          * 토큰 만료된 경우
          */
         if(exception.equals(CustomHttpStatus.ACCESS_EXPIRED.getStatus())) {
-            setResponse(response,Access,exception,CustomHttpStatus.ACCESS_EXPIRED);
+            setResponse(response,CustomHttpStatus.ACCESS_EXPIRED.getDescription(),exception,CustomHttpStatus.ACCESS_EXPIRED);
             return;
         }
 
-//        if(exception.equals(CustomHttpStatus.REFRESH_EXPIRED.value())){
-//            setResponse(response,Refresh,exception);
+        /**
+         * 토큰 값이 적절하지 않은 경우
+         */
+        if(exception.equals(CustomHttpStatus.INVALID_TOKEN.getStatus())) {
+            setResponse(response,CustomHttpStatus.INVALID_TOKEN.getDescription(), exception,CustomHttpStatus.INVALID_TOKEN);
+            return;
+        }
+
+        /**
+         * 지원되지 않는 토큰
+         */
+        if(exception.equals(CustomHttpStatus.NON_SUPPORT_TOKEN.getStatus())) {
+            setResponse(response,CustomHttpStatus.NON_SUPPORT_TOKEN.getDescription(), exception,CustomHttpStatus.NON_SUPPORT_TOKEN);
+            return;
+        }
+        /**
+         * 인자 값이 적합하지 않거나 적절하지 않은 경우
+         */
+        if(exception.equals(CustomHttpStatus.ILLEGAL_ARG_TOKEN.getStatus())) {
+            setResponse(response,CustomHttpStatus.ILLEGAL_ARG_TOKEN.getDescription(), exception,CustomHttpStatus.ILLEGAL_ARG_TOKEN);
+            return;
+        }
+
+//        if(exception.equals(CustomHttpStatus.REFRESH_EXPIRED.getStatus())){
+//            setResponse(response,Refresh,exception,CustomHttpStatus.REFRESH_EXPIRED);
 //            return;
 //        }
 
-        /**
-         * 토큰 시그니처가 다른 경우
-         */
-//        if(exception.equals(ErrorCode.INVALID_TOKEN.getCode())) {
-//            errorCode = ErrorCode.INVALID_TOKEN;
-//            setResponse(response, errorCode);
-//        }
+
     }
 
     /**

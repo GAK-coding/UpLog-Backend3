@@ -63,6 +63,11 @@ public class MemberDTO {
         private String name;
         private String nickname;
         private Position position;
+        private TokenDTO accessTokenInfo;
+
+        public void addAccessToken(TokenDTO accessToken){
+            this.accessTokenInfo=accessToken;
+        }
 
     }
 

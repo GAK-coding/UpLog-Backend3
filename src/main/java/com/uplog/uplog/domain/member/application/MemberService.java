@@ -9,6 +9,7 @@ import com.uplog.uplog.domain.member.dao.MemberRepository;
 //import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dto.TokenDTO;
 import com.uplog.uplog.domain.member.dto.TokenRequestDTO;
 import com.uplog.uplog.domain.member.exception.DuplicatedMemberException;
 import com.uplog.uplog.domain.member.exception.NotFoundMemberByEmailException;
@@ -41,6 +42,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -71,6 +73,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
     private long seconds=10000;
     private long AccessTokenValidityInMilliseconds = Duration.ofMinutes(30).toMillis();//만료시간 30분
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
@@ -106,12 +109,12 @@ public class MemberService {
      * 토큰 재발급
      */
     @Transactional
-    public HttpServletResponse refresh(HttpServletRequest request, HttpServletResponse response) {
+    public TokenDTO refresh(TokenRequestDTO tokenRequestDTO,HttpServletRequest request, HttpServletResponse response) {
 
-        TokenRequestDTO tokenRequestDTO=getTokenFromCookie(request);
+        String Refresh=getTokenFromCookie(request);
 
         String Access=tokenRequestDTO.getAccessToken();
-        String Refresh=tokenRequestDTO.getRefreshToken();
+
         System.out.println("Access : "+Access+"  Refresh: "+Refresh);
         // 1. Refresh Token 검증 (validateToken() : 토큰 검증)
         if(!tokenProvider.validateToken(Refresh,request,"REFRESH")) {
@@ -135,7 +138,6 @@ public class MemberService {
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
             SecurityContextHolder.clearContext();
             redisTemplate.opsForValue().set(Access, "logout");
-            //request.setAttribute("exception", CustomHttpStatus.REFRESH_EXPIRED.getStatus());
             throw new ExpireRefreshTokenException();
         }
         // 4. Refresh Token 일치 여부
@@ -147,14 +149,14 @@ public class MemberService {
         //Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
         redisTemplate.opsForValue().set(Access, "logout");
         // 5. 새로운 토큰 생성
-        response = tokenProvider.createToken(response,authentication);
+        TokenDTO tokenDTO = tokenProvider.createToken(response,authentication);
 
         // 6. 저장소 정보 업데이트
         redisDao.deleteValues("RT:"+authentication.getName());
 
         redisDao.setValues("RT:"+authentication.getName(),Refresh,Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
         //토큰 발급
-        return response;
+        return tokenDTO;
     }
     private Authority getOrCreateAuthority(String authorityName) {
         Authority existingAuthority = entityManager.find(Authority.class, authorityName);
@@ -167,36 +169,26 @@ public class MemberService {
         }
     }
 
-    private TokenRequestDTO getTokenFromCookie(HttpServletRequest request){
+    private String getTokenFromCookie(HttpServletRequest request){
 
-        String Access="";
         String Refresh="";
         if(request.getCookies()==null)
             throw new ExpireRefreshTokenException();
         else {
-            Access = Arrays.stream(request.getCookies())
-                    .filter(c -> c.getName().equals("Access"))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .orElse(null);
             Refresh = Arrays.stream(request.getCookies())
                     .filter(c -> c.getName().equals("Refresh"))
                     .findFirst()
                     .map(Cookie::getValue)
                     .orElse(null);
-            if(Access==null){
-                throw new ExpireAccessTokenException();
-            }
-            else if(Refresh==null){
+
+            if(Refresh==null){
                 throw new ExpireRefreshTokenException();
             }
-            Access = Access.substring(6);
+
             Refresh = Refresh.substring(6);
         }
-        TokenRequestDTO tokenRequestDTO=new TokenRequestDTO();
-        tokenRequestDTO.addTokenToMemberInfoDTO(Access,Refresh);
 
-        return tokenRequestDTO;
+        return Refresh;
 
     }
     //로그인
@@ -215,25 +207,28 @@ public class MemberService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        response =tokenProvider.createToken(response,authentication);
+        TokenDTO tokenDTO =tokenProvider.createToken(response,authentication);
+        MemberInfoDTO memberInfoDTO=member.toMemberInfoDTO();
+        memberInfoDTO.addAccessToken(tokenDTO);
 
-        return member.toMemberInfoDTO();
+
+        return memberInfoDTO;
     }
     @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response){
 
-        TokenRequestDTO tokenRequestDTO=getTokenFromCookie(request);
-        String Access=tokenRequestDTO.getAccessToken();
-        String Refresh=tokenRequestDTO.getRefreshToken();
-        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
-        // 어차피 filter에서 access만 검증 거치기 때문에 필요없을듯
-//        if (!tokenProvider.validateToken(Access,request,"ACCESS")){
-//            throw new ExpireAccessTokenException();
-//        }
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        System.out.println("next1");
+        String Access="";
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            Access=bearerToken.substring(6);
+        }
+
 
         // Access Token에서 User email을 가져온다
         Authentication authentication = tokenProvider.getAuthentication(Access);
-
+        System.out.println("logoutldsfe");
         // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
         if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
             // Refresh Token을 삭제

@@ -3,6 +3,7 @@ package com.uplog.uplog.global.jwt;
 //import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RedisDao;
 import com.uplog.uplog.domain.member.dao.RefreshTokenRepository;
+import com.uplog.uplog.domain.member.dto.TokenDTO;
 import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -42,9 +43,9 @@ public class TokenProvider implements InitializingBean {
     private static final String Access_token="ACCESS";
     private static final String Refresh_token="REFRESH";
     private final String secret;
-    private long AccessTokenValidityInMilliseconds =Duration.ofSeconds(10).toMillis();//만료시간 30분
+    private long AccessTokenValidityInMilliseconds =Duration.ofMinutes(30).toMillis();//만료시간 30분
     //Duration.ofMinutes(30).toMillis()
-    private long RefreshTokenValidityInMilliseconds=Duration.ofSeconds(10).toMillis(); //만료시간 2주
+    private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
 
     private final RedisDao redisDao;
 
@@ -66,7 +67,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public HttpServletResponse createToken(HttpServletResponse response,Authentication authentication) {
+    public TokenDTO createToken(HttpServletResponse response,Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -88,30 +89,20 @@ public class TokenProvider implements InitializingBean {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
-        System.out.println("REfresh: "+refreshToken);
         redisDao.setValues("RT:"+authentication.getName(),refreshToken,Duration.ofSeconds(seconds));
 
-        Cookie cookie_access= new Cookie("Access","Bearer"+accessToken);
+
         Cookie cookie_refresh= new Cookie("Refresh","Bearer"+refreshToken);
-
-
-        cookie_access.setPath("/");
-        cookie_access.setHttpOnly(true);
-        cookie_access.setMaxAge((int)1200);
-
         cookie_refresh.setPath("/");
         cookie_refresh.setHttpOnly(true);
         cookie_refresh.setMaxAge((int)1200);
-        response.addCookie(cookie_access);
         response.addCookie(cookie_refresh);
 
-        return response;
-//        return TokenDTO.builder()
-//                .grantType(BEARER_TYPE)
-//                .accessToken(accessToken)
-//                .accessTokenExpiresIn(validity.getTime())
-//                .refreshToken(refreshToken)
-//                .build();
+        return TokenDTO.builder()
+                .grantType(BEARER_TYPE)
+                .accessToken(accessToken)
+                .accessTokenExpiresIn(validity.getTime())
+                .build();
     }
 
     public Authentication getAuthentication(String token) {
@@ -149,16 +140,24 @@ public class TokenProvider implements InitializingBean {
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             logger.info("잘못된 JWT 서명입니다.");
+            if(name.equals(Access_token)) {
+                request.setAttribute("exception", CustomHttpStatus.INVALID_TOKEN.getStatus());
+            }
         } catch (ExpiredJwtException e) {
             logger.info("만료된 JWT 토큰입니다.");
             if(name.equals(Access_token)) {
                 request.setAttribute("exception", CustomHttpStatus.ACCESS_EXPIRED.getStatus());
             }
-
         } catch (UnsupportedJwtException e) {
             logger.info("지원되지 않는 JWT 토큰입니다.");
+            if(name.equals(Access_token)) {
+                request.setAttribute("exception", CustomHttpStatus.NON_SUPPORT_TOKEN.getStatus());
+            }
         } catch (IllegalArgumentException e) {
             logger.info("JWT 토큰이 잘못되었습니다.");
+            if(name.equals(Access_token)) {
+                request.setAttribute("exception", CustomHttpStatus.ILLEGAL_ARG_TOKEN.getStatus());
+            }
         }
         return false;
     }

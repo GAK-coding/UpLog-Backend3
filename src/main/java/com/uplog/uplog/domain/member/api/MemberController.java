@@ -79,10 +79,9 @@ public class MemberController {
     }
     //리프레시 토큰 만료 시
     @PostMapping("/members/refresh")
-    public ResponseEntity refresh(HttpServletRequest request,HttpServletResponse response) {
-        //return ResponseEntity.ok(memberService.refresh(request,response,tokenRequestDto));
-        response=memberService.refresh(request,response);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity refresh(HttpServletRequest request,HttpServletResponse response, @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
+        TokenDTO tokenDTO=memberService.refresh(tokenRequestDTO,request,response);
+        return new ResponseEntity<>(tokenDTO,HttpStatus.OK);
     }
 
     // 토큰 Role user,admin
