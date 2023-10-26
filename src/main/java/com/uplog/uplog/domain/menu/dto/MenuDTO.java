@@ -108,6 +108,7 @@ public class MenuDTO {
     public static class PagingTaskDTO{
         private boolean nextPage;
         private int currentPage;
+        private int taskLength;
         List<MenuTasksDTO> pagingTaskData=new ArrayList<>();
     }
 

@@ -229,6 +229,11 @@ public class TaskService {
         return taskList;
     }
 
+    public int findByTaskListLength(Long menuId) {
+        List<Task> taskList = taskRepository.findByMenuId(menuId);
+        return taskList.size();
+    }
+
     @Transactional(readOnly = true)
     public Page<Task> findPageByMenuId(Long menuId, Pageable pageable) {
         return taskRepository.findByMenuId(menuId, pageable);

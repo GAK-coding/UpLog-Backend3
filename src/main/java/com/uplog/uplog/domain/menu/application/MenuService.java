@@ -204,7 +204,11 @@ public class MenuService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Task> taskPage = taskService.findPageByMenuId(menuId, pageable);
 
+        //페이지=0일때만 테스크 길이(메뉴별 전중후 몇개인지) 합쳐서 보내고 0이 아니면 null로 길이 보내기
+        int taskLength=taskService.findByTaskListLength(menuId);
+
         boolean nextPage = taskPage.hasNext();
+
 
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = taskPage.getContent().stream()
                 .map(Task::toTaskInfoDTO)
@@ -213,7 +217,7 @@ public class MenuService {
         MenuInfoDTO menuInfoDTO = findMenuById(menuId);
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
 
-        return new PagingTaskDTO(nextPage,page, Collections.singletonList(menuTasksDTO));
+        return new PagingTaskDTO(nextPage,page,taskLength, Collections.singletonList(menuTasksDTO));
     }
 
 
