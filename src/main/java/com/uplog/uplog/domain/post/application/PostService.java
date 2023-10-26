@@ -25,6 +25,7 @@ import com.uplog.uplog.domain.tag.dto.TagDTO.TagInfoDTO;
 import com.uplog.uplog.domain.tag.model.PostTag;
 import com.uplog.uplog.domain.tag.model.Tag;
 import com.uplog.uplog.domain.task.exception.NotFoundTaskByIdException;
+import com.uplog.uplog.domain.task.model.Task;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.model.MemberTeam;
@@ -429,9 +430,11 @@ public class PostService {
         List<Post> postList = postRepository.findByMenuId(menuId);
         return postList;
     }
-    public Page<Post> findPagedPostsByMenuId(Long menuId, Pageable pageable) {
-        // 메뉴 ID를 기반으로 페이지네이션된 포스트 목록을 가져옴
+
+    @Transactional(readOnly = true)
+    public Page<Post> findPageByMenuId(Long menuId, Pageable pageable) {
         return postRepository.findByMenuId(menuId, pageable);
     }
+
 
 }
