@@ -47,10 +47,13 @@ public class Team extends BaseTime {
 
     private int depth;
 
+    private boolean delStatus;
+
 
     public void updateName(String newName){ this.name = newName; }
 
     public void updateMemberTeamList(List<MemberTeam> memberTeamList){this.memberTeamList = memberTeamList;}
+    public void updateDelStatus(boolean b){this.delStatus = b;}
 
     @Builder
     public Team(Long id, List<MemberTeam> memberTeamList, String name, Project project, Team parentTeam, int depth){
@@ -60,6 +63,7 @@ public class Team extends BaseTime {
         this.project = project;
         this.parentTeam = parentTeam;
         this.depth = depth;
+        this.delStatus = false;
     }
 
 
