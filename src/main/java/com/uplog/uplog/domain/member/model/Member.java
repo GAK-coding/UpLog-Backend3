@@ -88,7 +88,7 @@ public class Member extends MemberBase{
                 .name(this.getName())
                 .image(this.image)
                 .nickname(this.getNickname())
-                .position(this.getPosition())
+     //           .position(this.getPosition())
                 .build();
     }
 }

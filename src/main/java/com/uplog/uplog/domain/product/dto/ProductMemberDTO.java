@@ -82,6 +82,7 @@ public class ProductMemberDTO {
     @NoArgsConstructor
     public static class ProductMemberPowerDTO{
         private String memberEmail;
+        private String image;
         private Long memberId;
         private String memberName;
         private String memberNickName;

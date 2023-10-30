@@ -85,6 +85,7 @@ public class ProductMember {
     public ProductMemberPowerDTO toProductMemberPowerDTO(){
         return ProductMemberPowerDTO.builder()
                 .memberId(this.member.getId())
+                .image(this.member.getImage())
                 .memberEmail(this.member.getEmail())
                 .memberName(this.member.getName())
                 .memberNickName(this.member.getNickname())
