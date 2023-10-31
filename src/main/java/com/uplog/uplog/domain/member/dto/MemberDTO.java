@@ -63,14 +63,12 @@ public class MemberDTO {
         private String name;
         private String nickname;
         private Position position;
-        private String accessToken;
-        private String refreshToken;
+        private TokenDTO accessTokenInfo;
 
-        public void addTokenToMemberInfoDTO(String accessToken,String refreshToken){
-            this.accessToken=accessToken;
-            this.refreshToken=refreshToken;
-
+        public void addAccessToken(TokenDTO accessToken){
+            this.accessTokenInfo=accessToken;
         }
+
     }
 
     @Getter
