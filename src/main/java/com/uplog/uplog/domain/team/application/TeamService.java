@@ -60,7 +60,8 @@ public class TeamService {
         createTeamRequest.getMemberIdList().add(currentMemberId);
         Project project = projectRepository.findById(projectId).orElseThrow(NotFoundIdException::new);
         //멤버가 현재 프로젝트에 속한사람인지 확인
-        Team rootTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(NotFoundIdException::new);
+        Team rootTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(
+                ()->new NotFoundIdException("rootTeam의 객체를 찾을 수 없습니다."));
         if (!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(currentMemberId, rootTeam.getId())) {
             throw new AuthorityException("팀에 속하지 않은 멤버로, 팀 생성 권한이 없습니다.");
         }
@@ -73,7 +74,8 @@ public class TeamService {
         //생성 외에 부모가 널로 들어왔다면, 프로젝트 생성시에 만들어진 젠체 그룹으로 부모넣어주기
         if (createTeamRequest.getParentTeamId() != null) {
             List<Long> duplicatedMemberIdList = new ArrayList<>();
-            Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(NotFoundIdException::new);
+            Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(
+                    ()-> new NotFoundIdException("부모팀 객체를 찾을 수 없습니다."));
             //팀의 최대 depth는 2임. 부모가 2가 되면 안됨
             if(parentTeam.getDepth()==2){
                 throw new DepthException("팀의 최대 depth를 초과했습니다.");
@@ -346,20 +348,22 @@ public class TeamService {
         Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
         Member member = memberRepository.findMemberById(memberId).orElseThrow(NotFoundIdException::new);
 
-        if(team.getTaskList().isEmpty() && team.getChildTeamList().isEmpty()){
-            teamRepository.delete(team);
-            List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
-
-            for(MemberTeam mt : memberTeamList){
-                memberTeamRepository.delete(mt);
-            }
-        }
-        else if(!team.getTaskList().isEmpty()){
+        if(!team.getTaskList().isEmpty()){
             throw new CanNotDeleteTeamException("task가 존재하기 때문에 팀을 삭제할 수 없습니다.");
         }
         else if(!team.getChildTeamList().isEmpty()){
             throw new CanNotDeleteTeamException("하위 팀이 존재하기 때문에 팀을 삭제할 수 없습니다.");
         }
+        else if(team.getTaskList().isEmpty() && team.getChildTeamList().isEmpty()){
+            List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
+
+            for(MemberTeam mt : memberTeamList){
+                memberTeamRepository.delete(mt);
+            }
+            teamRepository.delete(team);
+        }
+
+
 
         return team.getId();
     }
