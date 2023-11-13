@@ -4,6 +4,8 @@ import com.uplog.uplog.domain.comment.dao.CommentRepository;
 import org.springframework.data.domain.Sort;
 import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
+import com.uplog.uplog.domain.task.model.TaskStatus;
+
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import com.uplog.uplog.domain.menu.exception.*;
 import com.uplog.uplog.domain.menu.model.Menu;
@@ -30,10 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -204,7 +203,24 @@ public class MenuService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Task> taskPage = taskService.findPageByMenuId(menuId, pageable);
 
+        //페이지=0일때만 테스크 길이(메뉴별 전중후 몇개인지) 합쳐서 보내고 0이 아니면 null로 길이 보내기
+        //int taskLength=0;
+        int progress_before=0;
+        int progress_in=0;
+        int progress_complete=0;
+        if(page==0){
+            //taskLength=taskService.findByTaskListLength(menuId);
+            Map<TaskStatus, Long> taskCountsByStatus = taskService.findTaskCountsByStatus(menuId);
+            progress_before = taskCountsByStatus.get(TaskStatus.PROGRESS_BEFORE).intValue();
+            progress_in = taskCountsByStatus.get(TaskStatus.PROGRESS_IN).intValue();
+            progress_complete = taskCountsByStatus.get(TaskStatus.PROGRESS_COMPLETE).intValue();
+
+        }
+
+
+
         boolean nextPage = taskPage.hasNext();
+
 
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = taskPage.getContent().stream()
                 .map(Task::toTaskInfoDTO)
@@ -213,7 +229,7 @@ public class MenuService {
         MenuInfoDTO menuInfoDTO = findMenuById(menuId);
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
 
-        return new PagingTaskDTO(nextPage,page, Collections.singletonList(menuTasksDTO));
+        return new PagingTaskDTO(nextPage,page,progress_before,progress_in,progress_complete, Collections.singletonList(menuTasksDTO));
     }
 
 
