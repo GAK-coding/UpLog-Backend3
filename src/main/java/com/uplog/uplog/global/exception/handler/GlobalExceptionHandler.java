@@ -2,6 +2,7 @@ package com.uplog.uplog.global.exception.handler;
 
 import com.uplog.uplog.global.exception.*;
 import com.uplog.uplog.global.error.ErrorResponse;
+import com.uplog.uplog.global.jwt.CustomHttpStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExpireRefreshTokenException.class)
-    protected final ResponseEntity<ErrorResponse> ExpireJwtTokenExceptionHandler(ExpireRefreshTokenException e, WebRequest webRequest){
+    protected final ResponseEntity<ErrorResponse.CustomErrorResponse> ExpireRefreshTokenExceptionHandler(ExpireRefreshTokenException e, WebRequest webRequest){
+        final ErrorResponse.CustomErrorResponse errorResponse =ErrorResponse.CustomErrorResponse.custom()
+                .status(CustomHttpStatus.REFRESH_EXPIRED.getStatus())
+                .message(e.getMessage())
+                .httpStatus(CustomHttpStatus.REFRESH_EXPIRED)
+                .build();
+        return new ResponseEntity<>(errorResponse,HttpStatus.valueOf(CustomHttpStatus.REFRESH_EXPIRED.getStatus()));
+    }
+
+    @ExceptionHandler(ExpireAccessTokenException.class)
+    protected final ResponseEntity<ErrorResponse> ExpireAccessTokenExceptionHandler(ExpireAccessTokenException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())
@@ -74,10 +85,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(errorResponse);
     }
 
-    @ExceptionHandler(ExpireAccessTokenException.class)
-    protected final ResponseEntity<ErrorResponse> ExpireAccessTokenExceptionHandler(ExpireAccessTokenException e, WebRequest webRequest){
+    @ExceptionHandler(InConsistencyRefreshTokenException.class)
+    protected final ResponseEntity<ErrorResponse> InconsistencyRefreshTokenExceptionHandler(InConsistencyRefreshTokenException e, WebRequest webRequest){
         final ErrorResponse errorResponse = ErrorResponse.builder()
-                .httpStatus(HttpStatus.NOT_FOUND)
+                .httpStatus(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.ok(errorResponse);
