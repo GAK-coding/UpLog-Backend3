@@ -17,40 +17,38 @@ import com.uplog.uplog.domain.member.exception.NotMatchPasswordException;
 import com.uplog.uplog.domain.member.model.Authority;
 import com.uplog.uplog.domain.member.model.Member;
 //import com.uplog.uplog.domain.member.model.RefreshToken;
-import com.uplog.uplog.domain.member.model.MemberBase;
 import com.uplog.uplog.domain.member.model.Position;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.model.Product;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.QMemberTeam;
-import com.uplog.uplog.domain.team.model.QTeam;
-import com.uplog.uplog.domain.team.model.Team;
+import com.uplog.uplog.global.exception.ExpireAccessTokenException;
 import com.uplog.uplog.global.exception.ExpireRefreshTokenException;
+import com.uplog.uplog.global.exception.InConsistencyRefreshTokenException;
 import com.uplog.uplog.global.exception.NotFoundIdException;
 import com.uplog.uplog.domain.member.dto.MemberDTO.*;
+import com.uplog.uplog.global.jwt.CustomHttpStatus;
 import com.uplog.uplog.global.jwt.TokenProvider;
 import com.uplog.uplog.global.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -72,8 +70,10 @@ public class MemberService {
     private final ProductRepository productRepository;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
     private long seconds=10000;
     private long AccessTokenValidityInMilliseconds = Duration.ofMinutes(30).toMillis();//만료시간 30분
     private long RefreshTokenValidityInMilliseconds=Duration.ofDays(14).toMillis(); //만료시간 2주
@@ -98,9 +98,6 @@ public class MemberService {
             Member member = createMemberRequest.toMemberEntity(authority,passwordEncoder);
             memberRepository.save(member);
 
-
-
-
             return member.toMemberInfoDTO();
         }
         else{//이미 존재하는 회원
@@ -112,38 +109,54 @@ public class MemberService {
      * 토큰 재발급
      */
     @Transactional
-    public TokenDTO refresh(TokenRequestDTO tokenRequestDto) {
+    public TokenDTO refresh(TokenRequestDTO tokenRequestDTO,HttpServletRequest request, HttpServletResponse response) {
+
+        String Refresh=getTokenFromCookie(request);
+
+        String Access=tokenRequestDTO.getAccessToken();
+
+        System.out.println("Access : "+Access+"  Refresh: "+Refresh);
         // 1. Refresh Token 검증 (validateToken() : 토큰 검증)
-        if(!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
+        if(!tokenProvider.validateToken(Refresh,request,"REFRESH")) {
+
+            new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+            SecurityContextHolder.clearContext();
+            redisTemplate.opsForValue().set(Access, "logout");
             throw new ExpireRefreshTokenException();
+
+
         }
-        SecurityContextHolder.clearContext();;
+
         // 2. Access Token에서 ID 가져오기
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+        Authentication authentication = tokenProvider.getAuthentication(Refresh);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 3. 저장소에서 ID를 기반으로 Refresh Token값 가져옴
         String rtkInRedis = redisDao.getValues("RT:"+authentication.getName());
         if(rtkInRedis==null){
-            throw new RuntimeException("로그아웃 된 사용자입니다.");
+
+            new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+            SecurityContextHolder.clearContext();
+            redisTemplate.opsForValue().set(Access, "logout");
+            throw new ExpireRefreshTokenException();
         }
         // 4. Refresh Token 일치 여부
-        if (!rtkInRedis.equals(tokenRequestDto.getRefreshToken())) {
-            throw new RuntimeException("토큰의 유저 정보가 일치하지 않습니다.");
+        if (!rtkInRedis.equals(Refresh)) {
+            throw new InConsistencyRefreshTokenException();
         }
-
-        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
-        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
+        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+        SecurityContextHolder.clearContext();
+        //Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
+        redisTemplate.opsForValue().set(Access, "logout");
         // 5. 새로운 토큰 생성
-        TokenDTO tokenDto = tokenProvider.createToken(authentication);
+        TokenDTO tokenDTO = tokenProvider.createToken(response,authentication);
 
         // 6. 저장소 정보 업데이트
         redisDao.deleteValues("RT:"+authentication.getName());
 
-        redisDao.setValues("RT:"+authentication.getName(),tokenDto.getRefreshToken(),Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
-
+        redisDao.setValues("RT:"+authentication.getName(),Refresh,Duration.ofSeconds(RefreshTokenValidityInMilliseconds));
         //토큰 발급
-        return tokenDto;
+        return tokenDTO;
     }
     private Authority getOrCreateAuthority(String authorityName) {
         Authority existingAuthority = entityManager.find(Authority.class, authorityName);
@@ -155,35 +168,79 @@ public class MemberService {
             return newAuthority;
         }
     }
-    //로그인
-    @Transactional(readOnly = true)
-    public MemberInfoDTO login(LoginRequest loginRequest){
-        Member member = memberRepository.findMemberByEmail(loginRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
-//        if(!passwordEncoder.encode(loginRequest.getPassword()).equals(member.getPassword())){
-//            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
-//        }
-        return member.toMemberInfoDTO();
-    }
-    @Transactional
-    public void logout(TokenRequestDTO tokenRequestDto){
-        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
-        if (!tokenProvider.validateToken(tokenRequestDto.getAccessToken())){
-            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+
+    private String getTokenFromCookie(HttpServletRequest request){
+
+        String Refresh="";
+        if(request.getCookies()==null)
+            throw new ExpireRefreshTokenException();
+        else {
+            Refresh = Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equals("Refresh"))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+
+            if(Refresh==null){
+                throw new ExpireRefreshTokenException();
+            }
+
+            Refresh = Refresh.substring(6);
         }
 
-        // Access Token에서 User email을 가져온다
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+        return Refresh;
 
+    }
+    //로그인
+    @Transactional(readOnly = true)
+    public MemberInfoDTO login(LoginRequest loginRequest, HttpServletResponse response){
+        Member member = memberRepository.findMemberByEmail(loginRequest.getEmail()).orElseThrow(NotFoundMemberByEmailException::new);
+
+        if(!this.passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())){
+            throw new NotMatchPasswordException("비밀번호가 틀립니다.");
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken=
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
+
+        Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        TokenDTO tokenDTO =tokenProvider.createToken(response,authentication);
+        MemberInfoDTO memberInfoDTO=member.toMemberInfoDTO();
+        memberInfoDTO.addAccessToken(tokenDTO);
+
+
+        return memberInfoDTO;
+    }
+    @Transactional
+    public void logout(HttpServletRequest request, HttpServletResponse response){
+
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        System.out.println("next1");
+        String Access="";
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            Access=bearerToken.substring(6);
+        }
+
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = tokenProvider.getAuthentication(Access);
+        System.out.println("logoutldsfe");
         // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
         if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
             // Refresh Token을 삭제
             redisTemplate.delete("RT:"+authentication.getName());
         }
+        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+        SecurityContextHolder.clearContext();
 
 
         // 해당 Access Token 유효시간을 가지고 와서 BlackList에 저장하기
-        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
-        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(),"logout",expiration, TimeUnit.MILLISECONDS);
+        Long expiration = tokenProvider.getExpiration(Access);
+        redisTemplate.opsForValue().set(Access,"logout",expiration, TimeUnit.MILLISECONDS);
 
     }
 
@@ -325,10 +382,11 @@ public class MemberService {
             memberRepository.delete(member);
 
             //회원 탈퇴 후에도 토큰이 유효하기 때문에 jwt정보 제거 하고 로그아웃 처리해야 됨
-            SecurityContextHolder.clearContext();
-            TokenRequestDTO tokenRequestDTO=new TokenRequestDTO();
-            tokenRequestDTO.addTokenToMemberInfoDTO(deleteMemberRequest.getAccessToken(),deleteMemberRequest.getRefreshToken());
-            logout(tokenRequestDTO);
+            //TODO 회원 탈퇴 작업할 때 다시 수정
+//            SecurityContextHolder.clearContext();
+//            TokenRequestDTO tokenRequestDTO=new TokenRequestDTO();
+//            tokenRequestDTO.addTokenToMemberInfoDTO(deleteMemberRequest.getAccessToken(),deleteMemberRequest.getRefreshToken());
+//            logout(tokenRequestDTO);
 
             return "DELETE";
         }

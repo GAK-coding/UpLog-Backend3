@@ -118,6 +118,7 @@
 //                .name("제품")
 //                .masterEmail("meufavorr@naver.com")
 //                .link("asdfgg")
+//                .image("Product-image")
 //                .build();
 //    }
 //    private Authority getOrCreateAuthority(String authorityName) {
@@ -141,23 +142,24 @@
 //        memberRepository.save(company);
 //        memberRepository.save(member);
 //
+//        //프로덕트 생성
+//        Product product = createProductRequest().toProductEntity(company.getName(),company.getId(),company.getImage());
+//        productRepository.save(product);
+//
+//        //프로젝트생성
+//        Project project = createProject().toEntity(product);
+//        projectRepository.save(project);
+//        Team parentTeam = teamRepository.findByProjectIdAndName(project.getId(), project.getVersion()).orElseThrow(NotFoundIdException::new);
+//
 //        //프로덕트정보로 팀생성(마스터만 존재하는 팀)
-//        TeamDTO.CreateTeamRequest saveTeamRequest = TeamDTO.CreateTeamRequest.builder()
-//                .memberIdList()
+//        TeamDTO.CreateTeamRequest saveTeamRequest = TeamDTO.CreateTeamRequest()
+//                .memberIdList(parentTeam)
 //                .name(createProductRequest().getName())
 //                .memberEmail(createProductRequest().getMasterEmail())
 //                .link(createProductRequest().getLink())
 //                .build();
 //        Team team = saveTeamRequest.toEntity();
 //        teamRepository.save(team);
-//
-//        //프로덕트 생성
-//        Product product = createProductRequest().toProductEntity(company.getName(), team);
-//        productRepository.save(product);
-//
-//        //프로젝트생성
-//        Project project = createProject().toEntity(product);
-//        projectRepository.save(project);
 //
 //        CreateMenuRequest createMenuRequest = createMenuRequest();
 //

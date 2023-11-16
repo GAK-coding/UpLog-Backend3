@@ -1,8 +1,11 @@
 package com.uplog.uplog.domain.menu.application;
 
 import com.uplog.uplog.domain.comment.dao.CommentRepository;
+import org.springframework.data.domain.Sort;
 import com.uplog.uplog.domain.like.dao.PostLikeRepository;
 import com.uplog.uplog.domain.menu.dao.MenuRepository;
+import com.uplog.uplog.domain.task.model.TaskStatus;
+
 import com.uplog.uplog.domain.menu.dto.MenuDTO.*;
 import com.uplog.uplog.domain.menu.exception.*;
 import com.uplog.uplog.domain.menu.model.Menu;
@@ -25,15 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,7 +78,7 @@ public class MenuService {
     }
 
     @Transactional
-    public MenuInfoDTO createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {
+    public Long createMenu(Long projectId, @RequestBody CreateMenuRequest createMenuRequest) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(NotFoundIdException::new);
 
@@ -99,7 +98,7 @@ public class MenuService {
 
         Menu menu = createMenuRequest.toEntity(project);
         menuRepository.save(menu);
-        return menu.toMenuInfoDTO();
+        return menu.toMenuInfoDTO().getId();
     }
 
     /*
@@ -119,7 +118,7 @@ public class MenuService {
     UPDATE
      */
     @Transactional
-    public MenuInfoDTO updateMenuName(Long id, UpdateMenuNameRequest updateMenuNameRequest) {
+    public Long updateMenuName(Long id, UpdateMenuNameRequest updateMenuNameRequest) {
         Menu menu = menuRepository.findById(id).orElseThrow(NotFoundIdException::new);
 
         String updateName = updateMenuNameRequest.getUpdatemenuName();
@@ -142,25 +141,25 @@ public class MenuService {
         }
 
         menu.updateMenuName(updateMenuNameRequest.getUpdatemenuName());
-        return menu.toMenuInfoDTO();
+        return menu.toMenuInfoDTO().getId();
     }
 
     @Transactional
-    public MenuInfoDTO updateNoticePost(Long menuId, UpdateNoticePostRequest updateNoticePostRequest) {
+    public Long updateNoticePost(Long menuId, UpdateNoticePostRequest updateNoticePostRequest) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         Post post = postRepository.findById(updateNoticePostRequest.getUpdateNoticePostId()).orElseThrow(NotFoundTaskByIdException::new);
         if (!menuId.equals(post.getMenu().getId())) {
             throw new MenuUpdateNotAllowedException("해당 포스트의 메뉴아이디와 일치하지 않아서 공지글로 등록할 수 없습니다");
         }
         menu.updateNoticePost(post);
-        return menu.toMenuInfoDTO();
+        return menu.toMenuInfoDTO().getId();
     }
 
     @Transactional
-    public MenuInfoDTO deleteNoticePost(Long menuId) {
+    public String deleteNoticePost(Long menuId) {
         Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
         menu.updateNoticePost(null);
-        return menu.toMenuInfoDTO();
+        return "delete";
     }
 
 
@@ -198,12 +197,30 @@ public class MenuService {
                 .collect(Collectors.toList());
     }
 
+    //테스크 페이지네이션
     @Transactional(readOnly = true)
     public PagingTaskDTO findTasksByMenuIdWithPagination(Long menuId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         Page<Task> taskPage = taskService.findPageByMenuId(menuId, pageable);
 
+        //페이지=0일때만 테스크 길이(메뉴별 전중후 몇개인지) 합쳐서 보내고 0이 아니면 null로 길이 보내기
+        //int taskLength=0;
+        int progress_before=0;
+        int progress_in=0;
+        int progress_complete=0;
+        if(page==0){
+            //taskLength=taskService.findByTaskListLength(menuId);
+            Map<TaskStatus, Long> taskCountsByStatus = taskService.findTaskCountsByStatus(menuId);
+            progress_before = taskCountsByStatus.get(TaskStatus.PROGRESS_BEFORE).intValue();
+            progress_in = taskCountsByStatus.get(TaskStatus.PROGRESS_IN).intValue();
+            progress_complete = taskCountsByStatus.get(TaskStatus.PROGRESS_COMPLETE).intValue();
+
+        }
+
+
+
         boolean nextPage = taskPage.hasNext();
+
 
         List<TaskDTO.TaskInfoDTO> taskInfoDTOList = taskPage.getContent().stream()
                 .map(Task::toTaskInfoDTO)
@@ -212,7 +229,7 @@ public class MenuService {
         MenuInfoDTO menuInfoDTO = findMenuById(menuId);
         MenuTasksDTO menuTasksDTO = new MenuTasksDTO(menuInfoDTO, taskInfoDTOList);
 
-        return new PagingTaskDTO(nextPage, Collections.singletonList(menuTasksDTO));
+        return new PagingTaskDTO(nextPage,page,progress_before,progress_in,progress_complete, Collections.singletonList(menuTasksDTO));
     }
 
 
@@ -237,6 +254,46 @@ public class MenuService {
 //                .map(Post::toPostDetailInfoDTO())
 //                .collect(Collectors.toList());
     }
+    @Transactional(readOnly = true)
+    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, int page, int size) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
+        Post noticePost = menu.getNoticePost();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Post> postPage = postService.findPageByMenuId(menuId, pageable);
+        boolean nextPage = postPage.hasNext();
+
+        List<PostDTO.PostDetailInfoDTO> postInfoDTOs = new ArrayList<>();
+
+        for (Post post : postPage.getContent()) {
+            int likeCount = postLikeRepository.countByPostId(post.getId());
+            int commentCount = commentRepository.countByPostId(post.getId());
+
+            List<TagDTO.TagInfoDTO> postTags = new ArrayList<>();
+            for (PostTag pt : post.getPostTagList()) {
+                postTags.add(pt.getTag().toTagInfoDTO());
+            }
+
+            postInfoDTOs.add(post.toPostDetailInfoDTO(postTags, likeCount, commentCount));
+        }
+
+        MenuInfoDTO menuInfoDTO = menu.toMenuInfoDTO();
+
+        PostDTO.PostDetailInfoDTO noticePostDTO = null;
+        if (noticePost != null) {
+            int likeCount = postLikeRepository.countByPostId(noticePost.getId());
+            int commentCount = commentRepository.countByPostId(noticePost.getId());
+
+            List<TagDTO.TagInfoDTO> postTags = new ArrayList<>();
+            for (PostTag pt : noticePost.getPostTagList()) {
+                postTags.add(pt.getTag().toTagInfoDTO());
+            }
+
+            noticePostDTO = noticePost.toPostDetailInfoDTO(postTags, likeCount, commentCount);
+        }
+
+        return new PagingPostDTO(nextPage, page, menuInfoDTO, noticePostDTO, postInfoDTOs);
+    }
+
 
     @Transactional(readOnly = true)
     public MenuPostsDTO findPostsInfoByMenuId(Long menuId) {
@@ -273,22 +330,6 @@ public class MenuService {
         }
     }
 
-
-//    public PagingPostDTO findPostsByMenuIdWithPagination(Long menuId, Pageable pageable) {
-//        Menu menu = menuRepository.findById(menuId).orElseThrow(NotFoundIdException::new);
-//
-//        Page<Post> postPage = postService.findPagedPostsByMenuId(menuId, pageable);
-//        List<PostDTO.PostInfoDTO> postInfoDTOList = postPage.getContent().stream()
-//                .map(post -> post.toPostDetailInfoDTO())
-//                .collect(Collectors.toList());
-//
-//        Post noticePost = menu.getNoticePost();
-//        PostDTO.PostInfoDTO noticePostDTO = noticePost != null ? postService.toPostInfoDTO(noticePost) : null;
-//
-//        boolean nextPage = postPage.hasNext();
-//
-//        return new PagingPostDTO(nextPage, menu.toMenuInfoDTO(), noticePostDTO, postInfoDTOList);
-//    }
 
     }
 

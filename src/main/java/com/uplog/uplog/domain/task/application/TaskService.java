@@ -119,8 +119,8 @@ public class TaskService {
                                 task.getTargetMember().getId(),
                                 task.getTargetMember().getName(),
                                 task.getTargetMember().getImage(),
-                                task.getTargetMember().getNickname(),
-                                task.getTargetMember().getPosition()
+                                task.getTargetMember().getNickname()
+                             //   task.getTargetMember().getPosition()
 
                         ))
                         .menuId(menu.getId())
@@ -227,6 +227,28 @@ public class TaskService {
     public List<Task> findByMenuId(Long menuId) {
         List<Task> taskList = taskRepository.findByMenuId(menuId);
         return taskList;
+    }
+
+    public int findByTaskListLength(Long menuId) {
+        List<Task> taskList = taskRepository.findByMenuId(menuId);
+        return taskList.size();
+    }
+    public Map<TaskStatus, Long> findTaskCountsByStatus(Long menuId) {
+        List<Task> taskList = taskRepository.findByMenuId(menuId);
+
+        // 각 상태별 갯수를 저장할 Map 초기화
+        Map<TaskStatus, Long> taskCountsByStatus = new HashMap<>();
+        taskCountsByStatus.put(TaskStatus.PROGRESS_BEFORE, 0L);  // 전
+        taskCountsByStatus.put(TaskStatus.PROGRESS_IN, 0L);  // 중
+        taskCountsByStatus.put(TaskStatus.PROGRESS_COMPLETE, 0L);  // 후
+
+        for (Task task : taskList) {
+            TaskStatus status = task.getTaskStatus();
+            // 해당 테스크의 상태에 따라 갯수 증가
+            taskCountsByStatus.put(status, taskCountsByStatus.get(status) + 1);
+        }
+
+        return taskCountsByStatus;
     }
 
     @Transactional(readOnly = true)

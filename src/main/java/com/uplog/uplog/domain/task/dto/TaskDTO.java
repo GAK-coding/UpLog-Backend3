@@ -93,7 +93,7 @@ public class TaskDTO {
         private String taskDetail;
         private LocalDate startTime;
         private LocalDate endTime;
-        private Long taskIndex;
+        //private Long taskIndex;
     }
 
     @Getter
