@@ -26,6 +26,7 @@ public class MemberTeamCustomRepositoryImpl implements MemberTeamCustomRepositor
     private static final QMember member = QMember.member;
 
 
+    //멤버 아이디와 프로젝트 아이디로 팀 찾기
     @Override
     public List<MemberTeam> findMemberTeamsByMemberIdAndProjectId(Long memberId, Long projectId) {
         List<MemberTeam> meberTeamList = jpaQueryFactory

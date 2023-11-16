@@ -20,4 +20,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> findByMenuId(Long menuId, Pageable pageable);
     List<Task> findTaskByTaskStatusOrderByTaskIndex(TaskStatus taskStatus);
 
+    List<Task> findTasksByTargetMemberIdAndTeamId(Long memberId, Long teamId);
+    List<Task> findTasksByTargetMemberIdAndTeamIdAndTaskStatus(Long memberId, Long teamId, TaskStatus taskStatus);
+    int countTasksByTargetMemberIdAndTeamIdAndTaskStatus(Long memberId, Long teamId, TaskStatus taskStatus);
 }

@@ -11,6 +11,8 @@ import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.project.model.ProjectStatus;
+import com.uplog.uplog.domain.task.dao.TaskRepository;
+import com.uplog.uplog.domain.task.model.TaskStatus;
 import com.uplog.uplog.domain.team.dao.MemberTeamRepository;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
@@ -20,13 +22,13 @@ import com.uplog.uplog.domain.team.dto.memberTeamDTO.CreateMemberTeamRequest;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.MemberPowerDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.SimpleMemberPowerInfoDTO;
 import com.uplog.uplog.domain.team.dto.memberTeamDTO.TeamAndPowerTypeDTO;
+import com.uplog.uplog.domain.team.exception.CanNotDeleteMemberToTeam;
+import com.uplog.uplog.domain.team.exception.CanNotDeleteTeamException;
+import com.uplog.uplog.domain.team.exception.NotFoundMemberInTeamException;
 import com.uplog.uplog.domain.team.model.MemberTeam;
 import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
-import com.uplog.uplog.global.exception.AuthorityException;
-import com.uplog.uplog.global.exception.DepthException;
-import com.uplog.uplog.global.exception.DuplicatedNameException;
-import com.uplog.uplog.global.exception.NotFoundIdException;
+import com.uplog.uplog.global.exception.*;
 import com.uplog.uplog.global.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +48,7 @@ public class TeamService {
     private final ProjectRepository projectRepository;
     private final MemberTeamRepository memberTeamRepository;
     private final ProductMemberRepository productMemberRepository;
+    private final TaskRepository taskRepository;
 
 
     private final ProductMemberService productMemberService;
@@ -57,7 +60,8 @@ public class TeamService {
         createTeamRequest.getMemberIdList().add(currentMemberId);
         Project project = projectRepository.findById(projectId).orElseThrow(NotFoundIdException::new);
         //멤버가 현재 프로젝트에 속한사람인지 확인
-        Team rootTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(NotFoundIdException::new);
+        Team rootTeam = teamRepository.findByProjectIdAndName(projectId, project.getVersion()).orElseThrow(
+                ()->new NotFoundIdException("rootTeam의 객체를 찾을 수 없습니다."));
         if (!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(currentMemberId, rootTeam.getId())) {
             throw new AuthorityException("팀에 속하지 않은 멤버로, 팀 생성 권한이 없습니다.");
         }
@@ -70,7 +74,8 @@ public class TeamService {
         //생성 외에 부모가 널로 들어왔다면, 프로젝트 생성시에 만들어진 젠체 그룹으로 부모넣어주기
         if (createTeamRequest.getParentTeamId() != null) {
             List<Long> duplicatedMemberIdList = new ArrayList<>();
-            Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(NotFoundIdException::new);
+            Team parentTeam = teamRepository.findById(createTeamRequest.getParentTeamId()).orElseThrow(
+                    ()-> new NotFoundIdException("부모팀 객체를 찾을 수 없습니다."));
             //팀의 최대 depth는 2임. 부모가 2가 되면 안됨
             if(parentTeam.getDepth()==2){
                 throw new DepthException("팀의 최대 depth를 초과했습니다.");
@@ -277,22 +282,90 @@ public class TeamService {
 
     }
 
+
+//    @Transactional
+//    public String changeMemberToOtherTeam(UpdateMemberToOtherTeamRequest updateMemberToOtherTeamRequest){
+//
+//        return "Success";
+//    }
+
 //===================delete=======================================
     //멤버가 방출될 때.
     //이건 delete mapping 해야하기 때문에 productMember에서 해야함.
 
 
-    //리더가 권한을 위임하고 나갈 경우.
-
-
-
-    //TODO DELETE는 마스터만 가능하게? 기업도 가능하게 해야해? 우선 둘다 가능하게 함. -> 이건 나중에 고려
-    //근데 이게 프로덕트가 삭제되면 자동으로 삭제되는건가? -> 삭제 없음
+    //TODO 그룹 내에선 자발적으로 나가는것만 가능.태스크를 다 완료 하고 나가야함. memberTeam으로 바꿔야함.
+    //그룹 내에서 멤버 나가기
     @Transactional
-    public String deleteTeam(Long id) {
-        Team team = teamRepository.findById(id).orElseThrow(NotFoundIdException::new);
-        teamRepository.delete(team);
-        return "DELETE";
+    public Long deleteMemberToTeam(Long memberId, Long teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        List<Team> childTeamList = team.getChildTeamList();
+
+        //자기 자신만 나갈 수 있기 때문에 팀에 속하지 않을 경우 예외
+        if(!memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, teamId)){
+            throw new NotFoundMemberInTeamException();
+        }
+        else {
+            MemberTeam memberTeam = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(memberId, teamId).get();
+
+
+            int taskCount = taskRepository.findTasksByTargetMemberIdAndTeamId(memberId, teamId).size();
+            int completeTaskCount = taskRepository.countTasksByTargetMemberIdAndTeamIdAndTaskStatus(memberId, teamId, TaskStatus.PROGRESS_COMPLETE);
+
+            //task를 다 완료하지 않으면 나갈 수 없음.
+            if (taskCount != completeTaskCount) {
+                throw new CanNotDeleteMemberToTeam("task를 다 수행해야 나갈 수 있습니다.");
+            }
+            //자식팀 확인
+            for (Team t : childTeamList) {
+                if (memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, t.getId())) {
+                    int childTaskCount = taskRepository.findTasksByTargetMemberIdAndTeamId(memberId, t.getId()).size();
+                    int childCompleteTaskCount = taskRepository.countTasksByTargetMemberIdAndTeamIdAndTaskStatus(memberId, t.getId(), TaskStatus.PROGRESS_COMPLETE);
+
+                    if (childTaskCount != childCompleteTaskCount) {
+                        throw new CanNotDeleteMemberToTeam("하위 팀의 task를 다 수행해야 나갈 수 있습니다.");
+                    }
+                }
+
+            }
+
+            memberTeam.updateDelStatus(true);
+            for (Team t : childTeamList) {
+                if (memberTeamRepository.existsMemberTeamByMemberIdAndTeamId(memberId, t.getId())) {
+                    MemberTeam mt = memberTeamRepository.findMemberTeamByMemberIdAndTeamId(memberId, teamId).get();
+                    mt.updateDelStatus(true);
+                }
+            }
+        }
+
+        return teamId;
+    }
+
+    //그룹 삭제
+    //태스크가 없거나 하위 그룹이 없을 경우,
+    @Transactional
+    public Long deleteTeam(Long memberId, Long teamId){
+        Team team = teamRepository.findById(teamId).orElseThrow(NotFoundIdException::new);
+        Member member = memberRepository.findMemberById(memberId).orElseThrow(NotFoundIdException::new);
+
+        if(!team.getTaskList().isEmpty()){
+            throw new CanNotDeleteTeamException("task가 존재하기 때문에 팀을 삭제할 수 없습니다.");
+        }
+        else if(!team.getChildTeamList().isEmpty()){
+            throw new CanNotDeleteTeamException("하위 팀이 존재하기 때문에 팀을 삭제할 수 없습니다.");
+        }
+        else if(team.getTaskList().isEmpty() && team.getChildTeamList().isEmpty()){
+            List<MemberTeam> memberTeamList = memberTeamRepository.findMemberTeamsByTeamId(teamId);
+
+            for(MemberTeam mt : memberTeamList){
+                memberTeamRepository.delete(mt);
+            }
+            teamRepository.delete(team);
+        }
+
+
+
+        return team.getId();
     }
 
 }
