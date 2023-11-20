@@ -6,12 +6,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class TokenRequestDTO {
-    private String accessToken;
-    private String refreshToken;
 
-    public void addTokenToMemberInfoDTO(String accessToken,String refreshToken){
+    private String accessToken;
+    public void addTokenToMemberInfoDTO(String accessToken){
         this.accessToken=accessToken;
-        this.refreshToken=refreshToken;
 
     }
 }

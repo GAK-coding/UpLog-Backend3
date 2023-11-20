@@ -1,6 +1,6 @@
 package com.uplog.uplog.global.exception;
 
-public class ExpireAccessTokenException extends IllegalArgumentException {
+public class ExpireAccessTokenException extends RuntimeException {
 
 
     public ExpireAccessTokenException(String m){ super(m); }

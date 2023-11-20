@@ -76,9 +76,19 @@ public class TeamController {
         return ResponseEntity.ok(addMemberTeamResultDTO);
     }
     //===========delete==============================
-    @DeleteMapping(value = "/teams/{team-id}")
-    public ResponseEntity<String> deleteTeam(@PathVariable(name = "team-id")Long id){
-        String s = teamService.deleteTeam(id);
-        return new ResponseEntity<>(s, HttpStatus.OK);
+    //팀 내에서 멤버 나가기
+    @DeleteMapping(value = "/teams/{team-id}/member")
+    public ResponseEntity<Long> deleteMemberToTeam(@PathVariable(name = "team-id")Long teamId){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Long id = teamService.deleteMemberToTeam(memberId, teamId);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    //팀 삭제하기
+    @DeleteMapping(value = "/teams/{team-id}/team")
+    public ResponseEntity<Long> deleteTeam(@PathVariable(name = "team-id")Long teamId){
+        Long memberId= SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail).get().getId();
+        Long id = teamService.deleteTeam(memberId, teamId);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 }

@@ -1,9 +1,6 @@
 package com.uplog.uplog.global.config;
 
-import com.uplog.uplog.global.jwt.JwtAccessDeniedHandler;
-import com.uplog.uplog.global.jwt.JwtAuthenticationEntryPoint;
-import com.uplog.uplog.global.jwt.JwtSecurityConfig;
-import com.uplog.uplog.global.jwt.TokenProvider;
+import com.uplog.uplog.global.jwt.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -79,7 +76,8 @@ public class SecurityConfig {
 
         http
                 .authorizeRequests()
-                .antMatchers("/members/**").permitAll() // 해당 Request는 허용한다.
+                //.antMatchers("/members/**").permitAll() // 해당 Request는 허용한다.
+                .antMatchers("/members","/members/login","/members/refresh").permitAll()
                 //.antMatchers("/storages/**").permitAll() // 해당 Request는 허용한다.
                 .antMatchers("/api/v2/**","/health","/swagger-ui.html","/swagger/**",
                         "/swagger-resources/**","/webjars/**","/api-docs/**",
@@ -90,7 +88,8 @@ public class SecurityConfig {
 
         http
                 .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                //.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .accessDeniedHandler(jwtAccessDeniedHandler);
 
         //세션을 사용하지 않기 떄문에 STATELESS로 설정

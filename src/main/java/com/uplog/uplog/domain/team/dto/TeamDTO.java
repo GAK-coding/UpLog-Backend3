@@ -149,6 +149,16 @@ public class TeamDTO {
         private String link;
     }
 
+//    @Builder
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    @Getter
+//    public static class UpdateMemberToOtherTeamRequest{
+//        private Long memberId; //이걸 어떻게 해야하지???
+//        private Long oldTeamId;
+//        private Long newTeamId;
+//    }
+
     @Builder
     @Getter
     @AllArgsConstructor

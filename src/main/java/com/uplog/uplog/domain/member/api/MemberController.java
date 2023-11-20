@@ -34,8 +34,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import java.util.Optional;
 
 //TODO API 다시 경로 다시 설정!!!! 지금은 급해서 이렇게 올림
@@ -51,7 +53,6 @@ public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
-
     //=============================create=======================================
     @PostMapping(value = "/members")
     public ResponseEntity<MemberInfoDTO> createMember(@RequestBody @Validated CreateMemberRequest createMemberRequest){
@@ -62,39 +63,25 @@ public class MemberController {
     //로그인
     //security 로직 추가
     @PostMapping(value = "/members/login")
-    public ResponseEntity<MemberInfoDTO> longin(@RequestBody @Validated LoginRequest loginRequest){
+    public ResponseEntity<MemberInfoDTO> longin(HttpServletResponse response,@RequestBody @Validated LoginRequest loginRequest){
 
-        UsernamePasswordAuthenticationToken authenticationToken=
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword());
-
-
-        Authentication authentication=authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        TokenDTO tokenDTO =tokenProvider.createToken(authentication);
-
-        HttpHeaders httpHeaders=new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER,tokenDTO.getGrantType()+tokenDTO.getAccessToken());
-        MemberInfoDTO memberInfoDTO = memberService.login(loginRequest);
-        memberInfoDTO.addTokenToMemberInfoDTO(tokenDTO.getAccessToken(),tokenDTO.getRefreshToken());
-
-        return new ResponseEntity<>(memberInfoDTO,httpHeaders,HttpStatus.OK);
+        MemberInfoDTO memberInfoDTO = memberService.login(loginRequest,response);
+        return new ResponseEntity<>(memberInfoDTO,HttpStatus.OK);
     }
 
     @PostMapping("/members/logout")
-    public String logoutPage(HttpServletRequest request, HttpServletResponse response,
-                             @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
 
-        new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        SecurityContextHolder.clearContext();
-        memberService.logout(tokenRequestDTO);
+
+        memberService.logout(request,response);
 
         return "logout success";
     }
     //리프레시 토큰 만료 시
     @PostMapping("/members/refresh")
-    public ResponseEntity<TokenDTO> refresh(@RequestBody TokenRequestDTO tokenRequestDto) {
-        return ResponseEntity.ok(memberService.refresh(tokenRequestDto));
+    public ResponseEntity refresh(HttpServletRequest request,HttpServletResponse response, @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
+        TokenDTO tokenDTO=memberService.refresh(tokenRequestDTO,request,response);
+        return new ResponseEntity<>(tokenDTO,HttpStatus.OK);
     }
 
     // 토큰 Role user,admin
