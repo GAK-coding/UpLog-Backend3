@@ -14,13 +14,16 @@ import com.uplog.uplog.domain.post.dto.PostDTO;
 import com.uplog.uplog.domain.post.model.PostType;
 import com.uplog.uplog.domain.product.dao.ProductRepository;
 import com.uplog.uplog.domain.product.dto.ProductDTO;
+import com.uplog.uplog.domain.product.dto.ProductMemberDTO;
 import com.uplog.uplog.domain.product.model.Product;
+import com.uplog.uplog.domain.product.model.ProductMember;
 import com.uplog.uplog.domain.project.dao.ProjectRepository;
 import com.uplog.uplog.domain.project.dto.ProjectDTO;
 import com.uplog.uplog.domain.project.model.Project;
 import com.uplog.uplog.domain.team.application.TeamService;
 import com.uplog.uplog.domain.team.dao.TeamRepository;
 import com.uplog.uplog.domain.team.dto.TeamDTO;
+import com.uplog.uplog.domain.team.model.PowerType;
 import com.uplog.uplog.domain.team.model.Team;
 import com.uplog.uplog.global.exception.AuthorityException;
 import com.uplog.uplog.domain.member.model.Authority;
@@ -35,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.assertj.core.api.Assertions;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
@@ -107,6 +112,15 @@ public class PostServiceTest {
                 .projectId(1L)
                 .build();
     }
+
+    public ProductMemberDTO.CreateProductMemberRequest createProductMemberRequest(){
+        return ProductMemberDTO.CreateProductMemberRequest.builder()
+                .productId(1L)
+                .memberEmail("dd")
+                .powerType(PowerType.DEFAULT)
+                .link("dd")
+                .build();
+    }
 //    public TeamDTO.CreateTeamRequest createTeamRequest(){
 //        return TeamDTO.CreateTeamRequest.builder()
 //                .memberIdList()
@@ -134,7 +148,7 @@ public class PostServiceTest {
 //        teamRepository.save(team);
 
         //프로덕트 생성
-        Product product = createProductRequest().toProductEntity(company.getName(), team);
+        Product product = createProductRequest().toProductEntity(company.getName(), company.getId(),null);
         productRepository.save(product);
 
         //프로젝트생성
@@ -165,22 +179,22 @@ public class PostServiceTest {
         memberRepository.save(company);
         memberRepository.save(member);
 
-        //프로덕트정보로 팀생성(마스터만 존재하는 팀)
-        TeamDTO.CreateTeamRequest saveTeamRequest = TeamDTO.CreateTeamRequest.builder()
-                .teamName(createProductRequest().getName())
-                .memberEmail(createProductRequest().getMasterEmail())
-                .link(createProductRequest().getLink())
-                .build();
-        Team team = saveTeamRequest.toEntity();
-        teamRepository.save(team);
-
         //프로덕트 생성
-        Product product = createProductRequest().toProductEntity(company.getName(), team);
+        Product product = createProductRequest().toProductEntity(company.getName(), company.getId(),null);
         productRepository.save(product);
 
         //프로젝트생성
         Project project = createProject().toEntity(product);
         projectRepository.save(project);
+
+        //프로덕트정보로 팀생성(마스터만 존재하는 팀)
+        TeamDTO.CreateTeamRequest saveTeamRequest = TeamDTO.CreateTeamRequest.builder()
+                .memberIdList(Collections.singletonList(1L))
+                .parentTeamId(1L)
+                .link(createProductRequest().getLink())
+                .build();
+        Team team = saveTeamRequest.toEntity(project, null, 1);
+        teamRepository.save(team);
 
         //메뉴 생성
         Menu menu=createMenuRequest().toEntity(project);
@@ -188,13 +202,14 @@ public class PostServiceTest {
 
         //포스트 생성
         PostDTO.CreatePostRequest createPostRequest = createpostRequest();
-        PostDTO.PostInfoDTO postInfoDTO = postService.createPost(member.getId(), createPostRequest);
+//        PostDTO.PostInfoDTO postInfoDTO = postService.createPost(member.getId(), createPostRequest);
+        Long postId = postService.createPost(member.getId(), createPostRequest);
 
         // WHEN: 포스트 삭제
-        postService.deletePost(postInfoDTO.getId());
+        postService.deletePost(postId,member.getId());
 
         // THEN: 포스트가 삭제되었는지 확인
-        Assertions.assertThat(postRepository.existsById(postInfoDTO.getId()));
+        Assertions.assertThat(postRepository.existsById(postId));
     }
 
     @Test
@@ -342,7 +357,8 @@ public class PostServiceTest {
 
         //포스트 생성
         PostDTO.CreatePostRequest createPostRequest = createpostRequest();
-        PostDTO.PostInfoDTO postInfoDTO = postService.createPost(member.getId(), createPostRequest);
+//        PostDTO.PostInfoDTO postInfoDTO = postService.createPost(member.getId(), createPostRequest);
+        Long postId = postService.createPost(member.getId(), createPostRequest);
 
         String updatedTitle = "수정된 제목";
 
@@ -355,7 +371,7 @@ public class PostServiceTest {
 
         // THEN: 권한 없어서 예외
         Assertions.assertThatExceptionOfType(AuthorityException.class)
-                .isThrownBy(() -> postService.updatePostTitle(postInfoDTO.getId(), updatePostTitleRequest, anotherUserId))
+                .isThrownBy(() -> postService.updatePostTitle(postId, updatePostTitleRequest, anotherUserId))
                 .withMessage("작성자와 일치하지 않아 수정 권한이 없습니다.");
     }
     //두가지방식 다 가능 위에가 더 간단해서 위에껄로 통일함
