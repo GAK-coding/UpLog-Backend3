@@ -12,6 +12,8 @@ import com.uplog.uplog.domain.team.dto.memberTeamDTO;
 import com.uplog.uplog.global.error.ErrorResponse;
 import org.assertj.core.api.Assertions;
 import org.hibernate.sql.Update;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,10 +103,12 @@ public class MemberServiceTest {
         Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
         Assertions.assertThat(member.getNickname()).isEqualTo("옹심이");
     }
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Test
     @DisplayName("member 수정 성공 테스트 : 비밀번호 변경")
     public void successChangePwdTest(){
+
         //given
         CreateMemberRequest createMemberRequest = createMemberRequest();
         MemberInfoDTO memberInfoDTO = memberService.createMember(createMemberRequest);
@@ -116,10 +120,10 @@ public class MemberServiceTest {
                 .build();
         memberService.updateMemberPassword(memberInfoDTO.getId(), updatePasswordRequest);
 
-
         //then
         Member member = memberRepository.findMemberById(memberInfoDTO.getId()).get();
-        Assertions.assertThat(member.getPassword()).isEqualTo("13579973");
+        // PasswordEncoder를 사용하여 새로운 비밀번호를 암호화하여 저장된 비밀번호와 비교
+        Assertions.assertThat(passwordEncoder.matches(updatePasswordRequest.getNewPassword(), member.getPassword())).isTrue();
     }
 
     @Test
